@@ -15,34 +15,41 @@ const styles = {
   top-0
   z-50
   bg-zinc-900
-  p-4`,
+  p-4
+  `,
 
   titleContainer: `
   flex
   justify-between
-  items-center`,
+  items-center
+  `,
 
   title: `
   text-3xl
   text-white
-  font-thin`,
+  font-bold
+  `,
 
   userMenu: `
-  relative`,
+  relative
+  `,
 
   avatarContainer: `
   cursor-pointer
   hover:opacity-80
-  transition-opacity`,
+  transition-opacity
+  `,
 
   avatarFallback: `
   bg-zinc-700
-  text-zinc-200`,
+  text-zinc-200
+  `,
 
   dropdownItem: `
   text-zinc-200
   cursor-pointer
-  hover:bg-zinc-700`
+  hover:bg-zinc-700
+  `
 };
 
 const Header: React.FC = () => {
