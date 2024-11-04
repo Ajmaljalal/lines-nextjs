@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 // import { useChat } from '../contexts/ChatContext';
 
 const styles = {
-  container: 'w-full max-w-4xl sm:mb-8',
+  container: 'w-full max-w-4xl sm:mb-4',
   inputContainer: 'relative flex items-end',
   button: 'absolute w-8 h-8 right-2 bottom-2 bg-zinc-700 rounded-[8px] hover:bg-zinc-600',
   textarea: `
@@ -50,6 +50,13 @@ const InputContainer: React.FC = () => {
     // Auto-adjust height
     e.target.style.height = 'auto';
     e.target.style.height = `${Math.min(e.target.scrollHeight, 550)}px`;
+    // Add a small delay to ensure DOM has updated
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
 
   return (

@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  scrollbar-width: none;
+}
+
 :root {
   --background: 0 0% 0%;
   --foreground: 0 0% 98%;
@@ -19,4 +23,11 @@
 body {
   background-color: rgb(var(--background));
   color: rgb(var(--foreground));
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100vh;
+}
+
+#__next {
+  height: 100%;
 }
