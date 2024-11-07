@@ -93,9 +93,10 @@ const ChatContainer: React.FC = () => {
             <Card
               key={msg.id}
               className={`
-                px-4 
-                py-1
-                bg-zinc-800
+                px-6 
+                py-3
+                rounded-[30px]
+                ${msg.sender === 'ai' ? 'bg-zinc-900' : 'bg-zinc-800'}
                 ${msg.sender === 'ai' ? 'self-start' : 'self-end'}
                 `}
             >
