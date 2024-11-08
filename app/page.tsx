@@ -13,7 +13,8 @@ const styles = {
   items-center 
   justify-items-center 
   min-h-screen
-  p-4 
+  p-4
+  pb-0
   gap-16 
   font-[var(--font-geist-sans)] 
   bg-zinc-900

@@ -10,9 +10,9 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 
 const styles = {
-  container: 'w-full max-w-4xl sm:mb-4 fixed bottom-0',
-  inputContainer: 'relative flex items-end',
-  button: 'absolute w-8 h-8 right-2 bottom-2 bg-zinc-700 rounded-[8px] hover:bg-zinc-600',
+  container: 'w-full max-w-4xl fixed bottom-0 min-h-[130px] bg-zinc-900',
+  inputContainer: 'relative flex',
+  button: 'absolute w-8 h-8 right-2 top-2 bg-zinc-700 rounded-[8px] hover:bg-zinc-600',
   textarea: `
   w-full 
   bg-zinc-800 
@@ -26,7 +26,7 @@ const styles = {
   rounded-[8px] 
   border 
   border-zinc-700 
-  min-h-[44px]
+  min-h-[100px]
   max-h-[150px] 
   sm:max-h-[450px] 
   resize-none
@@ -35,7 +35,7 @@ const styles = {
 
 const InputContainer: React.FC = () => {
   const [input, setInput] = useState('');
-  const { addMessage, loading } = useChat();
+  const { addMessage, isSending } = useChat();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,22 +69,27 @@ const InputContainer: React.FC = () => {
 
   const sendMessage = async () => {
     const message = input?.trim();
-    if (message === '' || loading) return;
+    if (message === '' || isSending) return;
 
     const conversationIdFromParams = searchParams.get('conversation') || undefined;
-    const result = await addMessage({ text: message, conversationId: conversationIdFromParams });
-    setInput('');
+    try {
+      const result = await addMessage({ text: message, conversationId: conversationIdFromParams });
+      setInput('');
 
-    if (!result) return;
-    if (!conversationIdFromParams) {
-      router.push(`${pathname.split('?')[0]}?conversation=${result.conversationId}`);
-    }
+      if (!result) return;
+      if (!conversationIdFromParams) {
+        router.push(`${pathname.split('?')[0]}?conversation=${result.conversationId}`);
+      }
 
-    // Reset textarea height after sending
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '44px';
+      // Reset textarea height after sending
+      if (textareaRef.current) {
+        textareaRef.current.style.height = '44px';
+      }
+      scrollToBottom();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Optionally, show an error message to the user
     }
-    scrollToBottom();
   };
 
   // Adjust height on initial render and window resize
@@ -114,12 +119,12 @@ const InputContainer: React.FC = () => {
             }
           }}
           className={styles.textarea}
-          disabled={loading}
+          disabled={isSending}
         />
         <Button
           onClick={sendMessage}
           className={styles.button}
-          disabled={loading}
+          disabled={isSending}
         >
           <ArrowUp className="w-4 h-4" />
         </Button>

@@ -1,34 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { db } from '@/config/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import {
   collection,
   addDoc,
   query,
-  where,
   orderBy,
   onSnapshot,
   Timestamp,
-  DocumentData,
   setDoc,
   doc
 } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
-import { getInitialNewsletterPlan } from '@/types/newsletter';
+import { getInitialNewsletterPlan, MessageRole } from '@/types/newsletter';
 import { getInitialNewsletterConversation } from '@/types/newsletter';
 
 export interface Message {
   id: string;
-  text: string;
+  content: string;
   createdAt: Timestamp;
   userId: string;
-  sender: string;
+  role: MessageRole;
 }
 
 export function useChat() {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [newsletterPlanId, setNewsletterPlanId] = useState<string | undefined>(undefined);
 
@@ -54,19 +53,27 @@ export function useChat() {
   const subscribeToMessages = useCallback((conversationId: string) => {
     if (!user) return;
 
+    setIsFetching(true);
+
     const q = query(
       collection(db, `newsletter_conversations/${conversationId}/messages`),
       orderBy('createdAt', 'asc')
     );
 
-    return onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const newMessages = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Message[];
-      console.log('newMessages', newMessages);
       setMessages(newMessages);
+
+      setIsFetching(false);
+    }, (error) => {
+      console.error('Error fetching messages:', error);
+      setIsFetching(false);
     });
+
+    return unsubscribe;
   }, [user]);
 
   // Add a new message
@@ -79,27 +86,36 @@ export function useChat() {
   }) => {
     if (!user) return;
 
-    let newsletterPlanId: string | undefined;
+    setIsSending(true);
 
+    let newsletterPlanId: string | undefined;
 
     try {
       // If newsletter conversation id is not provided, create a new newsletter plan and conversation
       if (!conversationId) {
-        const result = await initiatNewsletterPlan();;
-        if (!result) return;
+        const result = await initiatNewsletterPlan();
+        if (!result) {
+          setIsSending(false);
+          return;
+        }
 
         const { newsletterPlanId: planId, newsletterConversationId } = result;
-        if (!planId || !newsletterConversationId) return;
+        if (!planId || !newsletterConversationId) {
+          setIsSending(false);
+          return;
+        }
 
         newsletterPlanId = planId;
         conversationId = newsletterConversationId;
       }
+
       await addDoc(collection(db, `newsletter_conversations/${conversationId}/messages`), {
-        text,
+        content: text,
         userId: user.uid,
         createdAt: Timestamp.now(),
-        sender: 'user',
+        role: MessageRole.USER,
       });
+
       return {
         success: true,
         conversationId,
@@ -108,12 +124,23 @@ export function useChat() {
     } catch (error) {
       console.error('Error adding message:', error);
       throw error;
+    } finally {
+      setIsSending(false);
     }
   };
 
+  useEffect(() => {
+    if (!conversationId) return;
+    const unsubscribe = subscribeToMessages(conversationId);
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [subscribeToMessages, conversationId]);
+
   return {
     messages,
-    loading,
+    isSending,
+    isFetching,
     addMessage,
     subscribeToMessages,
     conversationId,

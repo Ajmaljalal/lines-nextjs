@@ -4,7 +4,8 @@ import React, { useEffect } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { Card } from './ui/card';
 import WelcomeMessage from './WelcomeMessage';
-import { usePathname, useRouter, useSearchParams } from 'next/dist/client/components/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { MessageRole } from '@/types/newsletter';
 
 const styles = {
   container: `
@@ -15,7 +16,7 @@ const styles = {
   gap-6
   overflow-y-auto
   pt-40
-  pb-20
+  pb-[200px]
   `,
 
   title: `
@@ -54,7 +55,7 @@ const styles = {
 };
 
 const ChatContainer: React.FC = () => {
-  const { messages, addMessage, loading, subscribeToMessages } = useChat();
+  const { messages, isFetching, subscribeToMessages, addMessage } = useChat();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -76,12 +77,17 @@ const ChatContainer: React.FC = () => {
   }, [messages]);
 
   const handleExampleClick = async (text: string) => {
-    const result = await addMessage({ text, conversationId });
-    if (!result) return;
-    router.push(`${pathname.split('?')[0]}?conversation=${result.conversationId}`);
+    try {
+      const result = await addMessage({ text, conversationId });
+      if (!result) return;
+      router.push(`${pathname.split('?')[0]}?conversation=${result.conversationId}`);
+    } catch (error) {
+      console.error('Error handling example click:', error);
+      // Optionally, show an error message to the user
+    }
+  }
 
-  };
-
+  console.log('isFetching', isFetching);
 
   return (
     <div className={styles.container}>
@@ -96,25 +102,25 @@ const ChatContainer: React.FC = () => {
                 px-6 
                 py-3
                 rounded-[30px]
-                ${msg.sender === 'ai' ? 'bg-zinc-900' : 'bg-zinc-800'}
-                ${msg.sender === 'ai' ? 'self-start' : 'self-end'}
+                ${msg.role === MessageRole.AI ? 'bg-zinc-900' : 'bg-zinc-800'}
+                ${msg.role === MessageRole.AI ? 'self-start' : 'self-end'}
                 `}
             >
-              {msg.sender === 'ai' ? (
-                <div dangerouslySetInnerHTML={{ __html: msg.text }}></div>
+              {msg.role === MessageRole.AI ? (
+                <div dangerouslySetInnerHTML={{ __html: msg.content }}></div>
               ) : (
-                <p>{msg.text}</p>
+                <p>{msg.content}</p>
               )}
             </Card>
           ))}
-          {loading && (
-            <div className="flex justify-center">
+          {isFetching && (
+            <Card className="self-start px-6 py-3 rounded-[30px] bg-zinc-900">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                 <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                 <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"></div>
               </div>
-            </div>
+            </Card>
           )}
         </div>
       )}

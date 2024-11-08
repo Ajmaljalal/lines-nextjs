@@ -16,6 +16,9 @@ const styles = {
   z-50
   bg-zinc-900
   p-4
+  border-b
+  border-zinc-800
+
   `,
 
   titleContainer: `
