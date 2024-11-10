@@ -76,11 +76,11 @@ export interface NewsletterPlan {
       status: StepStatus;
       content: string;
     };
-    step_5_draft_html: {
+    step_5_newsletter_html_structure: {
       instructions_for_AI: string;
       required: boolean;
       status: StepStatus;
-      htmlStructure: string;
+      html_structure: string;
     };
     step_6_recipients: {
       instructions_for_AI: string;
@@ -95,17 +95,11 @@ export interface NewsletterConversation {
   id: string;
   newsletterPlanId: string;
   messages?: Message[];
-  context: {
-    currentStep: NewsletterStep;
-    purpose: string;
-    relevantContent?: string;
-  };
-  metadata: {
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    status: 'active' | 'completed';
-  };
+  userId: string;
+  currentStep: NewsletterStep;
+  createdAt: Date;
+  updatedAt: Date;
+  status: 'active' | 'completed';
 }
 
 export const getInitialNewsletterPlan = ({
@@ -149,11 +143,11 @@ export const getInitialNewsletterPlan = ({
         status: StepStatus.NOT_STARTED,
         content: '',
       },
-      step_5_draft_html: {
+      step_5_newsletter_html_structure: {
         instructions_for_AI: 'In this step, ask the user to provide a general idea of what the HTML should look like for the newsletter. You can ask for specific styles, fonts, colors, etc. You can suggest some ideas if the user does not provide any.',
         required: true,
         status: StepStatus.NOT_STARTED,
-        htmlStructure: '',
+        html_structure: '',
       },
       step_6_recipients: {
         instructions_for_AI: 'In this step, ask the user to provide a list of recipients for the newsletter. You can ask for specific details like email addresses, names, etc.',
@@ -177,16 +171,12 @@ export const getInitialNewsletterConversation = ({
   return {
     id: conversationId,
     newsletterPlanId: newsletterPlanId,
-    context: {
-      currentStep: NewsletterStep.TOPIC,
-      purpose: '',
-    },
-    metadata: {
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: userId,
-      status: 'active',
-    },
+    currentStep: NewsletterStep.TOPIC,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userId: userId,
+    status: 'active',
+
   }
 }
 
