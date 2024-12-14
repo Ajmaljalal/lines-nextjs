@@ -7,15 +7,15 @@ import { Button } from './ui/button';
 const styles = {
   column: `
     w-1/6
-    min-w-[300px]
-    max-w-[500px]
-    rounded-lg
+    min-w-[350px]
+    rounded-[10px]
     p-4
     overflow-y-auto
     transition-all
     duration-300
     border
-    border-zinc-700
+    border-zinc-800
+    bg-zinc-800/50
     relative`,
 
   columnCollapsed: `
@@ -125,33 +125,33 @@ const NewsletterForm: React.FC = () => {
           <X className="w-4 h-4" />
         </Button>
 
-        <div className={styles.formGroup}>
-          <Input
-            className={styles.input}
-            placeholder="Enter the main topic..."
-          />
-        </div>
+        {/* <div className={styles.formGroup}> */}
+        <Input
+          className={styles.input}
+          placeholder="Enter the main newsletter/email topic..."
+        />
+        {/* </div> */}
 
-        <div className={styles.formGroup}>
-          <Textarea
-            className={styles.textarea}
-            placeholder="Enter your newsletter content..."
-          />
-        </div>
+        {/* <div className={styles.formGroup}> */}
+        <Textarea
+          className={styles.textarea}
+          placeholder="Enter your newsletter content..."
+        />
+        {/* </div> */}
 
-        <div className={styles.formGroup}>
-          <Textarea
-            className={styles.textarea}
-            placeholder="Enter URLs to extract content from..."
-          />
-        </div>
+        {/* <div className={styles.formGroup}> */}
+        <Textarea
+          className={styles.textarea}
+          placeholder="Enter URLs to extract content from..."
+        />
+        {/* </div> */}
 
-        <div className={styles.formGroup}>
-          <Textarea
-            className={styles.textarea}
-            placeholder="Describe your preferred style, theme, and colors..."
-          />
-        </div>
+        {/* <div className={styles.formGroup}> */}
+        <Textarea
+          className={styles.textarea}
+          placeholder="Describe your preferred style, theme, and colors..."
+        />
+        {/* </div> */}
       </div>
     </div>
   );
