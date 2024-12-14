@@ -1,59 +1,55 @@
-'use client';
-import React, { useEffect } from 'react';
+'use client'
+
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '../components/Header';
 import ChatContainer from '../components/ChatContainer';
-import NewsletterForm from '../components/NewsletterForm';
-import NewsletterPreview from '../components/NewsletterPreview';
-import { testRouterAgent } from '@/test_router';
-
+import StepsIndicator, { NewsletterStep } from '../components/StepsIndicator';
+import MainContent from '../components/MainContent';
 const styles = {
   container: `
     flex
     flex-col
-    items-center 
-    p-4
-    pb-0
-    gap-16 
+    h-screen
+    overflow-hidden
     font-[var(--font-geist-sans)] 
     bg-zinc-900
-    overflow-hidden
     text-zinc-200
-    relative
     `,
 
   main: `
     flex
-    h-[calc(100vh-180px)]
+    h-[calc(100vh-80px)]
     gap-4
-    items-start
+    p-4
     w-full
     max-w-[1920px]
-    mt-4
+    mx-auto
+    mt-20
+    overflow-hidden
+    `,
+
+  leftColumn: `
+    w-[280px]
+    min-w-[280px]
     `,
 
   middleColumn: `
-    w-full
-    rounded-lg
-    p-4
-    h-full
-    overflow-y-auto`,
+    flex-1
+    min-w-0
+    `,
 
-  leftColumn: `
-    max-w-[500px]
-    w-full
-    bg-zinc-800/50
-    rounded-[10px]
-    h-full
-    overflow-y-auto
-    flex
-    flex-col`
+  rightColumn: `
+    w-[400px]
+    min-w-[400px]
+    `
 };
 
 const Home: React.FC = () => {
   const { user } = useAuth();
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState<NewsletterStep>(NewsletterStep.TOPIC);
 
   useEffect(() => {
     if (!user) {
@@ -63,16 +59,22 @@ const Home: React.FC = () => {
 
   if (!user) return null;
 
+  const handleStepClick = (step: NewsletterStep) => {
+    setCurrentStep(step);
+  };
+
   return (
     <div className={styles.container}>
       <Header />
-      <NewsletterForm />
       <main className={styles.main}>
         <div className={styles.leftColumn}>
-          <ChatContainer />
+          <StepsIndicator currentStep={currentStep} onStepClick={handleStepClick} />
         </div>
         <div className={styles.middleColumn}>
-          <NewsletterPreview />
+          <MainContent currentStep={currentStep} />
+        </div>
+        <div className={styles.rightColumn}>
+          <ChatContainer />
         </div>
       </main>
     </div>

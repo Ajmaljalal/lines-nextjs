@@ -12,20 +12,20 @@ const styles = {
   wrapper: `
     h-full
     flex
-    overflow-y-scroll
-    flex-col`,
+    flex-col
+    relative`,
 
   container: `
     w-full
-    flex-1
+    h-full
     flex
     flex-col
     items-center
     gap-6
-
+    overflow-y-auto
     px-4
-    pt-40
-    pb-[200px]`,
+    pt-4
+    pb-[160px]`,
 
   messageContainer: `
     w-full
@@ -36,21 +36,18 @@ const styles = {
     flex-col`,
 
   inputArea: `
-    fixed
+    absolute
     bottom-0
     left-0
+    right-0
     z-10
-    flex
-    justify-end
     bg-zinc-900/80
     backdrop-blur-sm
-    w-full
-    lg:w-[535px]
-    `,
+    border-t
+    border-zinc-800`,
 
   inputWrapper: `
     w-full
-    lg:w-[535px]
     p-4`
 };
 
