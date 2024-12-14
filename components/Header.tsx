@@ -10,15 +10,14 @@ import { Button } from './ui/button';
 const styles = {
   container: `
   w-full
-  max-w-6xl
   fixed
   top-0
   z-50
   bg-zinc-900
-  p-4
+  px-8
+  py-4
   border-b
   border-zinc-800
-
   `,
 
   titleContainer: `

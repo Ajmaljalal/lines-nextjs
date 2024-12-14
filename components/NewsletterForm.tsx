@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
-import { ChevronRight, X } from 'lucide-react';
+import { ChevronRight, X, Settings } from 'lucide-react';
 import { Button } from './ui/button';
 
 const styles = {
@@ -11,10 +11,11 @@ const styles = {
     max-w-[500px]
     rounded-lg
     p-4
-    h-[calc(100vh-180px)]
     overflow-y-auto
     transition-all
     duration-300
+    border
+    border-zinc-700
     relative`,
 
   columnCollapsed: `
@@ -22,7 +23,6 @@ const styles = {
     min-w-[48px]
     rounded-lg
     p-2
-    h-[calc(100vh-180px)]
     overflow-hidden
     transition-all
     duration-300
@@ -106,7 +106,7 @@ const NewsletterForm: React.FC = () => {
             className={styles.collapsedToggleButton}
             onClick={toggleCollapse}
           >
-            <ChevronRight className="w-4 h-4" />
+            <Settings className="w-4 h-4" />
           </Button>
         </div>
       </div>

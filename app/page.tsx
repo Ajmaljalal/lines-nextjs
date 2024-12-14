@@ -12,7 +12,6 @@ const styles = {
     flex
     flex-col
     items-center 
-    min-h-screen
     p-4
     pb-0
     gap-16 
@@ -23,6 +22,7 @@ const styles = {
 
   main: `
     flex
+    h-[calc(100vh-180px)]
     gap-4
     items-start
     w-full
@@ -33,7 +33,7 @@ const styles = {
     w-full
     rounded-lg
     p-4
-    h-[calc(100vh-180px)]
+    h-full
     overflow-y-auto`,
 
   rightColumn: `
@@ -41,8 +41,8 @@ const styles = {
     min-w-[400px]
     bg-zinc-800/50
     rounded-lg
-    h-[calc(100vh-180px)]
-    overflow-hidden
+    h-full
+    overflow-y-auto
     flex
     flex-col`
 };

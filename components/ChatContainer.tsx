@@ -12,6 +12,7 @@ const styles = {
   wrapper: `
     h-full
     flex
+    overflow-y-scroll
     flex-col`,
 
   container: `
@@ -21,7 +22,7 @@ const styles = {
     flex-col
     items-center
     gap-6
-    overflow-y-auto
+
     px-4
     pt-40
     pb-[200px]`,
