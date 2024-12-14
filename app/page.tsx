@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import ChatContainer from '../components/ChatContainer';
 import NewsletterForm from '../components/NewsletterForm';
 import NewsletterPreview from '../components/NewsletterPreview';
+import { testRouterAgent } from '@/test_router';
 
 const styles = {
   container: `
