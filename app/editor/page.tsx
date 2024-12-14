@@ -63,6 +63,20 @@ const Home: React.FC = () => {
     setCurrentStep(step);
   };
 
+  const handleStepComplete = () => {
+    const steps = [
+      NewsletterStep.TOPIC,
+      NewsletterStep.CONTENT,
+      NewsletterStep.DESIGN,
+      NewsletterStep.SEND,
+    ];
+
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1]);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Header />
@@ -71,7 +85,7 @@ const Home: React.FC = () => {
           <StepsIndicator currentStep={currentStep} onStepClick={handleStepClick} />
         </div>
         <div className={styles.middleColumn}>
-          <MainContent currentStep={currentStep} />
+          <MainContent currentStep={currentStep} onStepComplete={handleStepComplete} />
         </div>
         <div className={styles.rightColumn}>
           <ChatContainer />

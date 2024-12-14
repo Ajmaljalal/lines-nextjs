@@ -1,5 +1,6 @@
 // components/PreviewSection.tsx
 import React from 'react';
+import { Button } from './ui/button';
 
 const styles = {
   container: `
@@ -9,12 +10,34 @@ const styles = {
     justify-center
     text-zinc-400
     text-sm`,
+  footer: `
+    mt-8
+    flex
+    justify-end
+  `,
+  button: `
+    bg-orange-500
+    hover:bg-orange-600
+    text-white
+  `,
 };
 
-const NewsletterPreview: React.FC = () => {
+interface NewsletterPreviewProps {
+  onComplete: () => void;
+}
+
+const NewsletterPreview: React.FC<NewsletterPreviewProps> = ({ onComplete }) => {
   return (
     <div className={styles.container}>
-      Newsletter preview will appear here
+      <div>Newsletter preview will appear here</div>
+      <div className={styles.footer}>
+        <Button
+          className={styles.button}
+          onClick={onComplete}
+        >
+          Mark as Complete
+        </Button>
+      </div>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { Button } from './ui/button';
 
 const styles = {
   container: `
@@ -45,9 +46,23 @@ const styles = {
     transition-colors
     duration-200
   `,
+  footer: `
+    mt-8
+    flex
+    justify-end
+  `,
+  button: `
+    bg-orange-500
+    hover:bg-orange-600
+    text-white
+  `,
 };
 
-const NewsletterForm: React.FC = () => {
+interface NewsletterFormProps {
+  onComplete: () => void;
+}
+
+const NewsletterForm: React.FC<NewsletterFormProps> = ({ onComplete }) => {
   const [topic, setTopic] = useState('');
   const [content, setContent] = useState('');
   const [urls, setUrls] = useState('');
@@ -96,6 +111,15 @@ const NewsletterForm: React.FC = () => {
           value={style}
           onChange={(e) => setStyle(e.target.value)}
         />
+      </div>
+
+      <div className={styles.footer}>
+        <Button
+          className={styles.button}
+          onClick={onComplete}
+        >
+          Mark as Complete
+        </Button>
       </div>
     </div>
   );

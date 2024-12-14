@@ -60,10 +60,10 @@ const styles = {
 
 const StepsIndicator: React.FC<StepIndicatorProps> = ({ currentStep, onStepClick }) => {
   const steps = [
-    { id: NewsletterStep.TOPIC, label: 'Topic Selection' },
+    { id: NewsletterStep.TOPIC, label: 'Topic & Resources' },
     { id: NewsletterStep.CONTENT, label: 'Content Drafting' },
-    { id: NewsletterStep.DESIGN, label: 'Design & Edit' },
-    { id: NewsletterStep.SEND, label: 'Send Newsletter' },
+    { id: NewsletterStep.DESIGN, label: 'Design & Editing' },
+    { id: NewsletterStep.SEND, label: 'Sending' },
   ];
 
   const getStepStatus = (stepId: NewsletterStep) => {
