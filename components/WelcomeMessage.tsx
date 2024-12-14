@@ -1,4 +1,3 @@
-
 const styles = {
   container: `
   w-full
@@ -28,18 +27,36 @@ const styles = {
   exampleQuery: `
   bg-zinc-800 
   hover:bg-zinc-700 
-  transition-colors 
+  transition-colors
+  text-zinc-400
   p-4 
-  rounded-lg 
+  rounded-[10px] 
   cursor-pointer 
   flex 
   items-center 
   gap-3`,
+
+  startNewButton: `
+  mt-8 
+  px-6 
+  py-3 
+  bg-zinc-800
+  font-geist-mono
+  font-bold
+  text-2xl
+  hover:bg-zinc-700 
+  transition-colors 
+  rounded-[10px] 
+  text-white 
+  font-medium`,
 };
 
-const WelcomeMessage: React.FC<{ handleExampleClick: (query: string) => void }> = ({ handleExampleClick }) => {
+const WelcomeMessage: React.FC<{ handleExampleClick: (query: string) => void; onStartNew: () => void }> = ({
+  handleExampleClick,
+  onStartNew
+}) => {
   return (
-    <>
+    <div className={styles.container}>
       <h1 className={styles.title}>Welcome!</h1>
       <h3 className={styles.subtitle}>
         I am your assistant in generating beautifully designed emails & newsletters.
@@ -52,26 +69,32 @@ const WelcomeMessage: React.FC<{ handleExampleClick: (query: string) => void }> 
             className={styles.exampleQuery}
             onClick={() => handleExampleClick('Create a tech newsletter about AI and machine learning developments')}
           >
-            <span className="text-zinc-300">💡</span>
-            <span>Create a tech newsletter about AI and machine learning developments</span>
+            <span className="text-zinc-500">💡</span>
+            <span>Create a tech newsletter about AI developments</span>
           </div>
           <div
             className={styles.exampleQuery}
             onClick={() => handleExampleClick('Generate a weekly summary newsletter on climate change news')}
           >
-            <span className="text-zinc-300">💡</span>
+            <span className="text-zinc-500">💡</span>
             <span>Generate a weekly summary newsletter on climate change news</span>
           </div>
           <div
             className={styles.exampleQuery}
             onClick={() => handleExampleClick('Make a newsletter about startup funding rounds for this week')}
           >
-            <span className="text-zinc-300">💡</span>
+            <span className="text-zinc-500">💡</span>
             <span>Make a newsletter about startup funding rounds for this week</span>
           </div>
         </div>
       </div>
-    </>
+      <button
+        onClick={onStartNew}
+        className={styles.startNewButton}
+      >
+        Write about a different topic
+      </button>
+    </div>
   )
 }
 

@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { Card } from './ui/card';
-import WelcomeMessage from './WelcomeMessage';
 import InputContainer from './InputContainer';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MessageRole } from '@/types/newsletter';
@@ -86,39 +85,37 @@ const ChatContainer: React.FC = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        {messages.length === 0 ? (
-          <WelcomeMessage handleExampleClick={handleExampleClick} />
-        ) : (
-          <div className={styles.messageContainer}>
-            {messages.map((msg) => (
-              <Card
-                key={msg.id}
-                className={`
+
+        <div className={styles.messageContainer}>
+          {messages.map((msg) => (
+            <Card
+              key={msg.id}
+              className={`
                   px-6 
                   py-3
                   rounded-[30px]
                   ${msg.role === MessageRole.AI ? 'bg-zinc-900' : 'bg-zinc-800'}
                   ${msg.role === MessageRole.AI ? 'self-start' : 'self-end'}
                   `}
-              >
-                {msg.role === MessageRole.AI ? (
-                  <div dangerouslySetInnerHTML={{ __html: msg.content }}></div>
-                ) : (
-                  <p>{msg.content}</p>
-                )}
-              </Card>
-            ))}
-            {isFetching && (
-              <Card className="self-start px-6 py-3 rounded-[30px] bg-zinc-900">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"></div>
-                </div>
-              </Card>
-            )}
-          </div>
-        )}
+            >
+              {msg.role === MessageRole.AI ? (
+                <div dangerouslySetInnerHTML={{ __html: msg.content }}></div>
+              ) : (
+                <p>{msg.content}</p>
+              )}
+            </Card>
+          ))}
+          {isFetching && (
+            <Card className="self-start px-6 py-3 rounded-[30px] bg-zinc-900">
+              <div className="flex space-x-2">
+                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"></div>
+              </div>
+            </Card>
+          )}
+        </div>
+
       </div>
       <div className={styles.inputArea}>
         <div className={styles.inputWrapper}>
