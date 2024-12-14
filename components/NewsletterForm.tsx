@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
-import { ChevronRight, X, Settings } from 'lucide-react';
+import { X, Settings } from 'lucide-react';
 import { Button } from './ui/button';
 
 const styles = {
   column: `
-    w-1/6
-    min-w-[350px]
+    right-4
+    top-24
+    w-[550px]
     rounded-[10px]
     p-4
-    overflow-y-auto
     transition-all
     duration-300
-    border
-    border-zinc-800
     bg-zinc-800/50
-    relative`,
+    relative
+    z-100
+    pointer-events-auto`,
 
   columnCollapsed: `
+    right-7
+    top-20
     w-12
     min-w-[48px]
     rounded-lg
@@ -26,11 +28,12 @@ const styles = {
     overflow-hidden
     transition-all
     duration-300
-    relative`,
+    relative
+    z-100
+    pointer-events-auto`,
 
   container: `
-    space-y-6
-    relative`,
+    space-y-6`,
 
   collapsedContainer: `
     flex
@@ -96,63 +99,63 @@ const NewsletterForm: React.FC = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  if (isCollapsed) {
-    return (
-      <div className={styles.columnCollapsed}>
-        <div className={styles.collapsedContainer}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={styles.collapsedToggleButton}
-            onClick={toggleCollapse}
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.column}>
-      <div className={styles.container}>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={styles.toggleButton}
-          onClick={toggleCollapse}
-        >
-          <X className="w-4 h-4" />
-        </Button>
+    <div>
+      {isCollapsed ? (
+        <div className={styles.columnCollapsed} style={{ position: 'fixed' }}>
+          <div className={styles.collapsedContainer}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={styles.collapsedToggleButton}
+              onClick={toggleCollapse}
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.column} style={{ position: 'fixed' }}>
+          <div className={styles.container}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={styles.toggleButton}
+              onClick={toggleCollapse}
+            >
+              <X className="w-4 h-4" />
+            </Button>
 
-        {/* <div className={styles.formGroup}> */}
-        <Input
-          className={styles.input}
-          placeholder="Enter the main newsletter/email topic..."
-        />
-        {/* </div> */}
+            {/* <div className={styles.formGroup}> */}
+            <Input
+              className={styles.input}
+              placeholder="Enter the main newsletter/email topic..."
+            />
+            {/* </div> */}
 
-        {/* <div className={styles.formGroup}> */}
-        <Textarea
-          className={styles.textarea}
-          placeholder="Enter your newsletter content..."
-        />
-        {/* </div> */}
+            {/* <div className={styles.formGroup}> */}
+            <Textarea
+              className={styles.textarea}
+              placeholder="Enter your newsletter content..."
+            />
+            {/* </div> */}
 
-        {/* <div className={styles.formGroup}> */}
-        <Textarea
-          className={styles.textarea}
-          placeholder="Enter URLs to extract content from..."
-        />
-        {/* </div> */}
+            {/* <div className={styles.formGroup}> */}
+            <Textarea
+              className={styles.textarea}
+              placeholder="Enter URLs to extract content from..."
+            />
+            {/* </div> */}
 
-        {/* <div className={styles.formGroup}> */}
-        <Textarea
-          className={styles.textarea}
-          placeholder="Describe your preferred style, theme, and colors..."
-        />
-        {/* </div> */}
-      </div>
+            {/* <div className={styles.formGroup}> */}
+            <Textarea
+              className={styles.textarea}
+              placeholder="Describe your preferred style, theme, and colors..."
+            />
+            {/* </div> */}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

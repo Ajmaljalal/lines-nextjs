@@ -18,7 +18,9 @@ const styles = {
     font-[var(--font-geist-sans)] 
     bg-zinc-900
     overflow-hidden
-    text-zinc-200`,
+    text-zinc-200
+    relative
+    `,
 
   main: `
     flex
@@ -27,7 +29,8 @@ const styles = {
     items-start
     w-full
     max-w-[1920px]
-    mt-20`,
+    mt-4
+    `,
 
   middleColumn: `
     w-full
@@ -36,11 +39,11 @@ const styles = {
     h-full
     overflow-y-auto`,
 
-  rightColumn: `
-    w-1/6
-    min-w-[400px]
+  leftColumn: `
+    max-w-[500px]
+    w-full
     bg-zinc-800/50
-    rounded-lg
+    rounded-[10px]
     h-full
     overflow-y-auto
     flex
@@ -62,13 +65,13 @@ const Home: React.FC = () => {
   return (
     <div className={styles.container}>
       <Header />
+      <NewsletterForm />
       <main className={styles.main}>
-        <NewsletterForm />
+        <div className={styles.leftColumn}>
+          <ChatContainer />
+        </div>
         <div className={styles.middleColumn}>
           <NewsletterPreview />
-        </div>
-        <div className={styles.rightColumn}>
-          <ChatContainer />
         </div>
       </main>
     </div>

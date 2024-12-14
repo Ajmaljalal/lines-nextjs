@@ -39,17 +39,18 @@ const styles = {
     fixed
     bottom-0
     left-0
-    right-0
     z-10
     flex
-    justify-center
+    justify-end
     bg-zinc-900/80
     backdrop-blur-sm
+    w-full
+    lg:w-[535px]
     `,
 
   inputWrapper: `
     w-full
-    lg:max-w-[50%]
+    lg:w-[535px]
     p-4`
 };
 
