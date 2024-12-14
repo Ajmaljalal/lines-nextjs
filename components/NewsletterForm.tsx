@@ -94,6 +94,10 @@ const styles = {
 
 const NewsletterForm: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [topic, setTopic] = useState('');
+  const [content, setContent] = useState('');
+  const [urls, setUrls] = useState('');
+  const [style, setStyle] = useState('');
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -125,34 +129,32 @@ const NewsletterForm: React.FC = () => {
             >
               <X className="w-4 h-4" />
             </Button>
-
-            {/* <div className={styles.formGroup}> */}
             <Input
               className={styles.input}
               placeholder="Enter the main newsletter/email topic..."
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
             />
-            {/* </div> */}
-
-            {/* <div className={styles.formGroup}> */}
             <Textarea
               className={styles.textarea}
               placeholder="Enter your newsletter content..."
+              rows={10}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
             />
-            {/* </div> */}
-
-            {/* <div className={styles.formGroup}> */}
             <Textarea
               className={styles.textarea}
               placeholder="Enter URLs to extract content from..."
+              rows={3}
+              value={urls}
+              onChange={(e) => setUrls(e.target.value)}
             />
-            {/* </div> */}
-
-            {/* <div className={styles.formGroup}> */}
             <Textarea
               className={styles.textarea}
               placeholder="Describe your preferred style, theme, and colors..."
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
             />
-            {/* </div> */}
           </div>
         </div>
       )}
