@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Check, Pencil, Send, Palette } from 'lucide-react';
+import { Check, Loader2, Circle } from 'lucide-react';
 
 export enum NewsletterStep {
   TOPIC = 'topic',
@@ -15,7 +15,6 @@ interface StepIndicatorProps {
   onStepClick: (step: NewsletterStep) => void;
 }
 
-// ... existing code ...
 const styles = {
   container: `
     flex
@@ -23,10 +22,6 @@ const styles = {
     gap-2
     p-4
     h-full
-    bg-zinc-800/50
-    rounded-lg
-    border
-    border-zinc-700/50
   `,
   step: `
     flex
@@ -37,28 +32,20 @@ const styles = {
     cursor-pointer
     transition-all
     duration-200
-    hover:bg-zinc-700/50
-    border
-    border-transparent
+    hover:bg-zinc-800/50
   `,
   stepActive: `
-    bg-zinc-700/80
-    border-zinc-600
+    text-orange-500
   `,
   stepCompleted: `
     text-green-500
   `,
-  stepIcon: `
-    w-7
-    h-7
-    p-1.5
-    rounded-md
-    bg-zinc-700/50
-    transition-colors
-    duration-200
+  stepPending: `
+    text-zinc-400
   `,
-  stepIconActive: `
-    bg-zinc-600
+  stepIcon: `
+    w-5
+    h-5
   `,
   stepText: `
     text-sm
@@ -66,36 +53,56 @@ const styles = {
     transition-colors
     duration-200
   `,
+  spinAnimation: `
+    animate-spin
+  `
 };
 
 const StepsIndicator: React.FC<StepIndicatorProps> = ({ currentStep, onStepClick }) => {
   const steps = [
-    { id: NewsletterStep.TOPIC, label: 'Topic Selection', icon: Pencil },
-    { id: NewsletterStep.CONTENT, label: 'Content Drafting', icon: Pencil },
-    { id: NewsletterStep.DESIGN, label: 'Design & Edit', icon: Palette },
-    { id: NewsletterStep.SEND, label: 'Send Newsletter', icon: Send },
+    { id: NewsletterStep.TOPIC, label: 'Topic Selection' },
+    { id: NewsletterStep.CONTENT, label: 'Content Drafting' },
+    { id: NewsletterStep.DESIGN, label: 'Design & Edit' },
+    { id: NewsletterStep.SEND, label: 'Send Newsletter' },
   ];
+
+  const getStepStatus = (stepId: NewsletterStep) => {
+    const stepIndex = steps.findIndex(s => s.id === stepId);
+    const currentIndex = steps.findIndex(s => s.id === currentStep);
+
+    if (stepIndex < currentIndex) return 'completed';
+    if (stepIndex === currentIndex) return 'active';
+    return 'pending';
+  };
 
   return (
     <div className={styles.container}>
       {steps.map((step) => {
-        const isActive = currentStep === step.id;
-        const isCompleted = false; // TODO: Add completion logic
+        const status = getStepStatus(step.id);
 
         return (
           <div
             key={step.id}
-            className={`${styles.step} ${isActive ? styles.stepActive : ''}`}
+            className={styles.step}
             onClick={() => onStepClick(step.id)}
           >
-            <div className={`${styles.stepIcon} ${isActive ? styles.stepIconActive : ''}`}>
-              {isCompleted ? (
+            <div className={styles.stepIcon}>
+              {status === 'completed' && (
                 <Check className={styles.stepCompleted} />
-              ) : (
-                <step.icon className={isActive ? 'text-zinc-200' : 'text-zinc-400'} />
+              )}
+              {status === 'active' && (
+                <Loader2 className={`${styles.stepActive} ${styles.spinAnimation}`} />
+              )}
+              {status === 'pending' && (
+                <Circle className={styles.stepPending} />
               )}
             </div>
-            <span className={`${styles.stepText} ${isActive ? 'text-zinc-200' : 'text-zinc-400'}`}>
+            <span
+              className={`${styles.stepText} ${status === 'completed' ? styles.stepCompleted :
+                status === 'active' ? styles.stepActive :
+                  styles.stepPending
+                }`}
+            >
               {step.label}
             </span>
           </div>

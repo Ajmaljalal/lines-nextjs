@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
-import { Button } from './ui/button';
+import { Label } from './ui/label';
 
 const styles = {
   container: `
@@ -9,27 +9,41 @@ const styles = {
     h-full
     flex
     flex-col
-    gap-6
+    gap-8
   `,
   formGroup: `
-    space-y-2
+    space-y-2.5
+  `,
+  label: `
+    text-sm
+    font-medium
+    text-zinc-300
+    ml-1
   `,
   input: `
     w-full
-    bg-zinc-700/50
-    border-zinc-600
+    bg-zinc-800/50
+    border-zinc-700/50
     text-zinc-200
-    focus:border-zinc-500
-    focus:ring-zinc-500
+    placeholder:text-zinc-500
+    focus:border-zinc-600
+    focus:ring-1
+    focus:ring-zinc-600
+    transition-colors
+    duration-200
   `,
   textarea: `
     w-full
-    bg-zinc-700/50
-    border-zinc-600
+    bg-zinc-800/50
+    border-zinc-700/50
     text-zinc-200
-    min-h-[100px]
-    focus:border-zinc-500
-    focus:ring-zinc-500
+    placeholder:text-zinc-500
+    focus:border-zinc-600
+    focus:ring-1
+    focus:ring-zinc-600
+    resize-none
+    transition-colors
+    duration-200
   `,
 };
 
@@ -41,33 +55,48 @@ const NewsletterForm: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <Input
-        className={styles.input}
-        placeholder="Enter the main newsletter/email topic..."
-        value={topic}
-        onChange={(e) => setTopic(e.target.value)}
-      />
-      <Textarea
-        className={styles.textarea}
-        placeholder="Enter your newsletter content..."
-        rows={6}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
-      <Textarea
-        className={styles.textarea}
-        placeholder="Enter URLs to extract content from..."
-        rows={3}
-        value={urls}
-        onChange={(e) => setUrls(e.target.value)}
-      />
-      <Textarea
-        className={styles.textarea}
-        placeholder="Describe your preferred style, theme, and colors..."
-        rows={3}
-        value={style}
-        onChange={(e) => setStyle(e.target.value)}
-      />
+      <div className={styles.formGroup}>
+        <Label className={styles.label}>Newsletter Topic</Label>
+        <Input
+          className={styles.input}
+          placeholder="Enter the main topic or subject..."
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <Label className={styles.label}>Content</Label>
+        <Textarea
+          className={styles.textarea}
+          placeholder="Write your newsletter content here..."
+          rows={6}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <Label className={styles.label}>Reference URLs</Label>
+        <Textarea
+          className={styles.textarea}
+          placeholder="Add URLs to extract content from (one per line)..."
+          rows={3}
+          value={urls}
+          onChange={(e) => setUrls(e.target.value)}
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <Label className={styles.label}>Style Preferences</Label>
+        <Textarea
+          className={styles.textarea}
+          placeholder="Describe your preferred style, theme, and colors..."
+          rows={3}
+          value={style}
+          onChange={(e) => setStyle(e.target.value)}
+        />
+      </div>
     </div>
   );
 };
