@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 
 const styles = {
-  container: 'w-full max-w-4xl fixed bottom-0 min-h-[130px] bg-zinc-900',
+  container: 'w-full',
   inputContainer: 'relative flex',
   button: 'absolute w-8 h-8 right-2 top-2 bg-zinc-700 rounded-[8px] hover:bg-zinc-600',
   textarea: `
@@ -28,7 +28,6 @@ const styles = {
   border-zinc-700 
   min-h-[100px]
   max-h-[150px] 
-  sm:max-h-[450px] 
   resize-none
   overflow-y-auto`
 };
