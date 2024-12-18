@@ -11,6 +11,9 @@ const styles = {
     rounded-[12px]
     transition-colors
     duration-200
+    border-2
+    border-[var(--primary-color)]
+    hover:border-[var(--secondary-color)]
   `,
 };
 
@@ -29,6 +32,7 @@ const CompleteStepButton: React.FC<CompleteStepButtonProps> = ({
     <Button
       onClick={onComplete}
       disabled={!isStepValid(step)}
+      className={styles.button}
     >
       Next Step
     </Button>

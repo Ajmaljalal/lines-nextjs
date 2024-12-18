@@ -11,6 +11,9 @@ const styles = {
     flex
     flex-col
     gap-8
+    max-w-3xl
+    mx-auto
+    px-4
   `,
   formGroup: `
     space-y-2.5
