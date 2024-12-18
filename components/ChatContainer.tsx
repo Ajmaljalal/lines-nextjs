@@ -91,10 +91,10 @@ const ChatContainer: React.FC = () => {
             <Card
               key={msg.id}
               className={`
-                px-6 
-                py-3
+                px-4 
+                py-1
                 rounded-[12px]
-                ${msg.role === MessageRole.AI ? 'bg-zinc-900' : 'bg-[var(--primary-color)]'}
+                ${msg.role === MessageRole.AI ? 'bg-zinc-900' : 'bg-zinc-800'}
                 ${msg.role === MessageRole.AI ? 'self-start' : 'self-end'}
               `}
             >

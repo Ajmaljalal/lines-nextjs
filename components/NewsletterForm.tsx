@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Button } from './ui/button';
 
 const styles = {
   container: `
@@ -44,19 +43,6 @@ const styles = {
     focus:ring-1
     focus:ring-zinc-600
     resize-none
-    transition-colors
-    duration-200
-  `,
-  footer: `
-    mt-8
-    flex
-    justify-end
-  `,
-  button: `
-    bg-[var(--primary-color)]
-    hover:bg-[var(--secondary-color)]
-    text-white
-    rounded-[12px]
     transition-colors
     duration-200
   `,
@@ -115,15 +101,6 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onComplete }) => {
           value={style}
           onChange={(e) => setStyle(e.target.value)}
         />
-      </div>
-
-      <div className={styles.footer}>
-        <Button
-          className={styles.button}
-          onClick={onComplete}
-        >
-          Mark as Complete
-        </Button>
       </div>
     </div>
   );

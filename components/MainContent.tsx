@@ -4,7 +4,7 @@ import React from 'react';
 import { NewsletterStep } from './StepsIndicator';
 import NewsletterForm from './NewsletterForm';
 import NewsletterPreview from './NewsletterPreview';
-import { Button } from './ui/button';
+import CompleteStepButton from './CompleteStepButton';
 
 interface MainContentProps {
   currentStep: NewsletterStep;
@@ -19,16 +19,16 @@ const styles = {
     rounded-[10px]
     p-6
     overflow-y-auto
+    relative
   `,
-  footer: `
-    mt-8
-    flex
-    justify-end
+  contentWrapper: `
+    h-full
+    pb-16
   `,
-  button: `
-    bg-orange-500
-    hover:bg-orange-600
-    text-white
+  buttonWrapper: `
+    absolute
+    bottom-4
+    right-4
   `,
 };
 
@@ -38,29 +38,11 @@ const MainContent: React.FC<MainContentProps> = ({ currentStep, onStepComplete }
       case NewsletterStep.TOPIC:
         return <NewsletterForm onComplete={onStepComplete} />;
       case NewsletterStep.CONTENT:
-        return (
-          <div>
-            <div>Content Drafting</div>
-            <div className={styles.footer}>
-              <Button className={styles.button} onClick={onStepComplete}>
-                Mark as Complete
-              </Button>
-            </div>
-          </div>
-        );
+        return <div>Content Drafting</div>;
       case NewsletterStep.DESIGN:
         return <NewsletterPreview onComplete={onStepComplete} />;
       case NewsletterStep.SEND:
-        return (
-          <div>
-            <div>Send Newsletter</div>
-            <div className={styles.footer}>
-              <Button className={styles.button} onClick={onStepComplete}>
-                Mark as Complete
-              </Button>
-            </div>
-          </div>
-        );
+        return <div>Send Newsletter</div>;
       default:
         return null;
     }
@@ -68,7 +50,12 @@ const MainContent: React.FC<MainContentProps> = ({ currentStep, onStepComplete }
 
   return (
     <div className={styles.container}>
-      {renderContent()}
+      <div className={styles.contentWrapper}>
+        {renderContent()}
+      </div>
+      <div className={styles.buttonWrapper}>
+        <CompleteStepButton onComplete={onStepComplete} />
+      </div>
     </div>
   );
 };

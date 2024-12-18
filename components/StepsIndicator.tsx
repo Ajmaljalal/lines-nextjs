@@ -22,6 +22,7 @@ const styles = {
     gap-2
     p-4
     h-full
+    max-w-[220px]
   `,
   step: `
     flex

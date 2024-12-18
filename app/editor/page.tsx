@@ -31,8 +31,11 @@ const styles = {
     `,
 
   leftColumn: `
-    w-[280px]
-    min-w-[280px]
+    w-[220px]
+    min-w-[220px]
+    border
+    border-zinc-700/50
+    rounded-[12px]
     `,
 
   middleColumn: `
@@ -41,8 +44,11 @@ const styles = {
     `,
 
   rightColumn: `
-    w-[400px]
-    min-w-[400px]
+    w-[350px]
+    min-w-[350px]
+    border
+    border-zinc-700/50
+    rounded-[12px]
     `
 };
 
