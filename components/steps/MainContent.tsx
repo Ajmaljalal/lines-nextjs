@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { NewsletterStep } from './StepsIndicator';
-import NewsletterForm from './NewsletterForm';
+import FirstStep_DataCollection from './FirstStep_DataCollection';
 import NewsletterPreview from './NewsletterPreview';
 import CompleteStepButton from './CompleteStepButton';
+import { useNewsletter } from '@/context/NewsletterContext';
 
 interface MainContentProps {
-  currentStep: NewsletterStep;
   onStepComplete: () => void;
 }
 
@@ -32,11 +32,12 @@ const styles = {
   `,
 };
 
-const MainContent: React.FC<MainContentProps> = ({ currentStep, onStepComplete }) => {
+const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
+  const { currentStep, data } = useNewsletter();
   const renderContent = () => {
     switch (currentStep) {
       case NewsletterStep.TOPIC:
-        return <NewsletterForm onComplete={onStepComplete} />;
+        return <FirstStep_DataCollection />;
       case NewsletterStep.CONTENT:
         return <div>Content Drafting</div>;
       case NewsletterStep.DESIGN:
@@ -54,7 +55,10 @@ const MainContent: React.FC<MainContentProps> = ({ currentStep, onStepComplete }
         {renderContent()}
       </div>
       <div className={styles.buttonWrapper}>
-        <CompleteStepButton onComplete={onStepComplete} />
+        <CompleteStepButton
+          onComplete={onStepComplete}
+          step={currentStep}
+        />
       </div>
     </div>
   );

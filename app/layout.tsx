@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Lines",
+  title: "SendLines",
   description: "Your assistant in generating beautifully designed emails & newsletters.",
 };
 

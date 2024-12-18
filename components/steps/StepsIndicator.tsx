@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Check, Loader2, Circle } from 'lucide-react';
+import { useNewsletter } from '@/context/NewsletterContext';
 
 export enum NewsletterStep {
   TOPIC = 'topic',
@@ -11,7 +12,6 @@ export enum NewsletterStep {
 }
 
 interface StepIndicatorProps {
-  currentStep: NewsletterStep;
   onStepClick: (step: NewsletterStep) => void;
 }
 
@@ -59,7 +59,8 @@ const styles = {
   `
 };
 
-const StepsIndicator: React.FC<StepIndicatorProps> = ({ currentStep, onStepClick }) => {
+const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
+  const { currentStep } = useNewsletter();
   const steps = [
     { id: NewsletterStep.TOPIC, label: 'Topic & Resources' },
     { id: NewsletterStep.CONTENT, label: 'Content Drafting' },

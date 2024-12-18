@@ -1,4 +1,3 @@
-// components/PreviewSection.tsx
 import React from 'react';
 
 const styles = {

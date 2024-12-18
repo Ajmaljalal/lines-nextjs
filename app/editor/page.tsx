@@ -1,12 +1,14 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '../../components/Header';
 import ChatContainer from '../../components/ChatContainer';
-import StepsIndicator, { NewsletterStep } from '../../components/StepsIndicator';
-import MainContent from '../../components/MainContent';
+import StepsIndicator, { NewsletterStep } from '../../components/steps/StepsIndicator';
+import MainContent from '../../components/steps/MainContent';
+import { NewsletterProvider, useNewsletter } from '@/context/NewsletterContext';
+
 const styles = {
   container: `
     flex
@@ -52,10 +54,10 @@ const styles = {
     `
 };
 
-const Home: React.FC = () => {
+const NewsletterEditor = () => {
   const { user } = useAuth();
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<NewsletterStep>(NewsletterStep.TOPIC);
+  const { currentStep, setCurrentStep } = useNewsletter();
 
   useEffect(() => {
     if (!user) {
@@ -88,16 +90,25 @@ const Home: React.FC = () => {
       <Header />
       <main className={styles.main}>
         <div className={styles.leftColumn}>
-          <StepsIndicator currentStep={currentStep} onStepClick={handleStepClick} />
+          <StepsIndicator onStepClick={handleStepClick} />
         </div>
         <div className={styles.middleColumn}>
-          <MainContent currentStep={currentStep} onStepComplete={handleStepComplete} />
+          <MainContent onStepComplete={handleStepComplete} />
         </div>
         <div className={styles.rightColumn}>
           <ChatContainer />
         </div>
       </main>
     </div>
+  );
+};
+
+
+const Home: React.FC = () => {
+  return (
+    <NewsletterProvider>
+      <NewsletterEditor />
+    </NewsletterProvider>
   );
 };
 
