@@ -94,7 +94,7 @@ const Header: React.FC = () => {
   return (
     <header className={styles.container}>
       <div className={styles.titleContainer}>
-        <div className={styles.title}>LINES</div>
+        <div className={styles.title}>SendLines</div>
         <div className={styles.userMenu}>
           <div>
             <DropdownMenu>

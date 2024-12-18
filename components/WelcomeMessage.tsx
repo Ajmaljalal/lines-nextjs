@@ -28,9 +28,9 @@ const styles = {
   bg-zinc-800 
   hover:bg-zinc-700 
   transition-colors
-  text-zinc-400
+  text-zinc-200
   p-4 
-  rounded-[10px] 
+  rounded-[12px] 
   cursor-pointer 
   flex 
   items-center 
@@ -40,13 +40,12 @@ const styles = {
   mt-8 
   px-6 
   py-3 
-  bg-zinc-800
-  font-geist-mono
+  bg-[var(--primary-color)]
   font-bold
   text-2xl
-  hover:bg-zinc-700 
+  hover:bg-[var(--secondary-color)] 
   transition-colors 
-  rounded-[10px] 
+  rounded-[12px] 
   text-white 
   font-medium`,
 };

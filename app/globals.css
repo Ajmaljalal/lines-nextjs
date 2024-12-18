@@ -18,6 +18,15 @@
 
   --muted: 240 3.7% 15.9%;
   --muted-foreground: 240 5% 64.9%;
+
+  --primary-color: #FF5722;
+  --secondary-color: #FF8A65;
+  --accent-color: #FFA000;
+  --text-color: #1F2937;
+  --light-bg: #F3F4F6;
+  --white: #FFFFFF;
+  --dark-bg: #111827;
+  --transition: all 0.3s ease;
 }
 
 body {

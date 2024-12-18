@@ -12,24 +12,34 @@ import { useSearchParams } from 'next/navigation';
 const styles = {
   container: 'w-full',
   inputContainer: 'relative flex',
-  button: 'absolute w-8 h-8 right-2 top-2 bg-zinc-700 rounded-[8px] hover:bg-zinc-600',
+  button: `
+    absolute 
+    w-8 
+    h-8 
+    right-2 
+    top-2 
+    bg-[var(--primary-color)] 
+    rounded-[8px] 
+    hover:bg-[var(--secondary-color)]
+    transition-colors
+    duration-200`,
   textarea: `
-  w-full 
-  bg-zinc-800 
-  text-zinc-200 
-  px-4 
-  py-3 
-  pr-12 
-  focus:outline-none 
-  focus:ring-2 
-  focus:ring-zinc-600 
-  rounded-[8px] 
-  border 
-  border-zinc-700 
-  min-h-[100px]
-  max-h-[150px] 
-  resize-none
-  overflow-y-auto`
+    w-full 
+    bg-zinc-800 
+    text-zinc-200 
+    px-4 
+    py-3 
+    pr-12 
+    focus:outline-none 
+    focus:ring-2 
+    focus:ring-[var(--primary-color)] 
+    rounded-[12px] 
+    border 
+    border-zinc-700 
+    min-h-[100px]
+    max-h-[150px] 
+    resize-none
+    overflow-y-auto`
 };
 
 const InputContainer: React.FC = () => {

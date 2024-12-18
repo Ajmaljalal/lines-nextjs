@@ -28,14 +28,14 @@ const styles = {
     items-center
     gap-3
     p-3
-    rounded-md
+    rounded-[12px]
     cursor-pointer
     transition-all
     duration-200
     hover:bg-zinc-800/50
   `,
   stepActive: `
-    text-orange-500
+    text-[var(--primary-color)]
   `,
   stepCompleted: `
     text-green-500

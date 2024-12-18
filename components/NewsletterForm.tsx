@@ -27,9 +27,10 @@ const styles = {
     border-zinc-700/50
     text-zinc-200
     placeholder:text-zinc-500
-    focus:border-zinc-600
+    focus:border-[var(--primary-color)]
     focus:ring-1
-    focus:ring-zinc-600
+    focus:ring-[var(--primary-color)]
+    rounded-[12px]
     transition-colors
     duration-200
   `,
@@ -52,9 +53,12 @@ const styles = {
     justify-end
   `,
   button: `
-    bg-orange-500
-    hover:bg-orange-600
+    bg-[var(--primary-color)]
+    hover:bg-[var(--secondary-color)]
     text-white
+    rounded-[12px]
+    transition-colors
+    duration-200
   `,
 };
 
