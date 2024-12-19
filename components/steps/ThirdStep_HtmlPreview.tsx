@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Loader2 } from 'lucide-react';
@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 const styles = {
   container: `
     w-full
-    h-full
     flex
     flex-col
     gap-8
@@ -20,27 +19,9 @@ const styles = {
     items-center
     justify-center
     gap-4
-    h-full
-  `,
-  previewContainer: `
-    bg-white
-    rounded-lg
-    shadow-lg
-    overflow-hidden
-  `,
-  toolbar: `
-    flex
-    items-center
-    justify-between
-    p-4
-    border-b
-    border-zinc-200
-    bg-zinc-50
   `,
   iframe: `
     w-full
-    h-[calc(100vh-200px)]
-    border-0
   `
 };
 
@@ -48,6 +29,7 @@ const ThirdStep_HtmlPreview: React.FC = () => {
   const { data, updateData } = useNewsletter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const generateHtml = async () => {
@@ -96,19 +78,22 @@ const ThirdStep_HtmlPreview: React.FC = () => {
     generateHtml();
   }, [data.generatedContent]);
 
-  const handleDownload = () => {
-    if (!data.htmlContent) return;
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
 
-    const blob = new Blob([data.htmlContent], { type: 'text/html' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'newsletter.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
+    const resizeIframe = () => {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (iframeDoc) {
+        const height = iframeDoc.documentElement.scrollHeight;
+        iframe.style.height = `${height}px`;
+        iframe.style.pointerEvents = 'none';
+      }
+    };
+
+    iframe.onload = resizeIframe;
+  }, [data.htmlContent]);
+
 
   if (isLoading) {
     return (
@@ -141,20 +126,12 @@ const ThirdStep_HtmlPreview: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.previewContainer}>
-        <div className={styles.toolbar}>
-          <h3 className="text-zinc-800 font-medium">Newsletter Preview</h3>
-          <Button onClick={handleDownload} variant="outline">
-            Download HTML
-          </Button>
-        </div>
-        <iframe
-          className={styles.iframe}
-          srcDoc={data.htmlContent}
-          title="Newsletter Preview"
-          sandbox="allow-same-origin"
-        />
-      </div>
+      <iframe
+        ref={iframeRef}
+        className={styles.iframe}
+        srcDoc={data.htmlContent}
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+      />
     </div>
   );
 };
