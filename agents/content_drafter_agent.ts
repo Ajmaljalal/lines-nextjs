@@ -1,6 +1,6 @@
 import { BaseAgent } from './base';
 import { AgentContext, AgentResponse } from './types';
-import { ChatGroq } from '@langchain/groq';
+import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from "zod";
 
 // Define the schema for newsletter sections
@@ -20,14 +20,14 @@ const newsletterSectionsSchema = z.object({
 });
 
 export class ContentDrafterAgent extends BaseAgent {
-  private model: ChatGroq;
+  private model: ChatAnthropic;
 
   constructor(context: AgentContext) {
     super(context);
-    this.model = new ChatGroq({
+    this.model = new ChatAnthropic({
       temperature: 0.7,
-      model: "llama-3.3-70b-versatile",
-      apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY
+      model: "claude-3-5-sonnet-20241022",
+      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
     });
   }
 

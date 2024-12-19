@@ -1,6 +1,6 @@
 import { BaseAgent } from './base';
 import { AgentContext, AgentResponse } from './types';
-import { ChatGroq } from '@langchain/groq';
+import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from "zod";
 
 const newsletterHtmlSchema = z.object({
@@ -8,22 +8,22 @@ const newsletterHtmlSchema = z.object({
 });
 
 export class HtmlGeneratorAgent extends BaseAgent {
-  private model: ChatGroq;
+  private model: ChatAnthropic;
 
   constructor(context: AgentContext) {
     super(context);
-    this.model = new ChatGroq({
-      temperature: 0.5, // Lower temperature for more consistent HTML output
-      model: "llama-3.3-70b-versatile",
-      apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY
+    this.model = new ChatAnthropic({
+      temperature: 0.3, // Lower temperature for more consistent HTML output
+      model: "claude-3-5-sonnet-20241022",
+      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
     });
   }
 
   protected generatePrompt(): string {
-    const { generatedContent } = this.context.data;
-    const content = JSON.parse(generatedContent || '');
+    const { content, style, topic, urls } = this.context.data;
+    const generatedContent = JSON.parse(content || '');
 
-    return `Generate a beautiful, modern HTML email newsletter using the following content. 
+    return `Generate a beautiful, modern HTML email newsletter using the following [topic] [content], [style], and [urls]. 
     The design should be mobile-responsive and use modern email-safe HTML and inline CSS.
 
     Include the following design elements:
@@ -33,17 +33,25 @@ export class HtmlGeneratorAgent extends BaseAgent {
     - Responsive images placeholders where appropriate
     - Clear hierarchy and section separation
     - Mobile-friendly buttons for call-to-action elements
+    - inline styling only
 
-    Content to format:
-    ${JSON.stringify(content, null, 2)}
+    Topic:
+    ${JSON.stringify(topic, null, 2)}
+
+    Content:
+    ${JSON.stringify(generatedContent, null, 2)}
+
+    URLs:
+    ${JSON.stringify(urls, null, 2)}
+
+    Style:
+    ${JSON.stringify(style, null, 2)}
 
     Requirements:
-    - Use only email-safe HTML and inline CSS
-    - Ensure all styles are inline (no <style> tags)
+    - Use only email-safe HTML and inline styling
+    - Ensure all styles are passed as inline styles to the elements
     - Use table-based layout for email compatibility
-    - Include media queries for mobile responsiveness
     - Use web-safe fonts or appropriate fallbacks
-    - Optimize for dark mode compatibility
     
     Return only the HTML code without any explanation.`;
   }

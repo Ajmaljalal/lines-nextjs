@@ -28,8 +28,6 @@ const styles = {
     flex-1
     overflow-y-auto
     scrollbar-none
-    -mr-6
-    pr-6
   `,
   buttonWrapper: `
     mt-6

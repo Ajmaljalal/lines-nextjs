@@ -40,9 +40,7 @@ const styles = {
 
   middleColumn: `
     flex-1
-    min-w-0
-    overflow-y-scroll
-    scrollbar-none
+    overflow-scroll
     `,
 
   rightColumn: `

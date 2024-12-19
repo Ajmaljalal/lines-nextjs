@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 const styles = {
   container: `
@@ -12,6 +11,8 @@ const styles = {
     gap-8
     max-w-4xl
     mx-auto
+    p-4
+    rounded-[12px]
   `,
   loadingContainer: `
     flex
@@ -29,7 +30,6 @@ const ThirdStep_HtmlPreview: React.FC = () => {
   const { data, updateData } = useNewsletter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const generateHtml = async () => {
@@ -47,11 +47,9 @@ const ThirdStep_HtmlPreview: React.FC = () => {
           messages: [],
           data: {
             topic: data.topic || '',
-            content: data.content || '',
             urls: data.urls || [],
             style: data.style || '',
-            generatedContent: data.generatedContent,
-            design: data.design
+            content: data.generatedContent,
           }
         });
 
@@ -78,28 +76,13 @@ const ThirdStep_HtmlPreview: React.FC = () => {
     generateHtml();
   }, [data.generatedContent]);
 
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    const resizeIframe = () => {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (iframeDoc) {
-        const height = iframeDoc.documentElement.scrollHeight;
-        iframe.style.height = `${height}px`;
-        iframe.style.pointerEvents = 'none';
-      }
-    };
-
-    iframe.onload = resizeIframe;
-  }, [data.htmlContent]);
-
-
   if (isLoading) {
     return (
-      <div className={styles.loadingContainer}>
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
-        <p className="text-zinc-400">Generating HTML preview...</p>
+      <div className={styles.container}>
+        <div className={styles.loadingContainer}>
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
+          <p className="text-zinc-400">Generating HTML preview...</p>
+        </div>
       </div>
     );
   }
@@ -125,14 +108,10 @@ const ThirdStep_HtmlPreview: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <iframe
-        ref={iframeRef}
-        className={styles.iframe}
-        srcDoc={data.htmlContent}
-        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-      />
-    </div>
+    <div
+      dangerouslySetInnerHTML={{ __html: data.htmlContent }}
+      className={styles.container}
+    />
   );
 };
 
