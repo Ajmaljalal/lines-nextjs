@@ -57,6 +57,11 @@ const SecondStep_ContentDrafting: React.FC = () => {
 
   useEffect(() => {
     const generateContent = async () => {
+      if (data.generatedContent) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError(null);
@@ -78,7 +83,6 @@ const SecondStep_ContentDrafting: React.FC = () => {
         }
 
         updateData({ generatedContent: response.content });
-
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to generate content');
       } finally {

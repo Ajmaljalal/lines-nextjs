@@ -97,12 +97,8 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
   ];
 
   const getStepStatus = (stepId: NewsletterStep) => {
-    const stepIndex = steps.findIndex(s => s.id === stepId);
-    const currentIndex = steps.findIndex(s => s.id === currentStep);
-
-    if (stepIndex < currentIndex) return 'completed';
-    if (stepIndex === currentIndex) return 'active';
-    return 'pending';
+    if (stepId === currentStep) return 'active';
+    return isStepValid(stepId) ? 'completed' : 'pending';
   };
 
   const isStepDisabled = (stepId: NewsletterStep) => {

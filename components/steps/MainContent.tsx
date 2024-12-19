@@ -7,6 +7,7 @@ import NewsletterPreview from './NewsletterPreview';
 import CompleteStepButton from './CompleteStepButton';
 import { useNewsletter } from '@/context/NewsletterContext';
 import SecondStep_ContentDrafting from './SecondStep_ContentDrafting';
+import ThirdStep_HtmlPreview from './ThirdStep_HtmlPreview';
 
 interface MainContentProps {
   onStepComplete: () => void;
@@ -46,7 +47,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
       case NewsletterStep.CONTENT:
         return <SecondStep_ContentDrafting />;
       case NewsletterStep.DESIGN:
-        return <NewsletterPreview onComplete={onStepComplete} />;
+        return <ThirdStep_HtmlPreview />;
       case NewsletterStep.SEND:
         return <div>Send Newsletter</div>;
       default:

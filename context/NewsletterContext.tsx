@@ -7,6 +7,7 @@ interface NewsletterData {
   urls: string[];
   style: string;
   generatedContent?: string;
+  htmlContent?: string;
   design?: {
     template?: string;
     colors?: string[];
@@ -48,7 +49,7 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       case NewsletterStep.CONTENT:
         return !!data.generatedContent;
       case NewsletterStep.DESIGN:
-        return !!data.design?.template;
+        return !!data.htmlContent;
       case NewsletterStep.SEND:
         return (data.recipients?.length ?? 0) > 0;
       default:

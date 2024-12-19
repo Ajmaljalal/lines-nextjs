@@ -11,19 +11,22 @@ export interface AgentMessage {
 }
 
 interface NewsletterData {
-  topic: string;
-  content: string;
-  urls: string[];
-  style: string;
+  topic?: string;
+  content?: string;
+  urls?: string[];
+  style?: string;
   generatedContent?: string;
+  htmlContent?: string;
   design?: {
     template?: string;
     colors?: string[];
   };
+  recipients?: string[];
+  scheduledDate?: Date;
 }
 
 export interface AgentContext {
-  messages: AgentMessage[];
+  messages: any[];
   data: NewsletterData;
 }
 
@@ -43,6 +46,6 @@ export interface NewsletterPlan {
 
 export interface AgentResponse {
   content: string;
-  metadata?: Record<string, any>;
   error?: string;
+  metadata?: Record<string, any>;
 }
