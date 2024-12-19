@@ -33,8 +33,6 @@ const styles = {
     `,
 
   leftColumn: `
-    w-[220px]
-    min-w-[220px]
     border
     border-zinc-700/50
     rounded-[12px]

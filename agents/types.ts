@@ -10,11 +10,21 @@ export interface AgentMessage {
   type?: 'user' | 'assistant'; // Add this line
 }
 
+interface NewsletterData {
+  topic: string;
+  content: string;
+  urls: string[];
+  style: string;
+  generatedContent?: string;
+  design?: {
+    template?: string;
+    colors?: string[];
+  };
+}
+
 export interface AgentContext {
-  userId: string;
-  newsletterId: string;
   messages: AgentMessage[];
-  metadata?: Record<string, any>;
+  data: NewsletterData;
 }
 
 export interface NewsletterPlan {

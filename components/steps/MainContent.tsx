@@ -6,40 +6,45 @@ import FirstStep_DataCollection from './FirstStep_DataCollection';
 import NewsletterPreview from './NewsletterPreview';
 import CompleteStepButton from './CompleteStepButton';
 import { useNewsletter } from '@/context/NewsletterContext';
+import SecondStep_ContentDrafting from './SecondStep_ContentDrafting';
 
 interface MainContentProps {
   onStepComplete: () => void;
 }
+
 
 const styles = {
   container: `
     w-full
     h-full
     bg-zinc-800/50
-    rounded-[10px]
+    rounded-[12px]
     p-6
-    overflow-y-auto
-    relative
+    flex
+    flex-col
   `,
   contentWrapper: `
-    h-full
-    pb-16
+    flex-1
+    overflow-y-auto
+    scrollbar-none
+    -mr-6
+    pr-6
   `,
   buttonWrapper: `
-    absolute
-    bottom-4
-    right-4
+    mt-6
+    flex
+    justify-end
   `,
 };
 
 const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
-  const { currentStep, data } = useNewsletter();
+  const { currentStep } = useNewsletter();
   const renderContent = () => {
     switch (currentStep) {
       case NewsletterStep.TOPIC:
         return <FirstStep_DataCollection />;
       case NewsletterStep.CONTENT:
-        return <div>Content Drafting</div>;
+        return <SecondStep_ContentDrafting />;
       case NewsletterStep.DESIGN:
         return <NewsletterPreview onComplete={onStepComplete} />;
       case NewsletterStep.SEND:

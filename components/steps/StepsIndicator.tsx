@@ -20,9 +20,8 @@ const styles = {
     flex
     flex-col
     gap-2
-    p-4
+    p-3
     h-full
-    max-w-[220px]
   `,
   step: `
     flex
@@ -54,6 +53,14 @@ const styles = {
     transition-colors
     duration-200
   `,
+  stepTextLong: `
+    block
+    lg:hidden
+  `,
+  stepTextShort: `
+    hidden
+    lg:block
+  `,
   spinAnimation: `
     animate-spin
   `,
@@ -67,10 +74,26 @@ const styles = {
 const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
   const { currentStep, isStepValid } = useNewsletter();
   const steps = [
-    { id: NewsletterStep.TOPIC, label: 'Topic & Resources' },
-    { id: NewsletterStep.CONTENT, label: 'Content Drafting' },
-    { id: NewsletterStep.DESIGN, label: 'Design & Editing' },
-    { id: NewsletterStep.SEND, label: 'Sending' },
+    {
+      id: NewsletterStep.TOPIC,
+      shortLabel: 'Topic',
+      longLabel: 'Topic & Resources'
+    },
+    {
+      id: NewsletterStep.CONTENT,
+      shortLabel: 'Content',
+      longLabel: 'Content Drafting'
+    },
+    {
+      id: NewsletterStep.DESIGN,
+      shortLabel: 'Design',
+      longLabel: 'Design & Editing'
+    },
+    {
+      id: NewsletterStep.SEND,
+      shortLabel: 'Send',
+      longLabel: 'Sending'
+    },
   ];
 
   const getStepStatus = (stepId: NewsletterStep) => {
@@ -86,7 +109,6 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
     const stepIndex = steps.findIndex(s => s.id === stepId);
     const currentIndex = steps.findIndex(s => s.id === currentStep);
 
-    // Allow clicking if step is completed or is the next step and current step is valid
     if (getStepStatus(stepId) === 'completed') return false;
     if (stepIndex === currentIndex + 1 && isStepValid(currentStep)) return false;
     if (stepIndex > currentIndex) return true;
@@ -122,7 +144,8 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
                   styles.stepPending
                 }`}
             >
-              {step.label}
+              <span className={styles.stepTextLong}>{step.shortLabel}</span>
+              <span className={styles.stepTextShort}>{step.longLabel}</span>
             </span>
           </div>
         )
