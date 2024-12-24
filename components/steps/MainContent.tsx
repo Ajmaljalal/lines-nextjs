@@ -8,6 +8,7 @@ import CompleteStepButton from './CompleteStepButton';
 import { useNewsletter } from '@/context/NewsletterContext';
 import SecondStep_ContentDrafting from './SecondStep_ContentDrafting';
 import ThirdStep_HtmlPreview from './ThirdStep_HtmlPreview';
+import FourthStep_SendNewsletter from './FourthStep_SendNewsletter';
 
 interface MainContentProps {
   onStepComplete: () => void;
@@ -47,7 +48,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
       case NewsletterStep.DESIGN:
         return <ThirdStep_HtmlPreview />;
       case NewsletterStep.SEND:
-        return <div>Send Newsletter</div>;
+        return <FourthStep_SendNewsletter onComplete={onStepComplete} />;
       default:
         return null;
     }
@@ -58,12 +59,14 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
       <div className={styles.contentWrapper}>
         {renderContent()}
       </div>
-      <div className={styles.buttonWrapper}>
-        <CompleteStepButton
-          onComplete={onStepComplete}
-          step={currentStep}
-        />
-      </div>
+      {currentStep !== NewsletterStep.SEND && (
+        <div className={styles.buttonWrapper}>
+          <CompleteStepButton
+            onComplete={onStepComplete}
+            step={currentStep}
+          />
+        </div>
+      )}
     </div>
   );
 };

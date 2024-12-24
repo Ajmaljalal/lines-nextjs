@@ -28,13 +28,15 @@ const CompleteStepButton: React.FC<CompleteStepButtonProps> = ({
 }) => {
   const { isStepValid, data } = useNewsletter();
 
+  const stepText = step === NewsletterStep.SEND ? "Send" : "Next";
+
   return (
     <Button
       onClick={onComplete}
       disabled={!isStepValid(step)}
       className={styles.button}
     >
-      Next Step
+      {stepText}
     </Button>
   );
 };

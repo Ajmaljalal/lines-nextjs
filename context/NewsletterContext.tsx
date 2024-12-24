@@ -14,6 +14,8 @@ interface NewsletterData {
   };
   recipients?: string[];
   scheduledDate?: Date;
+  subject?: string;
+  fromEmail?: string;
 }
 
 interface NewsletterContextType {
