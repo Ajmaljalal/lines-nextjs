@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Textarea } from '../ui/textarea';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import { Textarea } from '../core-ui-components/textarea';
+import { Input } from '../core-ui-components/input';
+import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '../../context/NewsletterContext';
-import { Button } from '../ui/button';
+import { Button } from '../core-ui-components/button';
 
 const styles = {
   container: `

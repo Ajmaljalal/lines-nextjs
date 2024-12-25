@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../ui/button';
+import { Button } from '../core-ui-components/button';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { NewsletterStep } from './StepsIndicator';
 

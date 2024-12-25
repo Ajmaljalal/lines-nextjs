@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from './ui/button';
+import { Button } from '../core-ui-components/button';
 import { ArrowUp } from 'lucide-react';
-import { Textarea } from "@/components/ui/textarea"
+import { Textarea } from '../core-ui-components/textarea';
 import { useChat } from '@/hooks/useChat';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';

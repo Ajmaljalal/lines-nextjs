@@ -2,13 +2,12 @@
 
 import React from 'react';
 import { NewsletterStep } from './StepsIndicator';
-import FirstStep_DataCollection from './FirstStep_DataCollection';
-import NewsletterPreview from './NewsletterPreview';
-import CompleteStepButton from './CompleteStepButton';
+import FirstStep_DataCollection from './Step_1_DataCollection';
+import CompleteStepButton from './StepButton';
 import { useNewsletter } from '@/context/NewsletterContext';
-import SecondStep_ContentDrafting from './SecondStep_ContentDrafting';
-import ThirdStep_HtmlPreview from './ThirdStep_HtmlPreview';
-import FourthStep_SendNewsletter from './FourthStep_SendNewsletter';
+import SecondStep_ContentDrafting from './Step_2_ContentDrafting';
+import ThirdStep_HtmlPreview from './Step_3_HtmlPreview';
+import FourthStep_SendNewsletter from './Step_4_SendNewsletter';
 
 interface MainContentProps {
   onStepComplete: () => void;

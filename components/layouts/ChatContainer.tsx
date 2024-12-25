@@ -2,10 +2,10 @@
 
 import React, { useEffect } from 'react';
 import { useChat } from '@/hooks/useChat';
-import { Card } from './ui/card';
-import InputContainer from './InputContainer';
+import { Card } from '../core-ui-components/card';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MessageRole } from '@/types/newsletter';
+import InputContainer from './InputContainer';
 
 const styles = {
   wrapper: `

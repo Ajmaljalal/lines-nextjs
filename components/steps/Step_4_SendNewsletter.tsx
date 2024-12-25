@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { Textarea } from '../ui/textarea';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import { Textarea } from '../core-ui-components/textarea';
+import { Input } from '../core-ui-components/input';
+import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '@/context/NewsletterContext';
-import { Button } from '../ui/button';
+import { Button } from '../core-ui-components/button';
 import { Upload, X, Loader2 } from 'lucide-react';
 
 const styles = {

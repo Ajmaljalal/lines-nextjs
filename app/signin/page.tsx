@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/core-ui-components/button';
 
 const styles = {
   container: `

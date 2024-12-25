@@ -3,8 +3,8 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import Header from '../../components/Header';
-import ChatContainer from '../../components/ChatContainer';
+import Header from '../../components/layouts/Header';
+import ChatContainer from '../../components/layouts/ChatContainer';
 import StepsIndicator, { NewsletterStep } from '../../components/steps/StepsIndicator';
 import MainContent from '../../components/steps/MainContent';
 import { NewsletterProvider, useNewsletter } from '@/context/NewsletterContext';

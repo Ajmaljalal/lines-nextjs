@@ -2,7 +2,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import WelcomeMessage from '@/components/WelcomeMessage';
+import WelcomeMessage from '@/components/layouts/WelcomeMessage';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 
