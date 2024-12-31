@@ -32,7 +32,6 @@ const styles = {
     cursor-pointer
     transition-all
     duration-200
-    hover:bg-zinc-800/50
   `,
   stepActive: `
     text-[var(--primary-color)]
