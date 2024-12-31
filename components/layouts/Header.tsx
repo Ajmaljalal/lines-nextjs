@@ -7,7 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Button } from '../core-ui-components/button';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, Moon, Sun } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 const styles = {
   container: `
@@ -15,11 +16,13 @@ const styles = {
   fixed
   top-0
   z-50
-  bg-zinc-900
+  bg-background
   px-8
   py-4
   border-b
-  border-zinc-800
+  border-border-color
+  transition-colors
+  duration-200
   `,
 
   titleContainer: `
@@ -30,7 +33,7 @@ const styles = {
 
   title: `
   text-3xl
-  text-white
+  text-foreground
   font-bold
   flex
   items-center
@@ -48,26 +51,25 @@ const styles = {
   `,
 
   avatarFallback: `
-  bg-zinc-700
-  text-zinc-200
+  bg-muted
+  text-muted-foreground
   `,
 
   dropdownContent: `
-  bg-zinc-900
-  border
-  border-zinc-800
+  bg-background
   p-1
   `,
 
   dropdownItem: `
   flex
+  bg-background
   items-center
   gap-2
   text-sm
-  text-zinc-200
+  text-foreground
   cursor-pointer
-  hover:bg-zinc-800
-  focus:bg-zinc-800
+  hover:bg-muted
+  focus:bg-muted
   rounded-[8px]
   transition-colors
   duration-200
@@ -94,6 +96,7 @@ const SendIcon = () => (
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -144,8 +147,20 @@ const Header: React.FC = () => {
           <SendIcon />
           SendLines
         </div>
-        <div className={styles.userMenu}>
-          <div>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="rounded-full bg-zinc-800"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-5 w-5 text-zinc-200" />
+            ) : (
+              <Moon className="h-5 w-5 text-zinc-200" />
+            )}
+          </Button>
+          <div className={styles.userMenu}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className={styles.avatarContainer}>

@@ -24,28 +24,28 @@ const styles = {
   sectionLabel: `
     text-xs
     font-medium
-    text-[var(--secondary-color)]
+    text-[var(--primary-color)]
     uppercase
     tracking-wider
     mb-2
   `,
   section: `
     space-y-4
-    bg-zinc-800/30
+    bg-muted
     p-6
     rounded-[12px]
   `,
   sectionTitle: `
     text-xl
     font-semibold
-    text-zinc-200
+    text-foreground
   `,
   subtitle: `
     text-sm
-    text-zinc-400
+    text-muted-foreground
   `,
   content: `
-    text-zinc-300
+    text-foreground
     leading-relaxed
   `
 };

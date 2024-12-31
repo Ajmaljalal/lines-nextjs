@@ -22,20 +22,19 @@ const styles = {
     rounded-[8px] 
     hover:bg-[var(--secondary-color)]
     transition-colors
+    text-white
     duration-200`,
   textarea: `
     w-full 
-    bg-zinc-800 
-    text-zinc-200 
+    bg-[var(--input-background)]
+    text-[var(--input-foreground)]
     px-4 
     py-3 
     pr-12 
     focus:outline-none 
-    focus:ring-2 
-    focus:ring-[var(--primary-color)] 
+    focus:ring-1 
+    focus:ring-[var(--muted-foreground)] 
     rounded-[12px] 
-    border 
-    border-zinc-700 
     min-h-[100px]
     max-h-[150px] 
     resize-none
@@ -117,7 +116,6 @@ const InputContainer: React.FC = () => {
           placeholder="What would you like to write about?"
           value={input}
           rows={1}
-          autoFocus
           onChange={handleTextareaChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {

@@ -5,6 +5,8 @@ import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Button } from '../core-ui-components/button';
 import { Upload, X, Loader2 } from 'lucide-react';
+import CompleteStepButton from './StepButton';
+import { NewsletterStep } from './StepsIndicator';
 
 const styles = {
   container: `
@@ -20,25 +22,6 @@ const styles = {
   formGroup: `
     space-y-2.5
   `,
-  label: `
-    text-sm
-    font-medium
-    text-zinc-300
-    ml-1
-  `,
-  input: `
-    w-full
-    bg-zinc-800/50
-    border-zinc-700/50
-    text-zinc-200
-    placeholder:text-zinc-500
-    focus:border-zinc-600
-    focus:ring-1
-    focus:ring-zinc-600
-    rounded-[12px]
-    transition-colors
-    duration-200
-  `,
   recipientList: `
     flex
     flex-wrap
@@ -46,8 +29,8 @@ const styles = {
     mb-2
   `,
   recipientChip: `
-    bg-zinc-700/50
-    text-zinc-200
+    bg-muted
+    text-foreground
     px-3
     py-1
     rounded-full
@@ -60,7 +43,7 @@ const styles = {
     bg-[var(--primary-color)]
     border-none
     focus:ring-1
-    focus:ring-primary/30
+    focus:ring-[var(--primary-color)]
     rounded-[8px]
     transition-all
     duration-200
@@ -198,11 +181,10 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         handleSubmit();
       }}>
         <div className={styles.formGroup}>
-          <Label className={styles.label}>
+          <Label>
             Subject Line <span className="text-red-500">*</span>
           </Label>
           <Input
-            className={styles.input}
             placeholder="Enter the email subject line..."
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
@@ -211,11 +193,10 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         </div>
 
         <div className={styles.formGroup}>
-          <Label className={styles.label}>
+          <Label>
             From Email <span className="text-red-500">*</span>
           </Label>
           <Input
-            className={styles.input}
             type="email"
             placeholder="Enter the sender email address..."
             value={fromEmail}
@@ -225,7 +206,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         </div>
 
         <div className={styles.formGroup}>
-          <Label className={styles.label}>
+          <Label>
             Add more recipients / subscribers <span className="text-red-500">*</span>
           </Label>
 
@@ -248,7 +229,6 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
 
           <div className="relative">
             <Input
-              className={`${styles.input} pr-[70px]`}
               type="email"
               placeholder="Enter email addresses and press Enter or Add..."
               value={currentRecipient}
@@ -264,7 +244,6 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
               type="button"
               onClick={addRecipient}
               className={`
-                ${styles.addButton}
                 absolute
                 right-[8px]
                 top-1/2
@@ -280,7 +259,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           </div>
 
           <div className="mt-4">
-            <Label className={styles.label}>
+            <Label>
               Or Upload CSV File
             </Label>
             <label className={styles.uploadSection}>
@@ -305,24 +284,11 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         )}
 
         <div className="flex justify-end mt-6">
-          <Button
-            type="submit"
-            disabled={isSending}
-            className={`
-              ${styles.addButton}
-              min-w-[120px]
-              ${isSending ? 'opacity-50 cursor-not-allowed' : ''}
-            `}
-          >
-            {isSending ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Sending...
-              </div>
-            ) : (
-              'Send Newsletter'
-            )}
-          </Button>
+          <CompleteStepButton
+            onComplete={handleSubmit}
+            step={NewsletterStep.SEND}
+            isLoading={isSending}
+          />
         </div>
       </form>
     </div>

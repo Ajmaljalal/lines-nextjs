@@ -4,21 +4,11 @@
 
 * {
   scrollbar-width: none;
+  border-width: -0.5px;
 }
 
+/* Brand colors and constants - these stay the same regardless of theme */
 :root {
-  --background: 24 24 27;
-  --foreground: 0 0% 98%;
-
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-
   --primary-color: #FF5722;
   --secondary-color: #FF8A65;
   --accent-color: #FFA000;
@@ -26,15 +16,60 @@
   --light-bg: #F3F4F6;
   --white: #FFFFFF;
   --dark-bg: #111827;
-  --transition: all 0.3s ease;
+  --transition: all 0.001s ease;
+}
+
+/* Dark theme (default) */
+:root {
+  --background: var(--dark-bg);
+  --foreground: var(--white);
+
+  --card: #1a202c;
+  --card-foreground: var(--white);
+
+  --popover: #1a202c;
+  --popover-foreground: var(--white);
+
+  --muted: #1f2937;
+  --muted-foreground: #9CA3AF;
+
+  --border: #010101;
+  --border-color: #000000;
+}
+
+/* Light theme */
+:root[data-theme="light"] {
+  --background: var(--light-bg);
+  --foreground: var(--text-color);
+
+  --card: var(--white);
+  --card-foreground: var(--text-color);
+
+  --popover: var(--white);
+  --popover-foreground: var(--text-color);
+
+  --muted: #f3f4f6;
+  --muted-foreground: #4B5563;
+
+  --border: var(--muted);
+  --border-color: var(--muted);
+
+  --input-background: #F3F4F6;
+  --input-foreground: #1F2937;
+  --input-placeholder: #6B7280;
 }
 
 body {
-  background-color: rgb(var(--background));
-  color: rgb(var(--foreground));
+  background-color: var(--background);
+  color: var(--foreground);
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;
+}
+
+/* Add smooth transitions for theme changes */
+body * {
+  transition: var(--transition);
 }
 
 #__next {
@@ -43,10 +78,11 @@ body {
 
 @layer utilities {
   .scrollbar-none {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
+
   .scrollbar-none::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
+    display: none;
   }
 }

@@ -18,11 +18,13 @@ const styles = {
   container: `
     w-full
     h-full
-    bg-zinc-800/50
+    bg-card
     rounded-[12px]
     p-6
     flex
     flex-col
+    transition-colors
+    duration-200
   `,
   contentWrapper: `
     flex-1

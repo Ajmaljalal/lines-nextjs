@@ -19,38 +19,7 @@ const styles = {
   formGroup: `
     space-y-2.5
   `,
-  label: `
-    text-sm
-    font-medium
-    text-zinc-300
-    ml-1
-  `,
-  input: `
-    w-full
-    bg-zinc-800/50
-    border-zinc-700/50
-    text-zinc-200
-    placeholder:text-zinc-500
-    focus:border-zinc-600
-    focus:ring-1
-    focus:ring-zinc-600
-    rounded-[12px]
-    transition-colors
-    duration-200
-  `,
-  textarea: `
-    w-full
-    bg-zinc-800/50
-    border-zinc-700/50
-    text-zinc-200
-    placeholder:text-zinc-500
-    focus:border-zinc-600
-    focus:ring-1
-    focus:ring-zinc-600
-    resize-none
-    transition-colors
-    duration-200
-  `,
+
   urlList: `
     flex
     flex-wrap
@@ -153,11 +122,11 @@ const FirstStep_DataCollection: React.FC = () => {
   return (
     <form className={styles.container}>
       <div className={styles.formGroup}>
-        <Label className={styles.label}>
-          Newsletter Topic <span className="text-red-500">*</span>
+        <Label>
+          Newsletter / Email Topic <span className="text-red-500">*</span>
         </Label>
         <Input
-          className={styles.input}
+          // className={styles.input}
           placeholder="Enter the main topic or subject..."
           value={topic}
           onChange={handleTopicChange}
@@ -166,11 +135,10 @@ const FirstStep_DataCollection: React.FC = () => {
       </div>
 
       <div className={styles.formGroup}>
-        <Label className={styles.label}>
+        <Label>
           Content <span className="text-zinc-500 text-sm font-normal">(optional)</span>
         </Label>
         <Textarea
-          className={styles.textarea}
           placeholder="Your newsletter/email content, if you already have something in mind..."
           rows={6}
           value={content}
@@ -179,7 +147,7 @@ const FirstStep_DataCollection: React.FC = () => {
       </div>
 
       <div className={styles.formGroup}>
-        <Label className={styles.label}>
+        <Label>
           Reference URLs <span className="text-zinc-500 text-sm font-normal">(optional)</span>
         </Label>
 
@@ -201,7 +169,6 @@ const FirstStep_DataCollection: React.FC = () => {
 
         <div className="relative">
           <Input
-            className={`${styles.input} pr-[70px]`}
             placeholder="Enter web URLs to extract content from and press Enter or Add..."
             value={currentUrl}
             onChange={(e) => setCurrentUrl(e.target.value)}
@@ -225,6 +192,7 @@ const FirstStep_DataCollection: React.FC = () => {
               min-w-[50px]
               text-xs
               px-2.5
+              text-white
             `}
           >
             Add
@@ -233,11 +201,10 @@ const FirstStep_DataCollection: React.FC = () => {
       </div>
 
       <div className={styles.formGroup}>
-        <Label className={styles.label}>
+        <Label>
           Style Preferences <span className="text-zinc-500 text-sm font-normal">(optional)</span>
         </Label>
         <Textarea
-          className={styles.textarea}
           placeholder="Describe your preferred style, theme, and colors..."
           rows={3}
           value={style}

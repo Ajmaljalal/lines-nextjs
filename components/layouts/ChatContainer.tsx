@@ -40,10 +40,10 @@ const styles = {
     left-0
     right-0
     z-10
-    bg-zinc-900/80
+    bg-foreground/10
     backdrop-blur-sm
-    border-t
-    border-zinc-800`,
+    rounded-[12px]
+    `,
 
   inputWrapper: `
     w-full

@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '../core-ui-components/button';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { NewsletterStep } from './StepsIndicator';
+import { Loader2 } from 'lucide-react';
 
 const styles = {
   button: `
@@ -20,11 +21,13 @@ const styles = {
 interface CompleteStepButtonProps {
   onComplete: () => void;
   step: NewsletterStep;
+  isLoading?: boolean;
 }
 
 const CompleteStepButton: React.FC<CompleteStepButtonProps> = ({
   onComplete,
-  step
+  step,
+  isLoading
 }) => {
   const { isStepValid, data } = useNewsletter();
 
@@ -33,10 +36,21 @@ const CompleteStepButton: React.FC<CompleteStepButtonProps> = ({
   return (
     <Button
       onClick={onComplete}
-      disabled={!isStepValid(step)}
-      className={styles.button}
+      disabled={!isStepValid(step) || isLoading}
+      className={`
+        ${styles.button}
+        min-w-[120px]
+        ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+      `}
     >
-      {stepText}
+      {isLoading ? (
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Sending...
+        </div>
+      ) : (
+        stepText
+      )}
     </Button>
   );
 };

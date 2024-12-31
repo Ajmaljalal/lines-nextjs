@@ -16,8 +16,10 @@ const styles = {
     h-screen
     overflow-hidden
     font-[var(--font-geist-sans)] 
-    bg-zinc-900
-    text-zinc-200
+    bg-background
+    text-foreground
+    transition-colors
+    duration-200
     `,
 
   main: `
@@ -34,7 +36,7 @@ const styles = {
 
   leftColumn: `
     border
-    border-zinc-700/50
+    border-border-color
     rounded-[12px]
     `,
 
@@ -47,7 +49,7 @@ const styles = {
     w-[350px]
     min-w-[350px]
     border
-    border-zinc-700/50
+    border-border-color
     rounded-[12px]
     `
 };
