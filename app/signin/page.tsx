@@ -1,67 +1,122 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/core-ui-components/button';
+import Image from 'next/image';
+import { Spinner } from '@/components/core-ui-components/spinner';
 
 const styles = {
   container: `
-  min-h-screen
-  bg-zinc-900
-  flex
-  flex-col
-  items-center
-  justify-center`,
+    w-full
+    max-w-4xl
+    mx-auto
+    flex
+    flex-col
+    items-center
+    justify-center
+    gap-8
+    overflow-y-auto
+    min-h-screen
+    px-4
+    bg-background
+  `,
+
+  logoContainer: `
+    mb-8
+  `,
 
   title: `
-  text-4xl
-  font-bold
-  tracking-wider
-  text-white`,
+    text-5xl
+    font-bold
+    text-foreground
+    tracking-tight
+  `,
 
   subtitle: `
-  text-lg
-  text-slate-400
-  max-w-[600px]`
+    text-lg
+    text-muted-foreground
+    text-center
+    max-w-2xl
+  `,
+
+  signInButton: `
+    mt-8
+    px-8
+    py-6
+    bg-[var(--primary-color)]
+    hover:bg-[var(--secondary-color)]
+    transition-all
+    duration-200
+    rounded-[12px]
+    text-white
+    font-medium
+    text-lg
+    flex
+    items-center
+    gap-2
+  `,
+
+  errorText: `
+    text-red-500
+    text-sm
+    mt-4
+  `
 };
 
 const SignIn: React.FC = () => {
   const { signInWithGoogle, error } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
     try {
+      setIsLoading(true);
       await signInWithGoogle();
       router.push('/');
     } catch (error) {
       // Error is handled in AuthContext
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className={styles.container}>
-      <div className="text-center space-y-10">
-        <h1 className={styles.title}>LINES</h1>
-        <p className={styles.subtitle}>
-          Your assistant in generating and sending beautifully designed emails & newsletters.
-        </p>
-
-        <div className="mt-8 space-y-4">
-          <Button
-            onClick={handleSignIn}
-            variant="default"
-            className="px-8 py-2 text-slate-800 bg-white rounded-[8px] hover:bg-white/80"
-          >
-            Sign in with Google
-          </Button>
-
-          {error && (
-            <p className="text-red-500 text-sm">
-              {error}
-            </p>
-          )}
-        </div>
+      <div className={styles.logoContainer}>
+        <Image
+          src="/images/send-orange.png"
+          alt="SendLines Logo"
+          width={64}
+          height={64}
+          className="object-contain"
+        />
       </div>
+      <h1 className={styles.title}>Welcome to SendLines</h1>
+      <h3 className={styles.subtitle}>
+        Your intelligent assistant in crafting beautifully designed emails & newsletters.
+      </h3>
+
+      <Button
+        onClick={handleSignIn}
+        className={styles.signInButton}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <>
+            <Spinner size="small" />
+            <span>Signing in...</span>
+          </>
+        ) : (
+          <span>Sign in with Google</span>
+        )}
+      </Button>
+
+      {error && (
+        <p className={styles.errorText}>
+          {error}
+        </p>
+      )}
     </div>
   );
 };

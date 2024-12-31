@@ -1,98 +1,96 @@
+import Image from 'next/image';
+import { Button } from '../core-ui-components/button';
+
 const styles = {
   container: `
-  w-full
-  flex
-  flex-col
-  items-center
-  gap-6
-  overflow-y-auto
-  pt-40
-  pb-20
+    w-full
+    max-w-4xl
+    mx-auto
+    flex
+    flex-col
+    items-center
+    justify-center
+    gap-8
+    overflow-y-auto
+    min-h-[calc(100vh-80px)]
+    px-4
+  `,
+
+  logoContainer: `
+    mb-8
   `,
 
   title: `
-  text-4xl
-  font-semibold
-  text-zinc-200`,
+    text-5xl
+    font-bold
+    text-foreground
+    tracking-tight
+  `,
 
   subtitle: `
-  text-zinc-400
-  text-center`,
-
-  examplesSection: `
-  w-full
-  max-w-2xl
-  mt-4`,
-
-  exampleQuery: `
-  bg-zinc-800 
-  hover:bg-zinc-700 
-  transition-colors
-  text-zinc-200
-  p-4 
-  rounded-[12px] 
-  cursor-pointer 
-  flex 
-  items-center 
-  gap-3`,
+    text-lg
+    text-muted-foreground
+    text-center
+    max-w-2xl
+  `,
 
   startNewButton: `
-  mt-8 
-  px-6 
-  py-3 
-  bg-[var(--primary-color)]
-  font-bold
-  text-2xl
-  hover:bg-[var(--secondary-color)] 
-  transition-colors 
-  rounded-[12px] 
-  text-white 
-  font-medium`,
+    mt-8
+    px-8
+    py-6
+    bg-[var(--primary-color)]
+    hover:bg-[var(--secondary-color)]
+    transition-all
+    duration-200
+    rounded-[12px]
+    text-white
+    font-medium
+    text-lg
+    flex
+    items-center
+    gap-2
+  `,
 };
 
-const WelcomeMessage: React.FC<{ handleExampleClick: (query: string) => void; onStartNew: () => void }> = ({
-  handleExampleClick,
+const WelcomeMessage: React.FC<{ onStartNew: () => void }> = ({
   onStartNew
 }) => {
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Welcome!</h1>
-      <h3 className={styles.subtitle}>
-        I am your assistant in generating beautifully designed emails & newsletters.
-        <br />
-        What would you like to write about?
-      </h3>
-      <div className={styles.examplesSection}>
-        <div className="flex flex-col gap-3">
-          <div
-            className={styles.exampleQuery}
-            onClick={() => handleExampleClick('Create a tech newsletter about AI and machine learning developments')}
-          >
-            <span className="text-zinc-500">💡</span>
-            <span>Create a tech newsletter about AI developments</span>
-          </div>
-          <div
-            className={styles.exampleQuery}
-            onClick={() => handleExampleClick('Generate a weekly summary newsletter on climate change news')}
-          >
-            <span className="text-zinc-500">💡</span>
-            <span>Generate a weekly summary newsletter on climate change news</span>
-          </div>
-          <div
-            className={styles.exampleQuery}
-            onClick={() => handleExampleClick('Make a newsletter about startup funding rounds for this week')}
-          >
-            <span className="text-zinc-500">💡</span>
-            <span>Make a newsletter about startup funding rounds for this week</span>
-          </div>
-        </div>
+      <div className={styles.logoContainer}>
+        <Image
+          src="/images/send-orange.png"
+          alt="SendLines Logo"
+          width={64}
+          height={64}
+          className="object-contain"
+        />
       </div>
-      <button
+      <h1 className={styles.title}>Welcome to SendLines</h1>
+      <h3 className={styles.subtitle}>
+        Your intelligent assistant in crafting beautifully designed emails & newsletters.
+      </h3>
+      <Button
         onClick={onStartNew}
         className={styles.startNewButton}
       >
-        Write about a different topic
-      </button>
+        <span>Start writing</span>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6 12L10 8L6 4"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Button>
     </div>
   )
 }

@@ -1,10 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { Textarea } from '../core-ui-components/textarea';
 import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Button } from '../core-ui-components/button';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import CompleteStepButton from './StepButton';
 import { NewsletterStep } from './StepsIndicator';
 
@@ -262,9 +261,6 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         </div>
 
         <div className="mt-4">
-          {/* <Label>
-            Or Upload CSV File
-          </Label> */}
           <label className={styles.uploadSection}>
             <input
               type="file"
