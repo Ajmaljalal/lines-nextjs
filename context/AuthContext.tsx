@@ -45,6 +45,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         };
         await setDoc(userRef, userData);
 
+        // Create user credits
+        const userCreditsRef = doc(db, 'user-credits', googleUser.uid);
+        const userCreditsData = {
+          userId: googleUser.uid,
+          totalCredits: 10,
+          creditsUsed: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        await setDoc(userCreditsRef, userCreditsData);
+
         return {
           ...googleUser,
           businessData: {
@@ -58,9 +69,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         // Update existing user
         const dbUser = userDoc.data() as DbUser;
-        await setDoc(userRef, {
-          updatedAt: new Date()
-        }, { merge: true });
+        await setDoc(
+          userRef,
+          {
+            updatedAt: new Date(),
+          },
+          { merge: true }
+        );
 
         return {
           ...googleUser,

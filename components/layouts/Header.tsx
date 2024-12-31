@@ -9,78 +9,79 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../core-ui-components/button';
 import { User, Settings, LogOut, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import UserCredits from '../UserCredits';
 
 const styles = {
   container: `
-  w-full
-  fixed
-  top-0
-  z-50
-  bg-background
-  px-8
-  py-4
-  border-b
-  border-border-color
-  transition-colors
-  duration-200
+    w-full
+    fixed
+    top-0
+    z-50
+    bg-background
+    px-8
+    py-4
+    border-b
+    border-border-color
+    transition-colors
+    duration-200
   `,
 
   titleContainer: `
-  flex
-  justify-between
-  items-center
+    flex
+    justify-between
+    items-center
   `,
 
   title: `
-  text-3xl
-  text-foreground
-  font-bold
-  flex
-  items-center
-  gap-2
+    text-3xl
+    text-foreground
+    font-bold
+    flex
+    items-center
+    gap-2
   `,
 
   userMenu: `
-  relative
+    relative
   `,
 
   avatarContainer: `
-  cursor-pointer
-  hover:opacity-80
-  transition-opacity
+    cursor-pointer
+    hover:opacity-80
+    transition-opacity
   `,
 
   avatarFallback: `
-  bg-muted
-  text-muted-foreground
+    bg-muted
+    text-muted-foreground
   `,
 
   dropdownContent: `
-  bg-background
-  p-1
+    bg-background
+    p-1
   `,
 
   dropdownItem: `
-  flex
-  bg-background
-  items-center
-  gap-2
-  text-sm
-  text-foreground
-  cursor-pointer
-  hover:bg-muted
-  focus:bg-muted
-  rounded-[8px]
-  transition-colors
-  duration-200
-  px-3
-  py-2
-  outline-none
+    flex
+    bg-background
+    items-center
+    gap-2
+    text-sm
+    text-foreground
+    cursor-pointer
+    hover:bg-muted
+    focus:bg-muted
+    rounded-[8px]
+    transition-colors
+    duration-200
+    px-3
+    py-2
+    outline-none
   `,
 
   dropdownSeparator: `
-  bg-zinc-800
-  my-1
+    bg-zinc-800
+    my-1
   `
 };
 
@@ -104,22 +105,14 @@ const Header: React.FC = () => {
     if (!user) {
       router.push('/signin');
     }
-  }, []);
+  }, [user, router]);
 
   const handleProfileClick = () => {
-    // TODO: Implement profile navigation
     router.push('/profile');
   };
 
   const handleSettingsClick = () => {
-    // TODO: Implement settings navigation
     router.push('/settings');
-  };
-
-  const toggleDropdown = () => {
-    console.log('toggleDropdown');
-    // e.stopPropagation();
-    setDropdownVisible(!dropdownVisible);
   };
 
   const closeDropdown = () => {
@@ -148,25 +141,27 @@ const Header: React.FC = () => {
           SendLines
         </div>
         <div className="flex items-center gap-4">
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
             className="rounded-full bg-zinc-800"
+            aria-label="Toggle Theme"
           >
             {theme === 'dark' ? (
               <Sun className="h-5 w-5 text-zinc-200" />
             ) : (
               <Moon className="h-5 w-5 text-zinc-200" />
             )}
-          </Button>
+          </Button> */}
+          <UserCredits />
           <div className={styles.userMenu}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className={styles.avatarContainer}>
                   <AvatarImage src={user.photoURL || ''} alt="User Avatar" />
                   <AvatarFallback className={styles.avatarFallback}>
-                    {user.displayName?.charAt(0)}
+                    {user.displayName?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>

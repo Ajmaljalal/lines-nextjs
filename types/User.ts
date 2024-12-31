@@ -10,3 +10,11 @@ interface DbUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+interface DbUserCredits {
+  userId: string;
+  totalCredits: number;
+  creditsUsed: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

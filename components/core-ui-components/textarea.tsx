@@ -26,6 +26,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             placeholder:opacity-40 !important 
             focus-visible:outline-none 
             disabled:cursor-not-allowed 
+            resize-none
             disabled:opacity-50`,
           className
         )}
