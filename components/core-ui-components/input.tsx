@@ -15,7 +15,6 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           p-3
           text-base
           text-foreground
-          shadow-sm
           transition-colors
           file:border-0
           file:bg-transparent

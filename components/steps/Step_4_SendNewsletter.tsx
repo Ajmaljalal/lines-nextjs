@@ -41,6 +41,7 @@ const styles = {
   `,
   addButton: `
     bg-[var(--primary-color)]
+    text-white
     border-none
     focus:ring-1
     focus:ring-[var(--primary-color)]
@@ -51,7 +52,7 @@ const styles = {
   uploadSection: `
     border-2
     border-dashed
-    border-zinc-700/50
+    border-zinc-700/20
     rounded-[12px]
     p-6
     text-center
@@ -175,75 +176,77 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
   };
 
   return (
-    <div className={styles.container}>
-      <form onSubmit={(e) => {
+    <form
+      className={styles.container}
+      onSubmit={(e) => {
         e.preventDefault();
         handleSubmit();
       }}>
-        <div className={styles.formGroup}>
-          <Label>
-            Subject Line <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            placeholder="Enter the email subject line..."
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            required
-          />
-        </div>
+      <div className={styles.formGroup}>
+        <Label>
+          Subject Line <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          placeholder="Enter the email subject line..."
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          required
+        />
+      </div>
 
-        <div className={styles.formGroup}>
-          <Label>
-            From Email <span className="text-red-500">*</span>
-          </Label>
+      <div className={styles.formGroup}>
+        <Label>
+          From Email <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          type="email"
+          placeholder="Enter the sender email address..."
+          value={fromEmail}
+          onChange={(e) => setFromEmail(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <Label>
+          Add more recipients / subscribers <span className="text-red-500">*</span>
+        </Label>
+
+        {data.recipients && data.recipients.length > 0 && (
+          <div className={styles.recipientList}>
+            {data.recipients.map((email, index) => (
+              <div key={index} className={styles.recipientChip}>
+                <span className="truncate max-w-[300px]">{email}</span>
+                <button
+                  type="button"
+                  onClick={() => removeRecipient(email)}
+                  className="text-zinc-400 hover:text-zinc-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="relative">
           <Input
             type="email"
-            placeholder="Enter the sender email address..."
-            value={fromEmail}
-            onChange={(e) => setFromEmail(e.target.value)}
-            required
+            placeholder="Enter email addresses and press Enter or Add..."
+            value={currentRecipient}
+            onChange={(e) => setCurrentRecipient(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addRecipient();
+              }
+            }}
           />
-        </div>
-
-        <div className={styles.formGroup}>
-          <Label>
-            Add more recipients / subscribers <span className="text-red-500">*</span>
-          </Label>
-
-          {data.recipients && data.recipients.length > 0 && (
-            <div className={styles.recipientList}>
-              {data.recipients.map((email, index) => (
-                <div key={index} className={styles.recipientChip}>
-                  <span className="truncate max-w-[300px]">{email}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeRecipient(email)}
-                    className="text-zinc-400 hover:text-zinc-200"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="relative">
-            <Input
-              type="email"
-              placeholder="Enter email addresses and press Enter or Add..."
-              value={currentRecipient}
-              onChange={(e) => setCurrentRecipient(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addRecipient();
-                }
-              }}
-            />
-            <Button
-              type="button"
-              onClick={addRecipient}
-              className={`
+          <Button
+            type="button"
+            onClick={addRecipient}
+            className={`
+              ${styles.addButton}
                 absolute
                 right-[8px]
                 top-1/2
@@ -253,45 +256,44 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
                 text-xs
                 px-2.5
               `}
-            >
-              Add
-            </Button>
-          </div>
-
-          <div className="mt-4">
-            <Label>
-              Or Upload CSV File
-            </Label>
-            <label className={styles.uploadSection}>
-              <input
-                type="file"
-                accept=".csv"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              <Upload className="w-6 h-6 text-zinc-400" />
-              <p className="text-sm text-zinc-400 mt-2">
-                {csvFile ? csvFile.name : 'Click to upload a CSV file of email addresses'}
-              </p>
-            </label>
-          </div>
+          >
+            Add
+          </Button>
         </div>
 
-        {sendError && (
-          <div className="text-red-500 text-sm mt-4">
-            {sendError}
-          </div>
-        )}
-
-        <div className="flex justify-end mt-6">
-          <CompleteStepButton
-            onComplete={handleSubmit}
-            step={NewsletterStep.SEND}
-            isLoading={isSending}
-          />
+        <div className="mt-4">
+          {/* <Label>
+            Or Upload CSV File
+          </Label> */}
+          <label className={styles.uploadSection}>
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            <Upload className="w-6 h-6 text-zinc-400" />
+            <p className="text-sm text-zinc-400 mt-2">
+              {csvFile ? csvFile.name : 'Or click/drag to upload a CSV file of your recipients'}
+            </p>
+          </label>
         </div>
-      </form>
-    </div>
+      </div>
+
+      {sendError && (
+        <div className="text-red-500 text-sm mt-4">
+          {sendError}
+        </div>
+      )}
+
+      <div className="flex justify-end mt-6">
+        <CompleteStepButton
+          onComplete={handleSubmit}
+          step={NewsletterStep.SEND}
+          isLoading={isSending}
+        />
+      </div>
+    </form>
   );
 };
 
