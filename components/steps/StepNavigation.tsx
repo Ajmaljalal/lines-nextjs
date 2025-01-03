@@ -6,6 +6,7 @@ import { NewsletterStep } from './StepsIndicator';
 import { db } from '@/config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
+import { X } from 'lucide-react';
 
 const styles = {
   container: `
@@ -54,6 +55,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   const newsletterId = searchParams.get('id');
   const { data, isStepValid } = useNewsletter();
   const { user } = useAuth();
+  const isNewsletterSent = data.status === 'sent';
 
   const saveNewsletter = async (status: 'draft' | 'sent') => {
     if (!user || !newsletterId) return;
@@ -103,6 +105,21 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
     onNext();
   };
 
+  if (isNewsletterSent) {
+    return (
+      <div className="flex items-center justify-between gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-[8px] text-sm border border-green-300 shadow-lg">
+        Newsletter has already been sent
+        <Button
+          onClick={() => router.push('/')}
+          className=" h-6 w-6 ml-2 hover:bg-green-200 rounded-full p-1 shadow-lg border border-green-300"
+        >
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+    )
+  }
+
+  const buttonText = step === NewsletterStep.SEND ? 'Send' : 'Next';
   return (
     <div className={styles.container}>
       <div className="flex gap-2">
@@ -127,7 +144,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
         className={`${styles.button} ${styles.nextButton} ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : ''
           }`}
       >
-        {step === NewsletterStep.SEND ? 'Send' : 'Next'}
+        {isLoading ? 'Sending...' : buttonText}
       </Button>
     </div>
   );

@@ -39,7 +39,7 @@ const styles = {
 };
 
 const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
-  const { currentStep, data } = useNewsletter();
+  const { currentStep, data, updateData } = useNewsletter();
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
 
@@ -61,9 +61,12 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
           htmlContent: data.htmlContent,
         }),
       });
+      setIsSending(false);
+      updateData({ status: 'sent' });
 
       if (!response.ok) {
         const errorJson = await response.json();
+        setIsSending(false);
         throw new Error(errorJson.error || 'Failed to send');
       }
 

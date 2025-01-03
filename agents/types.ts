@@ -1,3 +1,5 @@
+import { Newsletter } from "@/types/newsletter";
+
 export enum AgentRole {
   PLANNER = 'planner',
   WRITER = 'writer',
@@ -10,26 +12,9 @@ export interface AgentMessage {
   type?: 'user' | 'assistant'; // Add this line
 }
 
-interface NewsletterData {
-  topic?: string;
-  content?: string;
-  urls?: string[];
-  style?: string;
-  generatedContent?: string;
-  htmlContent?: string;
-  design?: {
-    template?: string;
-    colors?: string[];
-  };
-  recipients?: string[];
-  scheduledDate?: Date;
-  senderName?: string;
-  fromEmail?: string;
-}
-
 export interface AgentContext {
   messages: any[];
-  data: NewsletterData;
+  data: Newsletter;
 }
 
 export interface NewsletterPlan {

@@ -1,27 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
 import { NewsletterStep } from '../components/steps/StepsIndicator';
+import { Newsletter } from '../types/newsletter';
 
-interface NewsletterData {
-  topic: string;
-  content: string;
-  urls: string[];
-  style: string;
-  generatedContent?: string;
-  htmlContent?: string;
-  design?: {
-    template?: string;
-    colors?: string[];
-  };
-  recipients?: string[];
-  scheduledDate?: Date;
-  subject?: string;
-  fromEmail?: string;
-  senderName?: string;
-}
 
 interface NewsletterContextType {
-  data: NewsletterData;
-  updateData: (updates: Partial<NewsletterData>) => void;
+  data: Newsletter;
+  updateData: (updates: Partial<Newsletter>) => void;
   isStepValid: (step: NewsletterStep) => boolean;
   currentStep: NewsletterStep;
   setCurrentStep: (step: NewsletterStep) => void;
@@ -30,16 +14,22 @@ interface NewsletterContextType {
 const NewsletterContext = createContext<NewsletterContextType | undefined>(undefined);
 
 export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [data, setData] = useState<NewsletterData>({
+  const [data, setData] = useState<Newsletter>({
+    id: '',
+    userId: '',
+    status: 'draft',
+    createdAt: new Date(),
+    updatedAt: new Date(),
     topic: '',
     content: '',
+    htmlContent: '',
     urls: [],
     style: '',
     senderName: '',
   });
   const [currentStep, setCurrentStep] = useState<NewsletterStep>(NewsletterStep.TOPIC);
 
-  const updateData = (updates: Partial<NewsletterData>) => {
+  const updateData = (updates: Partial<Newsletter>) => {
     setData(current => ({
       ...current,
       ...updates,

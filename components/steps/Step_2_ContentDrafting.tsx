@@ -69,6 +69,11 @@ const SecondStep_ContentDrafting: React.FC = () => {
         const agent = new ContentDrafterAgent({
           messages: [],
           data: {
+            id: data.id,
+            userId: data.userId,
+            status: data.status,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
             topic: data.topic,
             content: data.content,
             urls: data.urls,

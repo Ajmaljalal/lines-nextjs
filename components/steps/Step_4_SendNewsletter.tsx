@@ -77,8 +77,8 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
   const [fromEmail, setFromEmail] = useState(data.fromEmail || '');
   const [currentRecipient, setCurrentRecipient] = useState('');
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const isReadOnly = data.status === 'sent';
 
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -146,6 +146,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
             updateData({ senderName: e.target.value });
           }}
           required
+          disabled={isReadOnly}
         />
       </div>
 
@@ -161,6 +162,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
             updateData({ subject: e.target.value });
           }}
           required
+          disabled={isReadOnly}
         />
       </div>
 
@@ -177,6 +179,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
             updateData({ fromEmail: e.target.value });
           }}
           required
+          disabled={isReadOnly}
         />
       </div>
 
@@ -190,13 +193,15 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
             {data.recipients.map((email, index) => (
               <div key={index} className={styles.recipientChip}>
                 <span className="truncate max-w-[300px]">{email}</span>
-                <button
-                  type="button"
-                  onClick={() => removeRecipient(email)}
-                  className="text-zinc-400 hover:text-zinc-200"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                {!isReadOnly && (
+                  <button
+                    type="button"
+                    onClick={() => removeRecipient(email)}
+                    className="text-zinc-400 hover:text-zinc-200"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -214,6 +219,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
                 addRecipient();
               }
             }}
+            disabled={isReadOnly}
           />
           <Button
             type="button"
@@ -241,6 +247,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
               accept=".csv"
               className="hidden"
               onChange={handleFileUpload}
+              disabled={isReadOnly}
             />
             <Upload className="w-6 h-6 text-zinc-400" />
             <p className="text-sm text-zinc-400 mt-2">

@@ -55,6 +55,8 @@ const FirstStep_DataCollection: React.FC = () => {
   const [style, setStyle] = useState<string>(data.style || '');
   const [currentUrl, setCurrentUrl] = useState('');
 
+  const isReadOnly = data.status === 'sent';
+
   useEffect(() => {
     setTopic(data.topic || '');
     setContent(data.content || '');
@@ -132,11 +134,12 @@ const FirstStep_DataCollection: React.FC = () => {
           Newsletter / Email Topic <span className="text-red-500">*</span>
         </Label>
         <Input
-          // className={styles.input}
           placeholder="What is the main topic you want to write about?"
           value={topic}
           onChange={handleTopicChange}
           required
+          disabled={isReadOnly}
+          className={isReadOnly ? 'opacity-70 cursor-not-allowed' : ''}
         />
       </div>
 
@@ -149,6 +152,8 @@ const FirstStep_DataCollection: React.FC = () => {
           rows={6}
           value={content}
           onChange={handleContentChange}
+          disabled={isReadOnly}
+          className={isReadOnly ? 'opacity-70 cursor-not-allowed' : ''}
         />
       </div>
 
@@ -162,12 +167,14 @@ const FirstStep_DataCollection: React.FC = () => {
             {data.urls.map((url, index) => (
               <div key={index} className={styles.urlChip}>
                 <span className="truncate max-w-[300px]">{url}</span>
-                <button
-                  onClick={() => removeUrl(url)}
-                  className="text-zinc-400 hover:text-zinc-200"
-                >
-                  ×
-                </button>
+                {!isReadOnly && (
+                  <button
+                    onClick={() => removeUrl(url)}
+                    className="text-zinc-400 hover:text-zinc-200"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -184,26 +191,28 @@ const FirstStep_DataCollection: React.FC = () => {
                 addUrl();
               }
             }}
+            disabled={isReadOnly}
           />
           <Button
             type="button"
             onClick={addUrl}
             className={`
-              ${styles.addButton}
-              absolute
-              right-[8px]
-              top-1/2
-              -translate-y-1/2
-              h-[calc(100%-16px)]
-              min-w-[50px]
-              text-xs
-              px-2.5
-              text-white
-            `}
+                ${styles.addButton}
+                absolute
+                right-[8px]
+                top-1/2
+                -translate-y-1/2
+                h-[calc(100%-16px)]
+                min-w-[50px]
+                text-xs
+                px-2.5
+                text-white
+              `}
           >
             Add
           </Button>
         </div>
+
       </div>
 
       <div className={styles.formGroup}>
@@ -215,6 +224,8 @@ const FirstStep_DataCollection: React.FC = () => {
           rows={3}
           value={style}
           onChange={handleStyleChange}
+          disabled={isReadOnly}
+          className={isReadOnly ? 'opacity-70 cursor-not-allowed' : ''}
         />
       </div>
     </form>

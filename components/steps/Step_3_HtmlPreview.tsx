@@ -46,6 +46,11 @@ const ThirdStep_HtmlPreview: React.FC = () => {
         const agent = new HtmlGeneratorAgent({
           messages: [],
           data: {
+            id: data.id,
+            userId: data.userId,
+            status: data.status,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
             topic: data.topic || '',
             urls: data.urls || [],
             style: data.style || '',

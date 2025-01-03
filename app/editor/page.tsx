@@ -90,6 +90,8 @@ const NewsletterEditor = () => {
           }
 
           updateData({
+            id: newsletterData.id,
+            userId: newsletterData.userId,
             topic: newsletterData.topic || '',
             content: newsletterData.content || '',
             urls: newsletterData.urls || [],
@@ -100,6 +102,9 @@ const NewsletterEditor = () => {
             subject: newsletterData.subject,
             fromEmail: newsletterData.fromEmail,
             senderName: newsletterData.senderName,
+            status: newsletterData.status,
+            createdAt: newsletterData.createdAt,
+            updatedAt: newsletterData.updatedAt,
           });
         }
         // If document doesn't exist, continue with empty state
