@@ -6,8 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../core-ui-components/avata
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '../core-ui-components/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Button } from '../core-ui-components/button';
-import { User, Settings, LogOut, Moon, Sun } from 'lucide-react';
+import { User, Settings, LogOut } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import UserCredits from '../UserCredits';
 

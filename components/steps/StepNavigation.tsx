@@ -1,8 +1,11 @@
 import React from 'react';
 import { Button } from '../core-ui-components/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { NewsletterStep } from './StepsIndicator';
+import { db } from '@/config/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { useAuth } from '@/context/AuthContext';
 
 const styles = {
   container: `
@@ -47,10 +50,34 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   step
 }) => {
   const router = useRouter();
-  const { setCurrentStep, currentStep, isStepValid } = useNewsletter();
+  const searchParams = useSearchParams();
+  const newsletterId = searchParams.get('id');
+  const { data, isStepValid } = useNewsletter();
+  const { user } = useAuth();
 
-  const handleCancel = () => {
+  const saveNewsletter = async (status: 'draft' | 'sent') => {
+    if (!user || !newsletterId) return;
+
+    const newsletter = {
+      id: newsletterId,
+      userId: user.uid,
+      ...data,
+      status,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    try {
+      const newsletterRef = doc(db, 'newsletters', newsletterId);
+      await setDoc(newsletterRef, newsletter, { merge: true });
+    } catch (error) {
+      console.error('Error saving newsletter:', error);
+    }
+  };
+
+  const handleCancel = async () => {
     if (confirm('Are you sure you want to cancel? Your progress will be saved as a draft.')) {
+      await saveNewsletter('draft');
       router.push('/');
     }
   };
@@ -62,18 +89,25 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
       NewsletterStep.DESIGN,
       NewsletterStep.SEND
     ];
-    const currentIndex = steps.indexOf(currentStep);
+    const currentIndex = steps.indexOf(step);
     if (currentIndex > 0) {
-      setCurrentStep(steps[currentIndex - 1]);
+      onNext();
     }
   };
 
-  const isNextDisabled = !isStepValid(currentStep) || isLoading;
+  const isNextDisabled = !isStepValid(step) || isLoading;
+
+  const handleNext = async () => {
+    if (step === NewsletterStep.SEND) {
+      await saveNewsletter('sent');
+    }
+    onNext();
+  };
 
   return (
     <div className={styles.container}>
       <div className="flex gap-2">
-        {currentStep !== NewsletterStep.TOPIC && (
+        {step !== NewsletterStep.TOPIC && (
           <Button
             onClick={handleBack}
             className={`${styles.button} ${styles.backButton}`}
@@ -89,7 +123,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
         </Button>
       </div>
       <Button
-        onClick={onNext}
+        onClick={handleNext}
         disabled={isNextDisabled}
         className={`${styles.button} ${styles.nextButton} ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : ''
           }`}

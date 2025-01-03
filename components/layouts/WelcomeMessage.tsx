@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import { Button } from '../core-ui-components/button';
+import { v4 as uuidv4 } from 'uuid';
+import { useRouter } from 'next/navigation';
 
 const styles = {
   container: `
@@ -52,9 +54,18 @@ const styles = {
   `,
 };
 
-const WelcomeMessage: React.FC<{ onStartNew: () => void }> = ({
-  onStartNew
-}) => {
+interface WelcomeMessageProps {
+  onStartNew: () => void;
+}
+
+const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
+  const router = useRouter();
+
+  const handleStartNew = () => {
+    const newsletterId = uuidv4();
+    router.push(`/editor?id=${newsletterId}`);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.logoContainer}>
@@ -71,7 +82,7 @@ const WelcomeMessage: React.FC<{ onStartNew: () => void }> = ({
         Your intelligent assistant in crafting beautifully designed emails & newsletters.
       </h3>
       <Button
-        onClick={onStartNew}
+        onClick={handleStartNew}
         className={styles.startNewButton}
       >
         <span>Start writing</span>

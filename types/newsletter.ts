@@ -180,4 +180,22 @@ export const getInitialNewsletterConversation = ({
   }
 }
 
+export interface Newsletter {
+  id: string;
+  userId: string;
+  topic: string;
+  content: string;
+  urls: string[];
+  style: string;
+  generatedContent?: string;
+  htmlContent?: string;
+  recipients?: string[];
+  subject?: string;
+  fromEmail?: string;
+  senderName?: string;
+  status: 'draft' | 'sent';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 
