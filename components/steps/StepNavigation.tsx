@@ -59,11 +59,10 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
     if (!user || !newsletterId) return;
 
     const newsletter = {
+      ...data,
       id: newsletterId,
       userId: user.uid,
-      ...data,
       status,
-      createdAt: new Date(),
       updatedAt: new Date()
     };
 

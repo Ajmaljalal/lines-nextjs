@@ -61,8 +61,9 @@ interface WelcomeMessageProps {
 const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
   const router = useRouter();
 
-  const handleStartNew = () => {
+  const handleStartNew = async () => {
     const newsletterId = uuidv4();
+    await onStartNew();
     router.push(`/editor?id=${newsletterId}`);
   };
 

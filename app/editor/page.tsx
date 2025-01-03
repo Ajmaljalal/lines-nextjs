@@ -1,13 +1,15 @@
 'use client'
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '../../components/layouts/Header';
 import ChatContainer from '../../components/layouts/ChatContainer';
 import StepsIndicator, { NewsletterStep } from '../../components/steps/StepsIndicator';
 import MainContent from '../../components/steps/MainContent';
 import { NewsletterProvider, useNewsletter } from '@/context/NewsletterContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/config/firebase';
 
 const styles = {
   container: `
@@ -57,13 +59,58 @@ const styles = {
 const NewsletterEditor = () => {
   const { user } = useAuth();
   const router = useRouter();
-  const { currentStep, setCurrentStep } = useNewsletter();
+  const searchParams = useSearchParams();
+  const newsletterId = searchParams.get('id');
+  const { currentStep, setCurrentStep, updateData } = useNewsletter();
 
   useEffect(() => {
     if (!user) {
       router.push('/signin');
+      return;
     }
-  }, [user, router]);
+
+    const loadNewsletter = async () => {
+      if (!newsletterId) {
+        router.push('/');
+        return;
+      }
+
+      try {
+        const newsletterRef = doc(db, 'newsletters', newsletterId);
+        const newsletterDoc = await getDoc(newsletterRef);
+
+        if (newsletterDoc.exists()) {
+          const newsletterData = newsletterDoc.data();
+
+          // Only allow access if the user owns the newsletter
+          if (newsletterData.userId !== user.uid) {
+            console.error('Unauthorized access');
+            router.push('/');
+            return;
+          }
+
+          updateData({
+            topic: newsletterData.topic || '',
+            content: newsletterData.content || '',
+            urls: newsletterData.urls || [],
+            style: newsletterData.style || '',
+            generatedContent: newsletterData.generatedContent,
+            htmlContent: newsletterData.htmlContent,
+            recipients: newsletterData.recipients,
+            subject: newsletterData.subject,
+            fromEmail: newsletterData.fromEmail,
+            senderName: newsletterData.senderName,
+          });
+        }
+        // If document doesn't exist, continue with empty state
+      } catch (error) {
+        console.error('Error loading newsletter:', error);
+        router.push('/');
+      }
+    };
+
+    loadNewsletter();
+  }, [user, newsletterId]);
 
   if (!user) return null;
 

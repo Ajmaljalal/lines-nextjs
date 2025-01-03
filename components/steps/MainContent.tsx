@@ -51,7 +51,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json', // Ensure you have this header
         },
         body: JSON.stringify({
           subject: data.subject,
@@ -62,18 +62,16 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
         }),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to send newsletter');
+        const errorJson = await response.json();
+        throw new Error(errorJson.error || 'Failed to send');
       }
 
-      onStepComplete();
+      // handle success
     } catch (error) {
-      console.error('Error sending newsletter:', error);
-      setSendError(error instanceof Error ? error.message : 'Failed to send newsletter');
-    } finally {
+      // handle error
       setIsSending(false);
+      setSendError(error instanceof Error ? error.message : 'Failed to send newsletter');
     }
   };
 

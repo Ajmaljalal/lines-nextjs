@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Textarea } from '../core-ui-components/textarea';
 import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
@@ -50,10 +50,16 @@ const styles = {
 
 const FirstStep_DataCollection: React.FC = () => {
   const { data, updateData } = useNewsletter();
-  const [topic, setTopic] = useState(data.topic);
-  const [content, setContent] = useState(data.content);
-  const [style, setStyle] = useState(data.style);
+  const [topic, setTopic] = useState<string>(data.topic || '');
+  const [content, setContent] = useState<string>(data.content || '');
+  const [style, setStyle] = useState<string>(data.style || '');
   const [currentUrl, setCurrentUrl] = useState('');
+
+  useEffect(() => {
+    setTopic(data.topic || '');
+    setContent(data.content || '');
+    setStyle(data.style || '');
+  }, [data.topic, data.content, data.style]);
 
   const handleTopicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTopic = e.target.value;

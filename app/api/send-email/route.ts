@@ -12,56 +12,29 @@ export async function POST(request: Request) {
     const { subject, fromEmail, recipients, htmlContent, senderName } = await request.json();
     // Validate required fields
     if (!subject || !fromEmail || !recipients || !htmlContent || !senderName) {
-      console.log('Missing required fields:', {
-        subject: subject,
-        fromEmail: fromEmail,
-        senderName: senderName,
-        recipients: recipients,
-        htmlContent: htmlContent
-      });
       return NextResponse.json(
-        {
-          error: 'Missing required fields',
-          details: {
-            subject: subject,
-            fromEmail: fromEmail,
-            senderName: senderName,
-            recipients: recipients,
-            htmlContent: htmlContent
-          }
-        },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Ensure recipients is always an array and contains valid email addresses
+    // Convert HTML content to Buffer and back to ensure proper encoding
+    const encodedHtml = Buffer.from(htmlContent).toString('utf8');
+
     const recipientsList = Array.isArray(recipients) ? recipients : [recipients];
 
-    // Create the email message according to SendGrid's v3 API format
     const msg: MailDataRequired = {
-      // to: [{ email: fromEmail }],
       to: recipientsList.map(email => ({ email })),
       from: {
         email: process.env.SENDGRID_VERIFIED_SENDER || fromEmail,
         name: senderName,
       },
       subject: subject,
-      html: htmlContent,
+      html: encodedHtml,
       text: 'Please enable HTML to view this email properly.',
     };
 
-    console.log('Attempting to send email with configuration:', {
-      to: recipientsList,
-      from: msg.from,
-      subject: subject,
-    });
-
     const [response] = await sgMail.sendMultiple(msg);
-
-    console.log('SendGrid API Response:', {
-      statusCode: response.statusCode,
-      headers: response.headers,
-    });
 
     return NextResponse.json({
       success: true,
@@ -70,20 +43,17 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    // Log the complete error object
     console.error('SendGrid error details:', {
       message: error.message,
       code: error.code,
       response: error.response?.body,
       errors: error.response?.body?.errors,
-      stack: error.stack,
     });
 
     return NextResponse.json(
       {
         error: 'Failed to send email',
         details: error.response?.body?.errors || error.message,
-        code: error.code || 'UNKNOWN_ERROR',
       },
       { status: error.code === 415 ? 415 : 500 }
     );
