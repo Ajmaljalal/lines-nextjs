@@ -9,18 +9,25 @@ sgMail.setApiKey(process.env.NEXT_PUBLIC_SENDGRID_API_KEY);
 
 export async function POST(request: Request) {
   try {
-    const { subject, fromEmail, recipients, htmlContent } = await request.json();
-
+    const { subject, fromEmail, recipients, htmlContent, senderName } = await request.json();
     // Validate required fields
-    if (!subject || !fromEmail || !recipients || !htmlContent) {
+    if (!subject || !fromEmail || !recipients || !htmlContent || !senderName) {
+      console.log('Missing required fields:', {
+        subject: subject,
+        fromEmail: fromEmail,
+        senderName: senderName,
+        recipients: recipients,
+        htmlContent: htmlContent
+      });
       return NextResponse.json(
         {
           error: 'Missing required fields',
           details: {
-            subject: !subject,
-            fromEmail: !fromEmail,
-            recipients: !recipients,
-            htmlContent: !htmlContent
+            subject: subject,
+            fromEmail: fromEmail,
+            senderName: senderName,
+            recipients: recipients,
+            htmlContent: htmlContent
           }
         },
         { status: 400 }
@@ -32,9 +39,11 @@ export async function POST(request: Request) {
 
     // Create the email message according to SendGrid's v3 API format
     const msg: MailDataRequired = {
+      // to: [{ email: fromEmail }],
       to: recipientsList.map(email => ({ email })),
       from: {
         email: process.env.SENDGRID_VERIFIED_SENDER || fromEmail,
+        name: senderName,
       },
       subject: subject,
       html: htmlContent,
@@ -47,7 +56,7 @@ export async function POST(request: Request) {
       subject: subject,
     });
 
-    const [response] = await sgMail.send(msg);
+    const [response] = await sgMail.sendMultiple(msg);
 
     console.log('SendGrid API Response:', {
       statusCode: response.statusCode,

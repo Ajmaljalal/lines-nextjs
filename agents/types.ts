@@ -23,6 +23,8 @@ interface NewsletterData {
   };
   recipients?: string[];
   scheduledDate?: Date;
+  senderName?: string;
+  fromEmail?: string;
 }
 
 export interface AgentContext {

@@ -16,6 +16,7 @@ interface NewsletterData {
   scheduledDate?: Date;
   subject?: string;
   fromEmail?: string;
+  senderName?: string;
 }
 
 interface NewsletterContextType {
@@ -34,6 +35,7 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     content: '',
     urls: [],
     style: '',
+    senderName: '',
   });
   const [currentStep, setCurrentStep] = useState<NewsletterStep>(NewsletterStep.TOPIC);
 
@@ -53,7 +55,10 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       case NewsletterStep.DESIGN:
         return !!data.htmlContent;
       case NewsletterStep.SEND:
-        return (data.recipients?.length ?? 0) > 0;
+        return (data.recipients?.length ?? 0) > 0 &&
+          !!data.subject?.trim() &&
+          !!data.fromEmail?.trim() &&
+          !!data.senderName?.trim();
       default:
         return false;
     }

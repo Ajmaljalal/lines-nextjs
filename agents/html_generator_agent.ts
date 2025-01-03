@@ -13,9 +13,11 @@ export class HtmlGeneratorAgent extends BaseAgent {
   constructor(context: AgentContext) {
     super(context);
     this.model = new ChatAnthropic({
-      temperature: 0.3, // Lower temperature for more consistent HTML output
+      temperature: 0.5,
       model: "claude-3-5-sonnet-20241022",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
+      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      maxRetries: 3,
+      maxTokens: 8000,
     });
   }
 
@@ -27,13 +29,15 @@ export class HtmlGeneratorAgent extends BaseAgent {
     The design should be mobile-responsive and use modern email-safe HTML and inline CSS.
 
     Include the following design elements:
-    - A clean, professional layout with appropriate spacing
+    - A clean, well-designed, pretty and professional layout with appropriate spacing
     - Email-safe web fonts or fallback system fonts
-    - A color scheme that's professional and engaging
+    - A color scheme that's professional and engaging based on the style provided by the user and the topic and content
     - Responsive images placeholders where appropriate
     - Clear hierarchy and section separation
     - Mobile-friendly buttons for call-to-action elements
     - inline styling only
+    - if there is numbers and statistics, make sure to include them in the content section and them pretty and nicely designed and styled
+    - Include charts and graphs if applicable
 
     Topic:
     ${JSON.stringify(topic, null, 2)}

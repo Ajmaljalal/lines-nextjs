@@ -127,7 +127,7 @@ const FirstStep_DataCollection: React.FC = () => {
         </Label>
         <Input
           // className={styles.input}
-          placeholder="Enter the main topic or subject..."
+          placeholder="What is the main topic you want to write about?"
           value={topic}
           onChange={handleTopicChange}
           required

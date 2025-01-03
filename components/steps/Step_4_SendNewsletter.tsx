@@ -4,8 +4,6 @@ import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Button } from '../core-ui-components/button';
 import { Upload, X } from 'lucide-react';
-import CompleteStepButton from './StepButton';
-import { NewsletterStep } from './StepsIndicator';
 
 const styles = {
   container: `
@@ -74,8 +72,9 @@ interface FourthStep_SendNewsletterProps {
 
 const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ onComplete }) => {
   const { data, updateData } = useNewsletter();
-  const [subject, setSubject] = useState('');
-  const [fromEmail, setFromEmail] = useState('');
+  const [senderName, setSenderName] = useState(data.senderName || '');
+  const [subject, setSubject] = useState(data.subject || '');
+  const [fromEmail, setFromEmail] = useState(data.fromEmail || '');
   const [currentRecipient, setCurrentRecipient] = useState('');
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [isSending, setIsSending] = useState(false);
@@ -131,56 +130,25 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
     reader.readAsText(file);
   }, [updateData]);
 
-  const handleSubmit = async () => {
-    if (!subject || !fromEmail || !data.recipients?.length || !data.htmlContent) {
-      setSendError('Please fill in all required fields');
-      return;
-    }
-
-    setIsSending(true);
-    setSendError(null);
-
-    try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          subject,
-          fromEmail,
-          recipients: data.recipients,
-          htmlContent: data.htmlContent,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send email');
-      }
-
-      // Update newsletter data with send details
-      updateData({
-        subject,
-        fromEmail,
-      });
-
-      // Call onComplete callback if provided
-      onComplete?.();
-    } catch (error) {
-      setSendError(error instanceof Error ? error.message : 'Failed to send email');
-    } finally {
-      setIsSending(false);
-    }
-  };
-
   return (
     <form
       className={styles.container}
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}>
+    >
+      <div className={styles.formGroup}>
+        <Label>
+          Sender Name <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          placeholder="Enter the sender's name..."
+          value={senderName}
+          onChange={(e) => {
+            setSenderName(e.target.value);
+            updateData({ senderName: e.target.value });
+          }}
+          required
+        />
+      </div>
+
       <div className={styles.formGroup}>
         <Label>
           Subject Line <span className="text-red-500">*</span>
@@ -188,7 +156,10 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         <Input
           placeholder="Enter the email subject line..."
           value={subject}
-          onChange={(e) => setSubject(e.target.value)}
+          onChange={(e) => {
+            setSubject(e.target.value);
+            updateData({ subject: e.target.value });
+          }}
           required
         />
       </div>
@@ -201,7 +172,10 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           type="email"
           placeholder="Enter the sender email address..."
           value={fromEmail}
-          onChange={(e) => setFromEmail(e.target.value)}
+          onChange={(e) => {
+            setFromEmail(e.target.value);
+            updateData({ fromEmail: e.target.value });
+          }}
           required
         />
       </div>
@@ -281,14 +255,6 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           {sendError}
         </div>
       )}
-
-      <div className="flex justify-end mt-6">
-        <CompleteStepButton
-          onComplete={handleSubmit}
-          step={NewsletterStep.SEND}
-          isLoading={isSending}
-        />
-      </div>
     </form>
   );
 };
