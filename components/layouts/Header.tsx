@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '../core-ui-components/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '../core-ui-components/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { User, Settings, LogOut } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import UserCredits from '../UserCredits';
@@ -38,6 +38,35 @@ const styles = {
     flex
     items-center
     gap-2
+  `,
+
+  navigation: `
+    flex
+    gap-1
+    bg-muted
+    p-1
+    rounded-lg
+  `,
+
+  navItem: `
+    px-4
+    py-2
+    rounded-md
+    text-sm
+    font-medium
+    transition-colors
+    duration-200
+    hover:bg-background
+  `,
+
+  navItemActive: `
+    bg-background
+    text-foreground
+  `,
+
+  navItemInactive: `
+    text-muted-foreground
+    hover:text-foreground
   `,
 
   userMenu: `
@@ -98,6 +127,7 @@ const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const pathname = usePathname();
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   useEffect(() => {
@@ -112,6 +142,10 @@ const Header: React.FC = () => {
 
   const handleSettingsClick = () => {
     router.push('/settings');
+  };
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
   };
 
   const closeDropdown = () => {
@@ -139,20 +173,25 @@ const Header: React.FC = () => {
           <SendIcon />
           SendLines
         </div>
-        <div className="flex items-center gap-4">
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="rounded-full bg-zinc-800"
-            aria-label="Toggle Theme"
+
+        <div className={styles.navigation}>
+          <button
+            onClick={() => handleNavigation('/')}
+            className={`${styles.navItem} ${pathname === '/' ? styles.navItemActive : styles.navItemInactive
+              }`}
           >
-            {theme === 'dark' ? (
-              <Sun className="h-5 w-5 text-zinc-200" />
-            ) : (
-              <Moon className="h-5 w-5 text-zinc-200" />
-            )}
-          </Button> */}
+            Dashboard
+          </button>
+          <button
+            onClick={() => handleNavigation('/analytics')}
+            className={`${styles.navItem} ${pathname === '/analytics' ? styles.navItemActive : styles.navItemInactive
+              }`}
+          >
+            Analytics
+          </button>
+        </div>
+
+        <div className="flex items-center gap-4">
           <UserCredits />
           <div className={styles.userMenu}>
             <DropdownMenu>
