@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '../core-ui-components/button';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useNewsletter } from '@/context/NewsletterContext';
@@ -6,7 +6,7 @@ import { NewsletterStep } from './StepsIndicator';
 import { db } from '@/config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 
 const styles = {
   container: `
@@ -53,8 +53,10 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const newsletterId = searchParams.get('id');
-  const { data, isStepValid } = useNewsletter();
+  const { data, updateData, isStepValid } = useNewsletter();
   const { user } = useAuth();
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const isNewsletterSent = data.status === 'sent';
 
   const saveNewsletter = async (status: 'draft' | 'sent') => {
@@ -73,37 +75,54 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
       await setDoc(newsletterRef, newsletter, { merge: true });
     } catch (error) {
       console.error('Error saving newsletter:', error);
+      throw error;
     }
   };
 
-  const handleCancel = async () => {
-    if (confirm('Are you sure you want to cancel? Your progress will be saved as a draft.')) {
-      await saveNewsletter('draft');
-      router.push('/');
+  const sendNewsletter = async () => {
+    try {
+      setIsSending(true);
+      setError(null);
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subject: data.subject,
+          senderName: data.senderName,
+          fromEmail: data.fromEmail,
+          recipients: data.recipients,
+          htmlContent: data.htmlContent,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.error || responseData.details || 'Failed to send newsletter');
+      }
+
+      await saveNewsletter('sent');
+      router.push('/'); // Redirect to home after successful send
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to send newsletter');
+      console.error('Send newsletter error:', error);
+    } finally {
+      setIsSending(false);
     }
   };
 
-  const handleBack = () => {
-    const steps = [
-      NewsletterStep.TOPIC,
-      NewsletterStep.CONTENT,
-      NewsletterStep.DESIGN,
-      NewsletterStep.SEND
-    ];
-    const currentIndex = steps.indexOf(step);
-    if (currentIndex > 0) {
+  const handleNext = async () => {
+    if (step === NewsletterStep.SEND && isStepValid(step)) {
+      await sendNewsletter();
+    } else {
       onNext();
     }
   };
 
-  const isNextDisabled = !isStepValid(step) || isLoading;
-
-  const handleNext = async () => {
-    if (step === NewsletterStep.SEND) {
-      await saveNewsletter('sent');
-    }
-    onNext();
-  };
+  const buttonText = step === NewsletterStep.SEND ? 'Send Newsletter' : 'Next';
 
   if (isNewsletterSent) {
     return (
@@ -111,28 +130,32 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
         Newsletter has already been sent
         <Button
           onClick={() => router.push('/')}
-          className=" h-6 w-6 ml-2 hover:bg-green-200 rounded-full p-1 shadow-lg border border-green-300"
+          className="h-6 w-6 ml-2 hover:bg-green-200 rounded-full p-1 shadow-lg border border-green-300"
         >
           <X className="w-4 h-4" />
         </Button>
       </div>
-    )
+    );
   }
 
-  const buttonText = step === NewsletterStep.SEND ? 'Send' : 'Next';
   return (
     <div className={styles.container}>
       <div className="flex gap-2">
+        {error && (
+          <div className="text-red-500 text-sm bg-red-50 px-3 py-2 rounded-md border border-red-200">
+            {error}
+          </div>
+        )}
         {step !== NewsletterStep.TOPIC && (
           <Button
-            onClick={handleBack}
+            onClick={() => router.back()}
             className={`${styles.button} ${styles.backButton}`}
           >
             Back
           </Button>
         )}
         <Button
-          onClick={handleCancel}
+          onClick={() => saveNewsletter('draft')}
           className={`${styles.button} ${styles.cancelButton}`}
         >
           Save as Draft
@@ -140,11 +163,17 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
       </div>
       <Button
         onClick={handleNext}
-        disabled={isNextDisabled}
-        className={`${styles.button} ${styles.nextButton} ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+        disabled={!isStepValid(step) || isSending}
+        className={`${styles.button} ${styles.nextButton} ${(isSending) ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        {isLoading ? 'Sending...' : buttonText}
+        {isSending ? (
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Sending...
+          </div>
+        ) : (
+          buttonText
+        )}
       </Button>
     </div>
   );

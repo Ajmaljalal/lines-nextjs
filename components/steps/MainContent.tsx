@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NewsletterStep } from './StepsIndicator';
 import FirstStep_DataCollection from './Step_1_DataCollection';
 import SecondStep_ContentDrafting from './Step_2_ContentDrafting';
@@ -8,6 +8,9 @@ import ThirdStep_HtmlPreview from './Step_3_HtmlPreview';
 import FourthStep_SendNewsletter from './Step_4_SendNewsletter';
 import StepNavigation from './StepNavigation';
 import { useNewsletter } from '@/context/NewsletterContext';
+import { Loader2 } from 'lucide-react';
+import { ContentDrafterAgent } from '@/agents/content_drafter_agent';
+import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
 
 interface MainContentProps {
   onStepComplete: () => void;
@@ -41,53 +44,96 @@ const styles = {
 const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   const { currentStep, data, updateData } = useNewsletter();
   const [isSending, setIsSending] = useState(false);
-  const [sendError, setSendError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSend = async () => {
+  const generateContent = async () => {
     try {
-      setIsSending(true);
-      setSendError(null);
-
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', // Ensure you have this header
-        },
-        body: JSON.stringify({
-          subject: data.subject,
-          fromEmail: data.fromEmail,
-          senderName: data.senderName,
-          recipients: data.recipients,
-          htmlContent: data.htmlContent,
-        }),
+      setIsGenerating(true);
+      setError(null);
+      const agent = new ContentDrafterAgent({
+        messages: [],
+        data: {
+          id: data.id,
+          userId: data.userId,
+          status: data.status,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          topic: data.topic,
+          content: data.content,
+          urls: data.urls,
+          style: data.style
+        }
       });
-      setIsSending(false);
-      updateData({ status: 'sent' });
 
-      if (!response.ok) {
-        const errorJson = await response.json();
-        setIsSending(false);
-        throw new Error(errorJson.error || 'Failed to send');
+      const response = await agent.execute();
+      if (response.error) {
+        throw new Error(response.error);
       }
 
-      // handle success
+      await updateData({ generatedContent: response.content });
     } catch (error) {
-      // handle error
-      setIsSending(false);
-      setSendError(error instanceof Error ? error.message : 'Failed to send newsletter');
+      setError(error instanceof Error ? error.message : 'Generation failed');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const handleAction = () => {
-    console.log("data in main content", data)
-    if (currentStep === NewsletterStep.SEND) {
-      handleSend();
-    } else {
-      onStepComplete();
+  const generateHtml = async () => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+      const agent = new HtmlGeneratorAgent({
+        messages: [],
+        data: {
+          id: data.id,
+          userId: data.userId,
+          status: data.status,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          topic: data.topic || '',
+          urls: data.urls || [],
+          style: data.style || '',
+          content: data.generatedContent || '',
+        }
+      });
+
+      const response = await agent.execute();
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      await updateData({ htmlContent: response.content });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'HTML generation failed');
+    } finally {
+      setIsGenerating(false);
     }
   };
+
+  useEffect(() => {
+    if (currentStep === NewsletterStep.CONTENT && !data.generatedContent) {
+      generateContent();
+    } else if (currentStep === NewsletterStep.DESIGN && !data.htmlContent) {
+      generateHtml();
+    }
+  }, [currentStep]);
 
   const renderContent = () => {
+    if (isGenerating) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
+          <p className="text-zinc-400">
+            {currentStep === NewsletterStep.CONTENT
+              ? 'Generating email content...'
+              : 'Designing email content...'}
+          </p>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+        </div>
+      );
+    }
+
     switch (currentStep) {
       case NewsletterStep.TOPIC:
         return <FirstStep_DataCollection />;
@@ -106,16 +152,11 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     <div className={styles.container}>
       <div className={styles.contentWrapper}>
         {renderContent()}
-        {sendError && (
-          <div className="text-red-500 text-sm mt-4 px-4">
-            {sendError}
-          </div>
-        )}
       </div>
       <StepNavigation
-        onNext={handleAction}
+        onNext={onStepComplete}
         step={currentStep}
-        isLoading={isSending}
+        isLoading={isSending || isGenerating}
       />
     </div>
   );

@@ -51,76 +51,17 @@ const styles = {
 };
 
 const SecondStep_ContentDrafting: React.FC = () => {
-  const { data, updateData } = useNewsletter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const generateContent = async () => {
-      if (data.generatedContent) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const agent = new ContentDrafterAgent({
-          messages: [],
-          data: {
-            id: data.id,
-            userId: data.userId,
-            status: data.status,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            topic: data.topic,
-            content: data.content,
-            urls: data.urls,
-            style: data.style
-          }
-        });
-
-        const response = await agent.execute();
-
-        if (response.error) {
-          throw new Error(response.error);
-        }
-
-        updateData({ generatedContent: response.content });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to generate content');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    generateContent();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
-        <p className="text-zinc-400">Generating your newsletter content...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <div className="text-red-400">
-          Error generating content: {error}
-        </div>
-      </div>
-    );
-  }
-
+  const { data } = useNewsletter();
   const content = data.generatedContent ? JSON.parse(data.generatedContent) : null;
 
   if (!content) {
-    return null;
+    return (
+      <div className={styles.container}>
+        <div className="text-zinc-400">
+          No content generated yet. Please complete the previous step first.
+        </div>
+      </div>
+    );
   }
 
   return (
