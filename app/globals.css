@@ -9,9 +9,9 @@
 
 /* Brand colors and constants - these stay the same regardless of theme */
 :root {
-  --primary-color: #FF5722;
-  --secondary-color: #FF8A65;
-  --accent-color: #FFA000;
+  --primary-color: #6366F1;
+  --secondary-color:  #818CF8;
+  --accent-color: #4F46E5;
   --text-color: #1F2937;
   --light-bg: #F3F4F6;
   --white: #FFFFFF;

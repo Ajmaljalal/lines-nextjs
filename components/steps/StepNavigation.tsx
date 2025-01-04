@@ -56,14 +56,24 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   const { data, updateData, isStepValid } = useNewsletter();
   const { user } = useAuth();
   const [isSending, setIsSending] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isNewsletterSent = data.status === 'sent';
 
   const saveNewsletter = async (status: 'draft' | 'sent') => {
     if (!user || !newsletterId) return;
 
+    setIsSaving(true);
+    // Clean the data by removing undefined values
+    const cleanData = Object.entries(data).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
     const newsletter = {
-      ...data,
+      ...cleanData,
       id: newsletterId,
       userId: user.uid,
       status,
@@ -76,6 +86,8 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
     } catch (error) {
       console.error('Error saving newsletter:', error);
       throw error;
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -157,14 +169,22 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
         <Button
           onClick={() => saveNewsletter('draft')}
           className={`${styles.button} ${styles.cancelButton}`}
+          disabled={isSaving}
         >
-          Save as Draft
+          {isSaving ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Saving...
+            </div>
+          ) : (
+            'Save as Draft'
+          )}
         </Button>
       </div>
       <Button
         onClick={handleNext}
-        disabled={!isStepValid(step) || isSending}
-        className={`${styles.button} ${styles.nextButton} ${(isSending) ? 'opacity-50 cursor-not-allowed' : ''}`}
+        disabled={!isStepValid(step) || isSending || isSaving}
+        className={`${styles.button} ${styles.nextButton} ${(isSending || isSaving || isSaving) ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {isSending ? (
           <div className="flex items-center gap-2">

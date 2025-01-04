@@ -118,7 +118,7 @@ const styles = {
 
 const SendIcon = () => (
   <Image
-    src="/images/send-orange.png"
+    src="/images/send-purple.png"
     alt="SendLines Logo"
     width={28}
     height={28}
@@ -128,7 +128,6 @@ const SendIcon = () => (
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { currentTheme } = useBrandTheme();
   const router = useRouter();
   const pathname = usePathname();
