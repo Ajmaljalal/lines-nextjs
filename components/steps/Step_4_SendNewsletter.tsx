@@ -1,12 +1,16 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Button } from '../core-ui-components/button';
 import { Upload, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { db } from '@/config/firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import {
+  getExistingSubscribers,
+  addSubscriber,
+  removeSubscriber as removeSubscriberService,
+  uploadCsvSubscribers
+} from '@/services/subscriberService';
 
 const styles = {
   container: `
@@ -85,23 +89,28 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const isReadOnly = data.status === 'sent';
 
+  // -------------------------------------------------
+  // Fetch existing subscribers at component mount
+  // -------------------------------------------------
+  useEffect(() => {
+    if (!user) return;
+
+    (async () => {
+      try {
+        const subscribers = await getExistingSubscribers(user.uid);
+        // Merge or Overwrite with Firestore data
+        // If you want to keep user’s local recipients, 
+        // you can optionally merge them here
+        updateData({ recipients: subscribers });
+      } catch (error) {
+        console.error('Error fetching existing subscribers:', error);
+      }
+    })();
+  }, [user]);
+
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  };
-
-  const getExistingSubscribers = async (userId: string) => {
-    try {
-      const subscribersRef = doc(db, 'subscribers', userId);
-      const docSnap = await getDoc(subscribersRef);
-      if (docSnap.exists()) {
-        return docSnap.data().subscribers || [];
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching existing subscribers:', error);
-      return [];
-    }
   };
 
   const addRecipient = async () => {
@@ -110,110 +119,73 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
     }
 
     const emailToAdd = currentRecipient.trim();
+    // Check if already in local newsletter recipients
     if (data.recipients?.includes(emailToAdd)) {
       return;
     }
 
+    // Update local recipients
     const newRecipients = [...(data.recipients || []), emailToAdd];
     updateData({ recipients: newRecipients });
 
     try {
-      // Get existing subscribers and append new one
-      const existingSubscribers = await getExistingSubscribers(user.uid);
-      if (!existingSubscribers.includes(emailToAdd)) {
-        const updatedSubscribers = [...existingSubscribers, emailToAdd];
-
-        // Save to Firebase
-        const subscribersRef = doc(db, 'subscribers', user.uid);
-        await setDoc(subscribersRef, {
-          userId: user.uid,
-          subscribers: updatedSubscribers,
-          totalCount: updatedSubscribers.length,
-          updatedAt: new Date().toISOString()
-        });
-      }
+      // Add subscriber in Firestore
+      await addSubscriber(user.uid, emailToAdd);
       setCurrentRecipient('');
     } catch (error) {
       console.error('Error saving recipient:', error);
-      // Remove the recipient if Firebase save fails
-      const revertedRecipients = newRecipients.filter((email: string) => email !== emailToAdd);
+      // Revert if something fails
+      const revertedRecipients = newRecipients.filter((email) => email !== emailToAdd);
       updateData({ recipients: revertedRecipients });
       setSendError('Failed to save recipient');
     }
   };
 
   const removeRecipient = async (emailToRemove: string) => {
-    const newRecipients = (data.recipients || []).filter((email: string) => email !== emailToRemove);
+    // Update local recipients
+    const newRecipients = (data.recipients || []).filter((email) => email !== emailToRemove);
     updateData({ recipients: newRecipients });
 
     if (!user) return;
 
     try {
-      // Get existing subscribers and remove the email
-      const existingSubscribers = await getExistingSubscribers(user.uid);
-      const updatedSubscribers = existingSubscribers.filter((email: string) => email !== emailToRemove);
-
-      // Update Firebase
-      const subscribersRef = doc(db, 'subscribers', user.uid);
-      await setDoc(subscribersRef, {
-        userId: user.uid,
-        subscribers: updatedSubscribers,
-        totalCount: updatedSubscribers.length,
-        updatedAt: new Date().toISOString()
-      });
+      // Remove from Firestore
+      await removeSubscriberService(user.uid, emailToRemove);
     } catch (error) {
       console.error('Error removing recipient:', error);
-      // Revert the local state if Firebase update fails
+      // Revert if something fails
       updateData({ recipients: [...newRecipients, emailToRemove] });
       setSendError('Failed to remove recipient');
     }
   };
 
-  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !user) return;
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file || !user) return;
 
-    if (file.type !== 'text/csv') {
-      setUploadStatus('Please upload a CSV file');
-      return;
-    }
+      setCsvFile(file);
+      setUploadStatus('Processing CSV file...');
 
-    setCsvFile(file);
-    setUploadStatus('Processing CSV file...');
+      try {
+        const { newEmails, totalUnique } = await uploadCsvSubscribers(
+          user.uid,
+          file,
+          isValidEmail
+        );
 
-    try {
-      // Read and parse CSV
-      const text = await file.text();
-      const newEmails = text
-        .split('\n')
-        .map(line => line.trim())
-        .filter(email => email && isValidEmail(email));
-
-      if (newEmails.length === 0) {
-        setUploadStatus('No valid email addresses found in the CSV file');
-        return;
+        // Here we’re overwriting local recipients with the newly combined list
+        updateData({ recipients: newEmails });
+        setUploadStatus(
+          `Successfully uploaded ${newEmails.length} subscribers (${totalUnique} total unique subscribers)`
+        );
+      } catch (error: any) {
+        console.error('Error processing CSV file:', error);
+        setUploadStatus(error.message || 'Error processing CSV file');
       }
-
-      // Get existing subscribers and merge with new ones
-      const existingSubscribers = await getExistingSubscribers(user.uid);
-      const uniqueEmails = Array.from(new Set([...existingSubscribers, ...newEmails]));
-
-      // Save to Firebase
-      const subscribersRef = doc(db, 'subscribers', user.uid);
-      await setDoc(subscribersRef, {
-        userId: user.uid,
-        subscribers: uniqueEmails,
-        totalCount: uniqueEmails.length,
-        updatedAt: new Date().toISOString()
-      });
-
-      updateData({ recipients: uniqueEmails });
-      setUploadStatus(`Successfully uploaded ${newEmails.length} subscribers (${uniqueEmails.length} total unique subscribers)`);
-    } catch (error) {
-      console.error('Error processing CSV:', error);
-      setUploadStatus('Error processing CSV file');
-    }
-  }, [user, updateData]);
+    },
+    [user, updateData]
+  );
 
   return (
     <form className={styles.container}>
