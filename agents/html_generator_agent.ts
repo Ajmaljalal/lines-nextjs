@@ -2,6 +2,7 @@ import { BaseAgent } from './base';
 import { AgentContext, AgentResponse } from './types';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from "zod";
+import { BrandTheme } from '@/types/BrandTheme';
 
 const newsletterHtmlSchema = z.object({
   html: z.string()
@@ -9,9 +10,11 @@ const newsletterHtmlSchema = z.object({
 
 export class HtmlGeneratorAgent extends BaseAgent {
   private model: ChatAnthropic;
+  private brandTheme: BrandTheme | null;
 
-  constructor(context: AgentContext) {
+  constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
+    this.brandTheme = brandTheme;
     this.model = new ChatAnthropic({
       temperature: 0.5,
       model: "claude-3-5-sonnet-20241022",
@@ -25,8 +28,35 @@ export class HtmlGeneratorAgent extends BaseAgent {
     const { content, style, topic, urls } = this.context.data;
     const generatedContent = JSON.parse(content || '');
 
+    let themeInstructions = '';
+    if (this.brandTheme) {
+      themeInstructions = `
+      Use the following brand theme for the design:
+      - Primary Color: ${this.brandTheme.primaryColor}
+      - Secondary Color: ${this.brandTheme.secondaryColor}
+      - Accent Color: ${this.brandTheme.accentColor}
+      - Text Color: ${this.brandTheme.textColor}
+      - Background Color: ${this.brandTheme.backgroundColor}
+      ${this.brandTheme.logoUrl ? `- Logo URL: ${this.brandTheme.logoUrl}` : ''}
+
+      - Use the following urls (if provided) in the footer of the newsletter.
+      - Make sure to open them in new tabs when clicked.
+      - Website URL: ${this.brandTheme.websiteUrl}
+      - Unsubscribe URL: ${this.brandTheme.unsubscribeUrl}
+      - Social Media URLs: ${JSON.stringify(this.brandTheme.socialMediaUrls, null, 2)}
+
+      Make sure to:
+      1. Use these exact colors for the corresponding elements
+      2. Apply the brand colors consistently throughout the design
+      3. Use the specified font family if provided
+      4. Include the logo in the header if provided
+      `;
+    }
+
     return `Generate a beautiful, modern HTML email newsletter using the following [topic] [content], [style], and [urls]. 
     The design should be mobile-responsive and use modern email-safe HTML and inline CSS.
+
+    ${themeInstructions}
 
     Include the following design elements:
     - A clean, well-designed, pretty and professional layout with appropriate spacing

@@ -6,9 +6,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '../core-ui-components/avata
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '../core-ui-components/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, Palette } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { useBrandTheme } from '@/context/BrandThemeContext';
 import UserCredits from '../UserCredits';
+import { Button } from '../core-ui-components/button';
+import { BrandThemeModal } from '../brand-theme/BrandThemeModal';
 
 const styles = {
   container: `
@@ -126,9 +129,11 @@ const SendIcon = () => (
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { currentTheme } = useBrandTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [showBrandThemeModal, setShowBrandThemeModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -177,21 +182,33 @@ const Header: React.FC = () => {
         <div className={styles.navigation}>
           <button
             onClick={() => handleNavigation('/')}
-            className={`${styles.navItem} ${pathname === '/' ? styles.navItemActive : styles.navItemInactive
-              }`}
+            className={`${styles.navItem} ${pathname === '/' ? styles.navItemActive : styles.navItemInactive}`}
           >
             Dashboard
           </button>
           <button
             onClick={() => handleNavigation('/analytics')}
-            className={`${styles.navItem} ${pathname === '/analytics' ? styles.navItemActive : styles.navItemInactive
-              }`}
+            className={`${styles.navItem} ${pathname === '/analytics' ? styles.navItemActive : styles.navItemInactive}`}
           >
             Analytics
           </button>
         </div>
 
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => setShowBrandThemeModal(true)}
+            className="flex items-center gap-2 bg-muted hover:bg-background text-sm font-medium h-9 px-4"
+          >
+            <Palette className="w-4 h-4 text-muted-foreground" />
+            {currentTheme ? (
+              <span className="text-foreground">
+                <span className="text-muted-foreground">Edit Brand and Theme</span>
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Select your Brand and Theme</span>
+            )}
+          </Button>
           <UserCredits />
           <div className={styles.userMenu}>
             <DropdownMenu>
@@ -222,6 +239,7 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+      <BrandThemeModal isOpen={showBrandThemeModal} onClose={() => setShowBrandThemeModal(false)} />
     </header>
   );
 };

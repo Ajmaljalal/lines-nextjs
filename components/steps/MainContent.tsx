@@ -11,11 +11,11 @@ import { useNewsletter } from '@/context/NewsletterContext';
 import { Loader2 } from 'lucide-react';
 import { ContentDrafterAgent } from '@/agents/content_drafter_agent';
 import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
+import { useBrandTheme } from '@/context/BrandThemeContext';
 
 interface MainContentProps {
   onStepComplete: () => void;
 }
-
 
 const styles = {
   container: `
@@ -43,6 +43,7 @@ const styles = {
 
 const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   const { currentStep, data, updateData } = useNewsletter();
+  const { currentTheme } = useBrandTheme();
   const [isSending, setIsSending] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +97,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
           style: data.style || '',
           content: data.generatedContent || '',
         }
-      });
+      }, currentTheme);
 
       const response = await agent.execute();
       if (response.error) {
