@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import sgMail, { MailDataRequired } from '@sendgrid/mail';
+import { adminDb } from '@/config/firebase-admin';
 
 if (!process.env.NEXT_PUBLIC_SENDGRID_API_KEY) {
   throw new Error('SENDGRID_API_KEY is not set in environment variables');
@@ -7,30 +8,58 @@ if (!process.env.NEXT_PUBLIC_SENDGRID_API_KEY) {
 
 sgMail.setApiKey(process.env.NEXT_PUBLIC_SENDGRID_API_KEY);
 
+interface SubscribersDoc {
+  subscribers: string[];
+  totalCount: number;
+  updatedAt: string;
+  userId: string;
+}
+
 export async function POST(request: Request) {
   try {
-    const { subject, fromEmail, recipients, htmlContent, senderName } = await request.json();
+    const { subject, senderName, fromEmail, htmlContent, userId } = await request.json();
+
     // Validate required fields
-    if (!subject || !fromEmail || !recipients || !htmlContent || !senderName) {
+    if (!subject || !senderName || !fromEmail || !htmlContent || !userId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Convert HTML content to Buffer and back to ensure proper encoding
-    const encodedHtml = Buffer.from(htmlContent).toString('utf8');
+    // Fetch subscribers from Firebase using admin SDK
+    const subscribersDoc = await adminDb.collection('subscribers').doc(userId).get();
 
-    const recipientsList = Array.isArray(recipients) ? recipients : [recipients];
+    if (!subscribersDoc.exists) {
+      return NextResponse.json(
+        { error: 'No subscribers found' },
+        { status: 400 }
+      );
+    }
+
+    const subscribersData = subscribersDoc.data() as SubscribersDoc;
+    const subscribers = subscribersData.subscribers;
+
+    if (!Array.isArray(subscribers) || subscribers.length === 0) {
+      return NextResponse.json(
+        { error: 'No subscribers found' },
+        { status: 400 }
+      );
+    }
+
+    // Convert HTML content to Buffer and back to ensure proper encoding
+    // const encodedHtml = Buffer.from(htmlContent).toString('utf8');
+
+    const recipientsList = Array.isArray(subscribers) ? subscribers : [subscribers];
 
     const msg: MailDataRequired = {
-      to: recipientsList.map(email => ({ email })),
+      to: recipientsList.map((email: string) => ({ email })),
       from: {
         email: process.env.SENDGRID_VERIFIED_SENDER || fromEmail,
         name: senderName,
       },
       subject: subject,
-      html: encodedHtml,
+      html: htmlContent,
       text: 'Please enable HTML to view this email properly.',
     };
 
@@ -40,6 +69,7 @@ export async function POST(request: Request) {
       success: true,
       messageId: response.headers['x-message-id'],
       statusCode: response.statusCode,
+      recipientCount: recipientsList.length
     });
 
   } catch (error: any) {

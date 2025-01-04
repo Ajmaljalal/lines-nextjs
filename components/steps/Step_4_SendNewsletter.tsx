@@ -4,6 +4,9 @@ import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Button } from '../core-ui-components/button';
 import { Upload, X } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { db } from '@/config/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const styles = {
   container: `
@@ -72,12 +75,14 @@ interface FourthStep_SendNewsletterProps {
 
 const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ onComplete }) => {
   const { data, updateData } = useNewsletter();
+  const { user } = useAuth();
   const [senderName, setSenderName] = useState(data.senderName || '');
   const [subject, setSubject] = useState(data.subject || '');
   const [fromEmail, setFromEmail] = useState(data.fromEmail || '');
   const [currentRecipient, setCurrentRecipient] = useState('');
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const isReadOnly = data.status === 'sent';
 
   const isValidEmail = (email: string): boolean => {
@@ -85,8 +90,22 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
     return emailRegex.test(email);
   };
 
-  const addRecipient = () => {
-    if (!currentRecipient.trim() || !isValidEmail(currentRecipient.trim())) {
+  const getExistingSubscribers = async (userId: string) => {
+    try {
+      const subscribersRef = doc(db, 'subscribers', userId);
+      const docSnap = await getDoc(subscribersRef);
+      if (docSnap.exists()) {
+        return docSnap.data().subscribers || [];
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching existing subscribers:', error);
+      return [];
+    }
+  };
+
+  const addRecipient = async () => {
+    if (!currentRecipient.trim() || !isValidEmail(currentRecipient.trim()) || !user) {
       return;
     }
 
@@ -97,43 +116,107 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
 
     const newRecipients = [...(data.recipients || []), emailToAdd];
     updateData({ recipients: newRecipients });
-    setCurrentRecipient('');
+
+    try {
+      // Get existing subscribers and append new one
+      const existingSubscribers = await getExistingSubscribers(user.uid);
+      if (!existingSubscribers.includes(emailToAdd)) {
+        const updatedSubscribers = [...existingSubscribers, emailToAdd];
+
+        // Save to Firebase
+        const subscribersRef = doc(db, 'subscribers', user.uid);
+        await setDoc(subscribersRef, {
+          userId: user.uid,
+          subscribers: updatedSubscribers,
+          totalCount: updatedSubscribers.length,
+          updatedAt: new Date().toISOString()
+        });
+      }
+      setCurrentRecipient('');
+    } catch (error) {
+      console.error('Error saving recipient:', error);
+      // Remove the recipient if Firebase save fails
+      const revertedRecipients = newRecipients.filter((email: string) => email !== emailToAdd);
+      updateData({ recipients: revertedRecipients });
+      setSendError('Failed to save recipient');
+    }
   };
 
-  const removeRecipient = (emailToRemove: string) => {
-    const newRecipients = (data.recipients || []).filter(email => email !== emailToRemove);
+  const removeRecipient = async (emailToRemove: string) => {
+    const newRecipients = (data.recipients || []).filter((email: string) => email !== emailToRemove);
     updateData({ recipients: newRecipients });
+
+    if (!user) return;
+
+    try {
+      // Get existing subscribers and remove the email
+      const existingSubscribers = await getExistingSubscribers(user.uid);
+      const updatedSubscribers = existingSubscribers.filter((email: string) => email !== emailToRemove);
+
+      // Update Firebase
+      const subscribersRef = doc(db, 'subscribers', user.uid);
+      await setDoc(subscribersRef, {
+        userId: user.uid,
+        subscribers: updatedSubscribers,
+        totalCount: updatedSubscribers.length,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error removing recipient:', error);
+      // Revert the local state if Firebase update fails
+      updateData({ recipients: [...newRecipients, emailToRemove] });
+      setSendError('Failed to remove recipient');
+    }
   };
 
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     if (file.type !== 'text/csv') {
-      alert('Please upload a CSV file');
+      setUploadStatus('Please upload a CSV file');
       return;
     }
 
     setCsvFile(file);
+    setUploadStatus('Processing CSV file...');
 
-    // Read and parse CSV
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const emails = text
+    try {
+      // Read and parse CSV
+      const text = await file.text();
+      const newEmails = text
         .split('\n')
         .map(line => line.trim())
         .filter(email => email && isValidEmail(email));
 
-      updateData({ recipients: emails });
-    };
-    reader.readAsText(file);
-  }, [updateData]);
+      if (newEmails.length === 0) {
+        setUploadStatus('No valid email addresses found in the CSV file');
+        return;
+      }
+
+      // Get existing subscribers and merge with new ones
+      const existingSubscribers = await getExistingSubscribers(user.uid);
+      const uniqueEmails = Array.from(new Set([...existingSubscribers, ...newEmails]));
+
+      // Save to Firebase
+      const subscribersRef = doc(db, 'subscribers', user.uid);
+      await setDoc(subscribersRef, {
+        userId: user.uid,
+        subscribers: uniqueEmails,
+        totalCount: uniqueEmails.length,
+        updatedAt: new Date().toISOString()
+      });
+
+      updateData({ recipients: uniqueEmails });
+      setUploadStatus(`Successfully uploaded ${newEmails.length} subscribers (${uniqueEmails.length} total unique subscribers)`);
+    } catch (error) {
+      console.error('Error processing CSV:', error);
+      setUploadStatus('Error processing CSV file');
+    }
+  }, [user, updateData]);
 
   return (
-    <form
-      className={styles.container}
-    >
+    <form className={styles.container}>
       <div className={styles.formGroup}>
         <Label>
           Sender Name <span className="text-red-500">*</span>
@@ -185,12 +268,12 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
 
       <div className={styles.formGroup}>
         <Label>
-          Add more recipients / subscribers <span className="text-red-500">*</span>
+          Add recipients / subscribers <span className="text-red-500">*</span>
         </Label>
 
         {data.recipients && data.recipients.length > 0 && (
           <div className={styles.recipientList}>
-            {data.recipients.map((email, index) => (
+            {data.recipients.slice(0, 4).map((email, index) => (
               <div key={index} className={styles.recipientChip}>
                 <span className="truncate max-w-[300px]">{email}</span>
                 {!isReadOnly && (
@@ -204,6 +287,11 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
                 )}
               </div>
             ))}
+            {data.recipients.length > 4 && (
+              <div className={`${styles.recipientChip} bg-zinc-700/50`}>
+                +{data.recipients.length - 4} more
+              </div>
+            )}
           </div>
         )}
 
@@ -253,6 +341,11 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
             <p className="text-sm text-zinc-400 mt-2">
               {csvFile ? csvFile.name : 'Or click/drag to upload a CSV file of your recipients'}
             </p>
+            {uploadStatus && (
+              <p className={`text-sm mt-2 ${uploadStatus.includes('Error') ? 'text-red-500' : 'text-green-500'}`}>
+                {uploadStatus}
+              </p>
+            )}
           </label>
         </div>
       </div>
