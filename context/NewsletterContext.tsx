@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { NewsletterStep } from '../components/steps/StepsIndicator';
-import { Newsletter } from '../types/newsletter';
+import { Newsletter } from '../types/Newsletter';
 
 
 interface NewsletterContextType {

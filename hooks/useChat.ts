@@ -8,13 +8,12 @@ import {
   orderBy,
   onSnapshot,
   Timestamp,
-  setDoc,
   doc,
   writeBatch
 } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
-import { getInitialNewsletterPlan, MessageRole } from '@/types/newsletter';
-import { getInitialNewsletterConversation } from '@/types/newsletter';
+import { getInitialNewsletterPlan, MessageRole } from '@/types/Newsletter';
+import { getInitialNewsletterConversation } from '@/types/Newsletter';
 
 export interface Message {
   id: string;

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import Header from '@/components/layouts/Header';
-import { Newsletter } from '@/types/newsletter';
+import { Newsletter } from '@/types/Newsletter';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import NewsletterCard from '@/components/dashboard/NewsletterCard';

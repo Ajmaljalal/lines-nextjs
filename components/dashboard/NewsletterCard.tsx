@@ -1,5 +1,5 @@
 import React from 'react';
-import { Newsletter } from '@/types/newsletter';
+import { Newsletter } from '@/types/Newsletter';
 import { Badge } from '../core-ui-components/badge';
 import { Button } from '../core-ui-components/button';
 import { ArrowRight } from 'lucide-react';

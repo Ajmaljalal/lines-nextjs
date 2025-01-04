@@ -1,4 +1,5 @@
-import { Newsletter } from "@/types/newsletter";
+import { Newsletter } from "@/types/Newsletter";
+
 
 export enum AgentRole {
   PLANNER = 'planner',

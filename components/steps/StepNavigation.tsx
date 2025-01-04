@@ -92,6 +92,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   };
 
   const sendNewsletter = async () => {
+    if (!user || !newsletterId) return;
     try {
       setIsSending(true);
       setError(null);
@@ -106,7 +107,8 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
           senderName: data.senderName,
           fromEmail: data.fromEmail,
           htmlContent: data.htmlContent,
-          userId: user?.uid,
+          subscribers: data.recipients,
+          userId: user.uid,
         }),
       });
 

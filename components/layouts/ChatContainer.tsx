@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { Card } from '../core-ui-components/card';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { MessageRole } from '@/types/newsletter';
+import { MessageRole } from '@/types/Newsletter';
 import InputContainer from './InputContainer';
 
 const styles = {
