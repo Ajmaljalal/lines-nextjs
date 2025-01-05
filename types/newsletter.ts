@@ -184,7 +184,10 @@ export interface Newsletter {
   id: string;
   userId: string;
   topic: string;
-  content: string;
+  userProvidedContent: string;
+  webSearch: boolean;
+  webSearchContent: string[];
+  urlsExtractedContent: string[];
   urls: string[];
   style: string;
   generatedContent?: string;
