@@ -178,7 +178,7 @@ const FirstStep_DataCollection: React.FC = () => {
         </Label>
         <Textarea
           placeholder="Paste your content here if you already have something in mind..."
-          rows={6}
+          rows={15}
           value={content}
           onChange={handleContentChange}
           disabled={isReadOnly}

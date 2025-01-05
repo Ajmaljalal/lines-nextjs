@@ -52,8 +52,10 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
 
   const generateContent = async () => {
     const localData = { ...data };
+    const shouldSearch = localData.webSearch ||
+      (!localData.userProvidedContent.trim().length && !localData.urls.length);
 
-    if (localData.webSearch) {
+    if (shouldSearch) {
       setIsWebSearchInProgress(true);
 
       try {
