@@ -12,6 +12,7 @@ import { Loader2 } from 'lucide-react';
 import { contentGenerationService } from '@/services/contentGenerationService';
 import { htmlGenerationService } from '@/services/htmlGenerationService';
 import { useBrandTheme } from '@/context/BrandThemeContext';
+import { TavilyService } from '@/services/tavilyService';
 
 interface MainContentProps {
   onStepComplete: () => void;
@@ -47,8 +48,32 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   const [isSending, setIsSending] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isWebSearchInProgress, setIsWebSearchInProgress] = useState(false);
 
   const generateContent = async () => {
+    if (data.webSearch) {
+      setIsWebSearchInProgress(true);
+      try {
+        const result = await TavilyService.searchWeb(data.topic);
+        if (result.results.length === 0) {
+          updateData({ webSearchContent: [] });
+        } else {
+          updateData({
+            webSearchContent: result.results.map(result => {
+              return {
+                title: result.title,
+                content: result.content,
+                url: result.url
+              }
+            })
+          });
+        }
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Web search failed');
+      } finally {
+        setIsWebSearchInProgress(false);
+      }
+    }
     try {
       setIsGenerating(true);
       setError(null);
@@ -93,6 +118,16 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   }, [currentStep]);
 
   const renderContent = () => {
+    if (isWebSearchInProgress) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
+          <p className="text-zinc-400">Searching the web for relevant content...</p>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+        </div>
+      );
+    }
+
     if (isGenerating) {
       return (
         <div className="flex flex-col items-center justify-center h-full gap-4">
@@ -121,6 +156,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     }
   };
 
+  console.log('data', data);
   return (
     <div className={styles.container}>
       <div className={styles.contentWrapper}>
