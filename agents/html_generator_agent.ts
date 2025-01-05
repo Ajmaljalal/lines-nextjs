@@ -67,37 +67,39 @@ Style: ${JSON.stringify(style, null, 2)}`;
       return 'No content provided. Please complete the previous step first.';
     }
 
-    return `You are an expert designer. Design a professional HTML newsletter following the core requirements and the content provided.
+    return `You are an expert newsletter designer known for creating modern, attention-grabbing, and highly engaging designs. Produce a visually striking professional HTML newsletter that follows the core requirements, brand guidelines, and content instructions below. Strive for a fresh, polished, and captivating look to keep readers interested from start to finish.
 
 MAIN GOAL:
-- Only design a professional HTML newsletter. Do not change, exclude or add any content.
+- Focus solely on designing a professional HTML newsletter that captivates. Do not change, exclude, or add any content beyond what is provided.
 
 CORE REQUIREMENTS:
 1. Technical Requirements
    - Use only email-safe HTML
    - All styles must be inline (no style tags or external CSS)
-   - Implement table-based layout for email client compatibility
+   - Implement table-based layout for maximum email client compatibility
    - Ensure mobile responsiveness
    - Use web-safe fonts with appropriate fallbacks
 
 2. Design Elements
-   - Professional layout with consistent spacing
-   - Clear visual hierarchy and section separation
-   - Responsive image placeholders with alt text
-   - Mobile-friendly call-to-action buttons
-   - Statistics and numbers prominently styled
-   - Charts/graphs where data visualization applies
-   - All content sections must include relevant URLs
+   - Aim for a sleek, contemporary layout with consistent spacing
+   - Establish a clear visual hierarchy with well-defined sections
+   - Incorporate responsive image placeholders with alt text
+   - Include eye-catching, mobile-friendly call-to-action buttons
+   - Showcase statistics and numbers prominently
+   - Integrate charts/graphs for data visualization where appropriate
+   - Include all relevant URLs within content sections
+   - Include hightlighted content in a different color and eye catching if needed
+   - Use font size of 16px to 18px for the content.
 
 3. Email Compatibility
-   - Include necessary email client meta tags
-   - Ensure image dimensions are specified
-   - Use VML fallbacks for background images if needed
+   - Add necessary email client meta tags
+   - Specify dimensions for all images
+   - Where needed, include VML fallbacks for background images
 
 4. Content
-   - Use all the content provided as is, do not exclude any content
-   - Do not add any additional content, just use the content provided
-   - Do not change the content in any way, just use it as is
+   - Use all the provided content without omission
+   - Do not add any new content beyond what is given
+   - Preserve the wording of the content as provided
 
 ${this.getBrandThemeInstructions()}
 
