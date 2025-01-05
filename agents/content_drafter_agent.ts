@@ -51,43 +51,53 @@ export class ContentDrafterAgent extends BaseAgent {
   private async generateWebContent(): Promise<any | null> {
     if (!this.context.data.webSearchContent?.length) return null;
 
-    const prompt = `Create a structured email/newsletter about "${this.context.data.topic}" based on the following web search results. Make the language more engaging and attractive, but do not omit, summarize away, or alter any key information from the original content. Only reorganize or refine sentences where helpful for clarity or interest. Keep all important facts intact and absolutely do not add new information not found in the source material.
+    const prompt = `You are a professional newsletter writer tasked with creating a structured newsletter about "${this.context.data.topic}". 
+    
+Your task is to use ONLY the information from these web search results:
 
-    Web Search Results:
-    ${this.context.data.webSearchContent.map(result => `
-    Title: ${result.title}
-    Content: ${result.content}
-    Source: ${result.url}
-    ---`).join('\n')}
+${this.context.data.webSearchContent.map((result, index) => `
+[Source ${index + 1}]
+Title: ${result.title}
+Content: ${result.content}
+URL: ${result.url}
+---`).join('\n')}
 
-    Create the email content with:
-    1. A header section with an engaging title and optional subtitle
-    2. 3-5 content sections (minimum 3 sections), each with a clear title and the content from the search results made more appealing without removing facts
-    3. A footer section with a conclusion and optional call-to-action
-
-    Rules:
-    1. Do not exclude any key points from the original results.
-    2. Do not add imagined information.
-    3. Maintain a neutral stance without bias.
-    4. Keep content engaging and well-structured.
-    5. Cite sources by including the original URLs.
-    6. Include images if available.
-
-    Today's date is ${new Date().toISOString().split('T')[0]}.
-
-    IMPORTANT: 
-    - Return the sections as a direct array, not a string.
-    - Do not stringify the sections array.
-    - Do not wrap any of these fields in extra quotation marks or store them as strings.
-    - The final JSON format should look like this example, with no extra quotation marks or strings around the values:
+RESPONSE FORMAT:
+Provide a JSON object with exactly these fields:
+{
+  "header": {
+    "title": "clear, engaging title",
+    "subtitle": "optional subtitle"
+  },
+  "sections": [
     {
-      "header": { ... },
-      "sections": [
-        { "title": "...", "content": "...", "url": "..." },
-        { "title": "...", "content": "...", "url": "..." }
-      ],
-      "footer": { ... }
-    }`;
+      "title": "section title",
+      "content": "section content",
+      "url": "source url",
+      "image": "image url if available"
+    }
+  ],
+  "footer": {
+    "content": "conclusion",
+    "callToAction": "optional call to action"
+  }
+}
+
+STRICT REQUIREMENTS:
+1. Create exactly 3-5 sections
+2. Each section must:
+   - Focus on a distinct aspect of the topic
+   - Include the source URL
+   - Contain all key facts from the source
+   - Use engaging language without altering meaning
+3. Do not:
+   - Add information not in the sources
+   - Remove important details
+   - Merge unrelated facts
+4. Raw numbers, statistics, and technical details must be preserved exactly
+5. Return direct JSON without additional formatting or explanation
+
+Note: The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
@@ -109,43 +119,56 @@ export class ContentDrafterAgent extends BaseAgent {
   private async generateUserContent(): Promise<any | null> {
     if (!this.context.data.userProvidedContent?.trim()) return null;
 
-    const prompt = `Create a structured email/newsletter about "${this.context.data.topic}" using the user-provided content below without altering or omitting any important details. Style it to be more engaging and easy to follow. You may enhance language and flow, but do not remove or add new facts.
+    const prompt = `You are a professional newsletter writer tasked with restructuring this user-provided content about "${this.context.data.topic}" into a clear newsletter format.
 
-    User Provided Content:
-    ${this.context.data.userProvidedContent}
+User Provided Content:
+${this.context.data.userProvidedContent}
 
-    ${this.context.data.urls?.length ? `Reference URLs:\n${this.context.data.urls.join('\n')}` : ''}
-    ${this.context.data.style ? `Style preferences: ${this.context.data.style}` : ''}
+${this.context.data.urls?.length ? `REFERENCE URLS:\n${this.context.data.urls.join('\n')}` : ''}
+${this.context.data.style ? `STYLE GUIDE:\n${this.context.data.style}` : ''}
 
-    Create the email content with:
-    1. A header section with an engaging title and optional subtitle
-    2. 3-5 content sections (minimum 3 sections), each with a clear title and the provided user content enhanced in language but matching the facts
-    3. A footer section with a conclusion and optional call-to-action
-
-    Rules:
-    1. Use the provided content as the primary source. 
-    2. Do not omit crucial information. e.g. code, numbers, statistics, and other important details should not be omitted. 
-    3. Do not add new information that is not present in the source.
-    4. Maintain a neutral stance without bias.
-    5. Keep content concise, engaging, and well-structured.
-    6. Each section should be clearly distinct.
-    7. Include provided URLs under each content section where appropriate.
-    8. Include images if available, but do not fabricate images not referenced.
-
-    Today's date is ${new Date().toISOString().split('T')[0]}.
-
-    IMPORTANT:
-    - Return the all fields as direct values, not strings inside quotation marks.
-    - Do not wrap any of these fields in extra quotation marks or store them as strings.
-    - The final JSON format should look like this example, with no extra quotation marks or strings around the values:
+RESPONSE FORMAT:
+Provide a JSON object with exactly these fields:
+{
+  "header": {
+    "title": "clear, engaging title",
+    "subtitle": "optional subtitle"
+  },
+  "sections": [
     {
-      "header": { ... },
-      "sections": [
-        { "title": "...", "content": "...", "url": "..." },
-        { "title": "...", "content": "...", "url": "..." }
-      ],
-      "footer": { ... }
-    }`;
+      "title": "section title",
+      "content": "section content",
+      "url": "reference url if provided",
+      "image": "image url if provided"
+    }
+  ],
+  "footer": {
+    "content": "conclusion",
+    "callToAction": "optional call to action"
+  }
+}
+
+STRICT REQUIREMENTS:
+1. Compile user provided content into exactly 3-5 sections
+2. Keep the content as close to the original as possible
+3. Each section must:
+   - Cover a distinct aspect
+   - Include all provided content
+   - Do not remove or summarize away details
+   - Preserve technical accuracy
+   - Use provided URLs where relevant
+4. Do not:
+   - Do not add new information
+   - Do not remove or summarize away details
+   - Do not alter technical specifications, including code snippets and other technical details
+5. Preserve exactly:
+   - All numbers and statistics
+   - Technical details and specifications
+   - Code snippets
+   - Product features
+6. Return direct JSON without additional formatting or explanation
+
+Note: The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
@@ -163,6 +186,7 @@ export class ContentDrafterAgent extends BaseAgent {
     return result;
   }
 
+  // Rest of the class implementation remains the same
   private mergeContent(webContent: any | null, userContent: any | null): any {
     if (!webContent && !userContent) {
       throw new Error('No content generated from either source');
@@ -171,7 +195,6 @@ export class ContentDrafterAgent extends BaseAgent {
     if (!webContent) return userContent;
     if (!userContent) return webContent;
 
-    // Merge the content from both sources
     return {
       header: {
         title: `${webContent.header.title} - ${userContent.header.title}`,
