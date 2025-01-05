@@ -24,77 +24,86 @@ export class HtmlGeneratorAgent extends BaseAgent {
     });
   }
 
-  protected generatePrompt(): string {
+  private getBrandThemeInstructions(): string {
+    if (!this.brandTheme) return '';
+
+    return `
+BRAND THEME REQUIREMENTS:
+Colors:
+- Primary: ${this.brandTheme.primaryColor}
+- Secondary: ${this.brandTheme.secondaryColor}
+- Accent: ${this.brandTheme.accentColor}
+- Text: ${this.brandTheme.textColor}
+- Background: ${this.brandTheme.backgroundColor}
+${this.brandTheme.logoUrl ? `- Logo: ${this.brandTheme.logoUrl}` : ''}
+
+Footer Links (all open in new tabs):
+- Website: ${this.brandTheme.websiteUrl}
+- Unsubscribe: ${this.brandTheme.unsubscribeUrl}
+- Social Media: ${JSON.stringify(this.brandTheme.socialMediaUrls, null, 2)}
+
+Brand Implementation:
+1. Use exact brand colors as specified above
+2. Apply colors consistently throughout the design
+3. Use brand font family if provided
+4. Place logo in header if provided`;
+  }
+
+  private getContentSection(): string {
     const { generatedContent, style, topic, urls } = this.context.data;
+    const parsedContent = generatedContent ? JSON.stringify(generatedContent) : [];
+    const parsedUrls = urls ? JSON.stringify(urls) : [];
+
+    return `
+NEWSLETTER CONTENT:
+Topic: ${JSON.stringify(topic, null, 2)}
+Content: ${JSON.stringify([parsedContent, parsedUrls], null, 2)}
+Style: ${JSON.stringify(style, null, 2)}`;
+  }
+
+  protected generatePrompt(): string {
+    const { generatedContent } = this.context.data;
     if (!generatedContent) {
       return 'No content provided. Please complete the previous step first.';
     }
 
-    const parsedGeneratedContent = generatedContent ? JSON.stringify(generatedContent) : [];
-    const parsedUrls = urls ? JSON.stringify(urls) : [];
-    const content = [parsedGeneratedContent, parsedUrls];
+    return `You are an expert designer. Design a professional HTML newsletter following the core requirements and the content provided.
 
-    let themeInstructions = '';
-    if (this.brandTheme) {
-      themeInstructions = `
-      Use the following brand theme for the design:
-      - Primary Color: ${this.brandTheme.primaryColor}
-      - Secondary Color: ${this.brandTheme.secondaryColor}
-      - Accent Color: ${this.brandTheme.accentColor}
-      - Text Color: ${this.brandTheme.textColor}
-      - Background Color: ${this.brandTheme.backgroundColor}
-      ${this.brandTheme.logoUrl ? `- Logo URL: ${this.brandTheme.logoUrl}` : ''}
+MAIN GOAL:
+- Only design a professional HTML newsletter. Do not change, exclude or add any content.
 
-      - Use the following urls (if provided) in the footer of the newsletter.
-      - Make sure to open them in new tabs when clicked.
-      - Website URL: ${this.brandTheme.websiteUrl}
-      - Unsubscribe URL: ${this.brandTheme.unsubscribeUrl}
-      - Social Media URLs: ${JSON.stringify(this.brandTheme.socialMediaUrls, null, 2)}
+CORE REQUIREMENTS:
+1. Technical Requirements
+   - Use only email-safe HTML
+   - All styles must be inline (no style tags or external CSS)
+   - Implement table-based layout for email client compatibility
+   - Ensure mobile responsiveness
+   - Use web-safe fonts with appropriate fallbacks
 
-      Make sure to:
-      1. Use these exact colors for the corresponding elements
-      2. Apply the brand colors consistently throughout the design
-      3. Use the specified font family if provided
-      4. Include the logo in the header if provided
-      `;
-    }
+2. Design Elements
+   - Professional layout with consistent spacing
+   - Clear visual hierarchy and section separation
+   - Responsive image placeholders with alt text
+   - Mobile-friendly call-to-action buttons
+   - Statistics and numbers prominently styled
+   - Charts/graphs where data visualization applies
+   - All content sections must include relevant URLs
 
-    return `You are an expert designer.
-    Generate a beautiful and modern HTML newsletter for the provided [topic] [content], and [style].
-    Use all the content provided to create the newsletter, do not leave any content out.
-    The design should be mobile-responsive and use modern email-safe HTML and inline CSS.
+3. Email Compatibility
+   - Include necessary email client meta tags
+   - Ensure image dimensions are specified
+   - Use VML fallbacks for background images if needed
 
-    ${themeInstructions}
+4. Content
+   - Use all the content provided as is, do not exclude any content
+   - Do not add any additional content, just use the content provided
+   - Do not change the content in any way, just use it as is
 
-    Include the following design elements:
-    - A clean, well-designed, pretty and professional layout with appropriate spacing
-    - Email-safe web fonts or fallback system fonts
-    - A color scheme that's professional and engaging based on the style provided by the user and the topic and content
-    - Responsive images placeholders where appropriate
-    - Clear hierarchy and section separation
-    - Mobile-friendly buttons for call-to-action elements
-    - inline styling only
-    - if there is numbers and statistics, make sure to include them in the content section and them pretty and nicely designed and styled
-    - Include charts and graphs if applicable
-    - Include links to the urls under each content section if provided
-    - Include images if provided
+${this.getBrandThemeInstructions()}
 
-    Topic:
-    ${JSON.stringify(topic, null, 2)}
+${this.getContentSection()}
 
-    Content:
-    ${JSON.stringify(content, null, 2)}
-
-    Style:
-    ${JSON.stringify(style, null, 2)}
-
-    Requirements:
-    - Use only email-safe HTML and inline styling
-    - Ensure all styles are passed as inline styles to the elements
-    - Use table-based layout for email compatibility
-    - Use web-safe fonts or appropriate fallbacks
-    
-    Return only the HTML code without any explanation.`;
+Return only the complete HTML code without any explanations or comments.`;
   }
 
   protected processResponse(response: any): AgentResponse {
@@ -124,4 +133,4 @@ export class HtmlGeneratorAgent extends BaseAgent {
       };
     }
   }
-} 
+}
