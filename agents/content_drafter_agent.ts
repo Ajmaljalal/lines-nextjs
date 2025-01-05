@@ -1,6 +1,6 @@
 import { BaseAgent } from './base';
 import { AgentContext, AgentResponse } from './types';
-import { ChatAnthropic } from '@langchain/anthropic';
+import { ChatOpenAI } from '@langchain/openai';
 import { z } from "zod";
 
 // Define the schema for newsletter sections
@@ -35,14 +35,14 @@ const newsletterSectionsSchema = z.object({
 });
 
 export class ContentDrafterAgent extends BaseAgent {
-  private model: ChatAnthropic;
+  private model: ChatOpenAI;
 
   constructor(context: AgentContext) {
     super(context);
-    this.model = new ChatAnthropic({
+    this.model = new ChatOpenAI({
       temperature: 0.1,
-      model: "claude-3-5-sonnet-20241022",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      model: "gpt-4o",
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
       maxRetries: 3,
       maxTokens: 8192,
     });
@@ -51,7 +51,7 @@ export class ContentDrafterAgent extends BaseAgent {
   private async generateWebContent(): Promise<any | null> {
     if (!this.context.data.webSearchContent?.length) return null;
 
-    const prompt = `Create a structured email/newsletter about "${this.context.data.topic}" based on the following web search results. Follow the rules stated below.
+    const prompt = `Create a structured email/newsletter about "${this.context.data.topic}" based on the following web search results. Make the language more engaging and attractive, but do not omit, summarize away, or alter any key information from the original content. Only reorganize or refine sentences where helpful for clarity or interest. Keep all important facts intact and absolutely do not add new information not found in the source material.
 
     Web Search Results:
     ${this.context.data.webSearchContent.map(result => `
@@ -62,22 +62,24 @@ export class ContentDrafterAgent extends BaseAgent {
 
     Create the email content with:
     1. A header section with an engaging title and optional subtitle
-    2. 3-5 content sections, each with a clear title and relevant content
+    2. 3-5 content sections (minimum 3 sections), each with a clear title and the content from the search results made more appealing without removing facts
     3. A footer section with a conclusion and optional call-to-action
 
     Rules:
-    - Use only the most recent and relevant information from the search results based on today's date
-    - Maintain a neutral stance without bias
-    - Keep content concise, engaging, and well-structured
-    - Each section should be clearly distinct
-    - Always cite sources by including the original URLs
-    - Always include images if available
+    1. Do not exclude any key points from the original results.
+    2. Do not add imagined information.
+    3. Maintain a neutral stance without bias.
+    4. Keep content engaging and well-structured.
+    5. Cite sources by including the original URLs.
+    6. Include images if available.
 
     Today's date is ${new Date().toISOString().split('T')[0]}.
 
-    IMPORTANT: Return the sections as an array, not a string. Do not stringify the sections array.
-
-    Expected format example:
+    IMPORTANT: 
+    - Return the sections as a direct array, not a string.
+    - Do not stringify the sections array.
+    - Do not wrap any of these fields in extra quotation marks or store them as strings.
+    - The final JSON format should look like this example, with no extra quotation marks or strings around the values:
     {
       "header": { ... },
       "sections": [
@@ -85,9 +87,7 @@ export class ContentDrafterAgent extends BaseAgent {
         { "title": "...", "content": "...", "url": "..." }
       ],
       "footer": { ... }
-    }
-
-    Do not stringify any part of the response. The sections must be a direct array, not a string.`;
+    }`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
@@ -109,7 +109,7 @@ export class ContentDrafterAgent extends BaseAgent {
   private async generateUserContent(): Promise<any | null> {
     if (!this.context.data.userProvidedContent?.trim()) return null;
 
-    const prompt = `Create a structured email/newsletter about "${this.context.data.topic}" based on the following user-provided content and style preferences. Follow the rules stated below.
+    const prompt = `Create a structured email/newsletter about "${this.context.data.topic}" using the user-provided content below without altering or omitting any important details. Style it to be more engaging and easy to follow. You may enhance language and flow, but do not remove or add new facts.
 
     User Provided Content:
     ${this.context.data.userProvidedContent}
@@ -119,22 +119,25 @@ export class ContentDrafterAgent extends BaseAgent {
 
     Create the email content with:
     1. A header section with an engaging title and optional subtitle
-    2. 3-5 content sections, each with a clear title and relevant content
+    2. 3-5 content sections (minimum 3 sections), each with a clear title and the provided user content enhanced in language but matching the facts
     3. A footer section with a conclusion and optional call-to-action
 
     Rules:
-    - Use the provided content as the primary source, do not hallucinate
-    - Maintain a neutral stance without bias
-    - Keep content concise, engaging, and well-structured
-    - Each section should be clearly distinct
-    - Include provided URLs under each content section where appropriate
-    - Always include images if available
+    1. Use the provided content as the primary source. 
+    2. Do not omit crucial information. e.g. code, numbers, statistics, and other important details should not be omitted. 
+    3. Do not add new information that is not present in the source.
+    4. Maintain a neutral stance without bias.
+    5. Keep content concise, engaging, and well-structured.
+    6. Each section should be clearly distinct.
+    7. Include provided URLs under each content section where appropriate.
+    8. Include images if available, but do not fabricate images not referenced.
 
     Today's date is ${new Date().toISOString().split('T')[0]}.
 
-    IMPORTANT: Return the sections as an array, not a string. Do not stringify the sections array.
-
-    Expected format example:
+    IMPORTANT:
+    - Return the all fields as direct values, not strings inside quotation marks.
+    - Do not wrap any of these fields in extra quotation marks or store them as strings.
+    - The final JSON format should look like this example, with no extra quotation marks or strings around the values:
     {
       "header": { ... },
       "sections": [
@@ -142,9 +145,7 @@ export class ContentDrafterAgent extends BaseAgent {
         { "title": "...", "content": "...", "url": "..." }
       ],
       "footer": { ... }
-    }
-
-    Do not stringify any part of the response. The sections must be a direct array, not a string.`;
+    }`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
@@ -161,9 +162,6 @@ export class ContentDrafterAgent extends BaseAgent {
     }
     return result;
   }
-
-
-
 
   private mergeContent(webContent: any | null, userContent: any | null): any {
     if (!webContent && !userContent) {
@@ -192,7 +190,6 @@ export class ContentDrafterAgent extends BaseAgent {
 
   public async execute(): Promise<AgentResponse> {
     try {
-      // Validate input data before processing
       if (!this.context.data.webSearchContent?.length && !this.context.data.userProvidedContent?.trim()) {
         throw new Error('No input content provided - both web search and user content are empty');
       }

@@ -79,6 +79,7 @@ CORE REQUIREMENTS:
    - Implement table-based layout for maximum email client compatibility
    - Ensure mobile responsiveness
    - Use web-safe fonts with appropriate fallbacks
+   - If code and other special characters are present, use the appropriate HTML entities like code blocks.
 
 2. Design Elements
    - Aim for a sleek, contemporary layout with consistent spacing
