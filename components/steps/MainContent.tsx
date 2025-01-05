@@ -51,39 +51,42 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   const [isWebSearchInProgress, setIsWebSearchInProgress] = useState(false);
 
   const generateContent = async () => {
-    if (data.webSearch) {
+    const localData = { ...data };
+
+    if (localData.webSearch) {
       setIsWebSearchInProgress(true);
+
       try {
-        const result = await TavilyService.searchWeb(data.topic);
-        if (result.results.length === 0) {
-          updateData({ webSearchContent: [] });
+        const response = await TavilyService.searchWeb(localData.topic);
+
+        if (response.results.length === 0) {
+          localData.webSearchContent = [];
         } else {
-          updateData({
-            webSearchContent: result.results.map(result => {
-              return {
-                title: result.title,
-                content: result.content,
-                url: result.url
-              }
-            })
-          });
+          localData.webSearchContent = response.results.map(result => ({
+            title: result.title,
+            content: result.content,
+            url: result.url,
+          }));
         }
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Web search failed');
       } finally {
         setIsWebSearchInProgress(false);
       }
+
+      updateData({ webSearchContent: localData.webSearchContent });
     }
+
     try {
       setIsGenerating(true);
       setError(null);
 
-      const result = await contentGenerationService.generateContent(data);
+      const result = await contentGenerationService.generateContent(localData);
       if (result.error) {
         throw new Error(result.error);
       }
 
-      updateData({ generatedContent: result.content });
+      updateData({ generatedContent: result.content.join('\n') });
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Generation failed');
     } finally {
@@ -156,7 +159,6 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     }
   };
 
-  console.log('data', data);
   return (
     <div className={styles.container}>
       <div className={styles.contentWrapper}>

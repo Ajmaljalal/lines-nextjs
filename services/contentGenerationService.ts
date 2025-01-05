@@ -2,7 +2,7 @@ import { ContentDrafterAgent } from '@/agents/content_drafter_agent';
 import { Newsletter } from '@/types/Newsletter';
 
 export const contentGenerationService = {
-  async generateContent(data: Newsletter): Promise<{ content: string; error?: string }> {
+  async generateContent(data: Newsletter): Promise<{ content: string[]; error?: string }> {
     try {
       const agent = new ContentDrafterAgent({
         messages: [],
@@ -27,10 +27,12 @@ export const contentGenerationService = {
         throw new Error(response.error);
       }
 
-      return { content: response.content };
+      return {
+        content: [response.content]
+      };
     } catch (error) {
       return {
-        content: '',
+        content: [],
         error: error instanceof Error ? error.message : 'Generation failed'
       };
     }

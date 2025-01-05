@@ -125,7 +125,6 @@ const FirstStep_DataCollection: React.FC = () => {
     }
 
     if (data.urls.includes(urlToAdd)) {
-      console.log('URL already exists');
       return;
     }
 

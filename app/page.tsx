@@ -115,8 +115,6 @@ const HomePage = () => {
           ...doc.data(),
           id: doc.id,
         })) as Newsletter[];
-
-        console.log('fetchedNewsletters', fetchedNewsletters);
         setNewsletters(fetchedNewsletters);
       } catch (error) {
         console.error('Error fetching newsletters:', error);

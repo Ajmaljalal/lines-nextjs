@@ -16,11 +16,11 @@ export class HtmlGeneratorAgent extends BaseAgent {
     super(context);
     this.brandTheme = brandTheme;
     this.model = new ChatAnthropic({
-      temperature: 0.5,
+      temperature: 0.7,
       model: "claude-3-5-sonnet-20241022",
       apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
       maxRetries: 3,
-      maxTokens: 8000,
+      maxTokens: 8192,
     });
   }
 
@@ -29,7 +29,10 @@ export class HtmlGeneratorAgent extends BaseAgent {
     if (!generatedContent) {
       return 'No content provided. Please complete the previous step first.';
     }
-    const parsedGeneratedContent = JSON.parse(generatedContent || '');
+
+    const parsedGeneratedContent = generatedContent ? JSON.stringify(generatedContent) : [];
+    const parsedUrls = urls ? JSON.stringify(urls) : [];
+    const content = [parsedGeneratedContent, parsedUrls];
 
     let themeInstructions = '';
     if (this.brandTheme) {
@@ -56,7 +59,9 @@ export class HtmlGeneratorAgent extends BaseAgent {
       `;
     }
 
-    return `Generate a beautiful, modern HTML email newsletter using the following [topic] [content], [style], and [urls]. 
+    return `You are an expert designer.
+    Generate a beautiful and modern HTML newsletter for the provided [topic] [content], and [style].
+    Use all the content provided to create the newsletter, do not leave any content out.
     The design should be mobile-responsive and use modern email-safe HTML and inline CSS.
 
     ${themeInstructions}
@@ -71,15 +76,14 @@ export class HtmlGeneratorAgent extends BaseAgent {
     - inline styling only
     - if there is numbers and statistics, make sure to include them in the content section and them pretty and nicely designed and styled
     - Include charts and graphs if applicable
+    - Include links to the urls under each content section if provided
+    - Include images if provided
 
     Topic:
     ${JSON.stringify(topic, null, 2)}
 
     Content:
-    ${JSON.stringify(parsedGeneratedContent, null, 2)}
-
-    URLs:
-    ${JSON.stringify(urls, null, 2)}
+    ${JSON.stringify(content, null, 2)}
 
     Style:
     ${JSON.stringify(style, null, 2)}

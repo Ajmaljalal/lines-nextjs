@@ -28,7 +28,6 @@ export interface TavilySearchResponse {
 export const TavilyService = {
   async searchWeb(query: string): Promise<TavilySearchResponse> {
     const queryWithTodaysDate = `${query} as of ${new Date().toISOString().split('T')[0]}`;
-    console.log('queryWithTodaysDate', queryWithTodaysDate);
     try {
       const response = await axios.post(`${TAVILY_API_BASE_URL}/search`, {
         api_key: TAVILY_API_KEY,

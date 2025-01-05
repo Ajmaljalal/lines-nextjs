@@ -98,28 +98,6 @@ const SecondStep_ContentDrafting: React.FC = () => {
         ))}
       </div>
 
-      {data.webSearchContent && data.webSearchContent.length > 0 && (
-        <div>
-          <div className={styles.sectionLabel}>Referenced Sources</div>
-          <div className={styles.section}>
-            {data.webSearchContent.map((source: any, index: number) => (
-              <div key={index} className="mb-4 last:mb-0">
-                <h4 className="font-medium mb-1">{source.title}</h4>
-                <p className="text-sm text-muted-foreground mb-1">{source.content}</p>
-                <a
-                  href={source.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-[var(--primary-color)] hover:underline"
-                >
-                  Read more
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div>
         <div className={styles.sectionLabel}>Newsletter Footer</div>
         <div className={styles.section}>
