@@ -7,7 +7,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { User, Settings, LogOut, Palette } from 'lucide-react';
-import { useTheme } from '@/context/ThemeContext';
 import { useBrandTheme } from '@/context/BrandThemeContext';
 import UserCredits from '../UserCredits';
 import { Button } from '../core-ui-components/button';
@@ -18,8 +17,8 @@ const styles = {
     w-full
     fixed
     top-0
-    z-50
-    bg-background
+    z-100
+    bg-gray-100
     px-8
     py-4
     border-b
