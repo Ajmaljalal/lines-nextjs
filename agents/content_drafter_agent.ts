@@ -9,12 +9,25 @@ const newsletterSectionsSchema = z.object({
     title: z.string(),
     subtitle: z.string().optional(),
   }),
-  sections: z.array(z.object({
-    title: z.string(),
-    content: z.string(),
-    url: z.string(),
-    image: z.string().optional(),
-  })),
+  sections: z.union([
+    z.array(z.object({
+      title: z.string(),
+      content: z.string(),
+      url: z.string(),
+      image: z.string().optional(),
+    })),
+    z.string().transform((str) => {
+      try {
+        const parsed = JSON.parse(str);
+        if (!Array.isArray(parsed)) {
+          throw new Error('Parsed value is not an array');
+        }
+        return parsed;
+      } catch (e) {
+        throw new Error('Failed to parse sections string');
+      }
+    })
+  ]),
   footer: z.object({
     content: z.string(),
     callToAction: z.string().optional(),
@@ -60,12 +73,37 @@ export class ContentDrafterAgent extends BaseAgent {
     - Always cite sources by including the original URLs
     - Always include images if available
 
-    Today's date is ${new Date().toISOString().split('T')[0]}.`;
+    Today's date is ${new Date().toISOString().split('T')[0]}.
+
+    IMPORTANT: Return the sections as an array, not a string. Do not stringify the sections array.
+
+    Expected format example:
+    {
+      "header": { ... },
+      "sections": [
+        { "title": "...", "content": "...", "url": "..." },
+        { "title": "...", "content": "...", "url": "..." }
+      ],
+      "footer": { ... }
+    }
+
+    Do not stringify any part of the response. The sections must be a direct array, not a string.`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
-    return await structuredModel.invoke([
+    const result = await structuredModel.invoke([
       { role: 'user', content: prompt }
     ]);
+
+    if (result && typeof result.sections === 'string') {
+      try {
+        result.sections = JSON.parse(result.sections);
+      } catch (e) {
+        console.error('Failed to parse sections:', e);
+        throw new Error('Invalid sections format in response');
+      }
+    }
+
+    return result;
   }
 
   private async generateUserContent(): Promise<any | null> {
@@ -92,13 +130,40 @@ export class ContentDrafterAgent extends BaseAgent {
     - Include provided URLs under each content section where appropriate
     - Always include images if available
 
-    Today's date is ${new Date().toISOString().split('T')[0]}.`;
+    Today's date is ${new Date().toISOString().split('T')[0]}.
+
+    IMPORTANT: Return the sections as an array, not a string. Do not stringify the sections array.
+
+    Expected format example:
+    {
+      "header": { ... },
+      "sections": [
+        { "title": "...", "content": "...", "url": "..." },
+        { "title": "...", "content": "...", "url": "..." }
+      ],
+      "footer": { ... }
+    }
+
+    Do not stringify any part of the response. The sections must be a direct array, not a string.`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
-    return await structuredModel.invoke([
+    const result = await structuredModel.invoke([
       { role: 'user', content: prompt }
     ]);
+
+    if (result && typeof result.sections === 'string') {
+      try {
+        result.sections = JSON.parse(result.sections);
+      } catch (e) {
+        console.error('Failed to parse sections:', e);
+        throw new Error('Invalid sections format in response');
+      }
+    }
+    return result;
   }
+
+
+
 
   private mergeContent(webContent: any | null, userContent: any | null): any {
     if (!webContent && !userContent) {
