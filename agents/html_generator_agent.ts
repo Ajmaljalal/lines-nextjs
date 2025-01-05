@@ -25,8 +25,11 @@ export class HtmlGeneratorAgent extends BaseAgent {
   }
 
   protected generatePrompt(): string {
-    const { content, style, topic, urls } = this.context.data;
-    const generatedContent = JSON.parse(content || '');
+    const { generatedContent, style, topic, urls } = this.context.data;
+    if (!generatedContent) {
+      return 'No content provided. Please complete the previous step first.';
+    }
+    const parsedGeneratedContent = JSON.parse(generatedContent || '');
 
     let themeInstructions = '';
     if (this.brandTheme) {
@@ -73,7 +76,7 @@ export class HtmlGeneratorAgent extends BaseAgent {
     ${JSON.stringify(topic, null, 2)}
 
     Content:
-    ${JSON.stringify(generatedContent, null, 2)}
+    ${JSON.stringify(parsedGeneratedContent, null, 2)}
 
     URLs:
     ${JSON.stringify(urls, null, 2)}

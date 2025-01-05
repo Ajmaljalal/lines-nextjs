@@ -9,8 +9,8 @@ import FourthStep_SendNewsletter from './Step_4_SendNewsletter';
 import StepNavigation from './StepNavigation';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Loader2 } from 'lucide-react';
-import { ContentDrafterAgent } from '@/agents/content_drafter_agent';
-import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
+import { contentGenerationService } from '@/services/contentGenerationService';
+import { htmlGenerationService } from '@/services/htmlGenerationService';
 import { useBrandTheme } from '@/context/BrandThemeContext';
 
 interface MainContentProps {
@@ -52,27 +52,13 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     try {
       setIsGenerating(true);
       setError(null);
-      const agent = new ContentDrafterAgent({
-        messages: [],
-        data: {
-          id: data.id,
-          userId: data.userId,
-          status: data.status,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          topic: data.topic,
-          content: data.content,
-          urls: data.urls,
-          style: data.style
-        }
-      });
 
-      const response = await agent.execute();
-      if (response.error) {
-        throw new Error(response.error);
+      const result = await contentGenerationService.generateContent(data);
+      if (result.error) {
+        throw new Error(result.error);
       }
 
-      await updateData({ generatedContent: response.content });
+      updateData({ generatedContent: result.content });
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Generation failed');
     } finally {
@@ -84,27 +70,13 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     try {
       setIsGenerating(true);
       setError(null);
-      const agent = new HtmlGeneratorAgent({
-        messages: [],
-        data: {
-          id: data.id,
-          userId: data.userId,
-          status: data.status,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          topic: data.topic || '',
-          urls: data.urls || [],
-          style: data.style || '',
-          content: data.generatedContent || '',
-        }
-      }, currentTheme);
 
-      const response = await agent.execute();
-      if (response.error) {
-        throw new Error(response.error);
+      const result = await htmlGenerationService.generateHtml(data, currentTheme);
+      if (result.error) {
+        throw new Error(result.error);
       }
 
-      await updateData({ htmlContent: response.content });
+      updateData({ htmlContent: result.content });
     } catch (error) {
       setError(error instanceof Error ? error.message : 'HTML generation failed');
     } finally {

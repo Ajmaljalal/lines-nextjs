@@ -1,0 +1,40 @@
+import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
+import { Newsletter } from '@/types/Newsletter';
+import { BrandTheme } from '@/types/BrandTheme';
+
+export const htmlGenerationService = {
+  async generateHtml(data: Newsletter, currentTheme: BrandTheme | null): Promise<{ content: string; error?: string }> {
+    try {
+      const agent = new HtmlGeneratorAgent({
+        messages: [],
+        data: {
+          id: data.id,
+          userId: data.userId,
+          status: data.status,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          topic: data.topic || '',
+          urls: data.urls || [],
+          style: data.style || '',
+          generatedContent: data.generatedContent || '',
+          userProvidedContent: data.userProvidedContent || '',
+          webSearch: data.webSearch || false,
+          webSearchContent: data.webSearchContent || [],
+          urlsExtractedContent: data.urlsExtractedContent || []
+        }
+      }, currentTheme);
+
+      const response = await agent.execute();
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return { content: response.content };
+    } catch (error) {
+      return {
+        content: '',
+        error: error instanceof Error ? error.message : 'HTML generation failed'
+      };
+    }
+  }
+}; 

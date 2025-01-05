@@ -4,6 +4,7 @@ import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
 import { useNewsletter } from '../../context/NewsletterContext';
 import { Button } from '../core-ui-components/button';
+import { Switch } from '../core-ui-components/switch';
 
 const styles = {
   container: `
@@ -18,6 +19,16 @@ const styles = {
   `,
   formGroup: `
     space-y-2.5
+  `,
+  labelContainer: `
+    flex
+    items-center
+    justify-between
+  `,
+  labelGroup: `
+    flex
+    items-center
+    gap-4
   `,
 
   urlList: `
@@ -51,17 +62,19 @@ const styles = {
 const FirstStep_DataCollection: React.FC = () => {
   const { data, updateData } = useNewsletter();
   const [topic, setTopic] = useState<string>(data.topic || '');
-  const [content, setContent] = useState<string>(data.content || '');
+  const [content, setContent] = useState<string>(data.userProvidedContent || '');
   const [style, setStyle] = useState<string>(data.style || '');
   const [currentUrl, setCurrentUrl] = useState('');
+  const [webSearch, setWebSearch] = useState<boolean>(data.webSearch || false);
 
   const isReadOnly = data.status === 'sent';
 
   useEffect(() => {
     setTopic(data.topic || '');
-    setContent(data.content || '');
+    setContent(data.userProvidedContent || '');
     setStyle(data.style || '');
-  }, [data.topic, data.content, data.style]);
+    setWebSearch(data.webSearch || false);
+  }, [data.topic, data.userProvidedContent, data.style, data.webSearch]);
 
   const handleTopicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTopic = e.target.value;
@@ -69,10 +82,15 @@ const FirstStep_DataCollection: React.FC = () => {
     updateData({ topic: newTopic });
   };
 
+  const handleWebSearchChange = (checked: boolean) => {
+    setWebSearch(checked);
+    updateData({ webSearch: checked });
+  };
+
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setContent(newContent);
-    updateData({ content: newContent });
+    updateData({ userProvidedContent: newContent });
   };
 
   const isValidUrl = (urlString: string): boolean => {
@@ -130,9 +148,21 @@ const FirstStep_DataCollection: React.FC = () => {
   return (
     <form className={styles.container}>
       <div className={styles.formGroup}>
-        <Label>
-          Newsletter / Email Topic <span className="text-red-500">*</span>
-        </Label>
+        <div className={styles.labelContainer}>
+          <div className={styles.labelGroup}>
+            <Label>
+              Newsletter / Email Topic <span className="text-red-500">*</span>
+            </Label>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={webSearch}
+                onCheckedChange={handleWebSearchChange}
+                disabled={isReadOnly}
+              />
+              <span className="text-sm text-zinc-400">Web Search</span>
+            </div>
+          </div>
+        </div>
         <Input
           placeholder="What is the main topic you want to write about?"
           value={topic}
@@ -148,7 +178,7 @@ const FirstStep_DataCollection: React.FC = () => {
           Content <span className="text-zinc-500 text-sm font-normal">(optional)</span>
         </Label>
         <Textarea
-          placeholder="Your newsletter/email content, if you already have something in mind..."
+          placeholder="Paste your content here if you already have something in mind..."
           rows={6}
           value={content}
           onChange={handleContentChange}
@@ -182,7 +212,7 @@ const FirstStep_DataCollection: React.FC = () => {
 
         <div className="relative">
           <Input
-            placeholder="Enter web URLs to extract content from and press Enter or Add..."
+            placeholder="Enter web URLs to extract content from..."
             value={currentUrl}
             onChange={(e) => setCurrentUrl(e.target.value)}
             onKeyDown={(e) => {
@@ -220,7 +250,7 @@ const FirstStep_DataCollection: React.FC = () => {
           Style Preferences <span className="text-zinc-500 text-sm font-normal">(optional)</span>
         </Label>
         <Textarea
-          placeholder="Describe your preferred style, theme, and colors..."
+          placeholder="Describe your preferred look and feel of the email design. (e.g. modern, minimalist, pretty, serious, casual, professional, creative, bold, colorful, dark, light, etc.)"
           rows={3}
           value={style}
           onChange={handleStyleChange}
