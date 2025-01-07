@@ -18,93 +18,98 @@ export class ContentEditingAgent extends BaseAgent {
 
   constructor(context: AgentContext) {
     super(context);
+    const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('Anthropic API key not found');
+    }
+
     this.model = new ChatAnthropic({
       temperature: 0.7,
       model: "claude-3-sonnet-20240229",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      apiKey: apiKey,
       maxRetries: 3,
     });
   }
 
-  protected generatePrompt(): string {
+  protected generatePrompt(userInput?: string): string {
     const { generatedContent } = this.context.data;
     const content = generatedContent ? JSON.parse(generatedContent) : null;
 
     return `
     <prompt>
       <role>
-        You are an AI assistant helping users edit and refine their newsletter content. You can help them:
-        1. Edit existing sections
-        2. Add new sections
-        3. Remove sections
-        4. Update the style and tone
-        5. Validate content quality
+        You are an AI assistant helping to edit newsletter content. You will receive the current content and a request for changes.
       </role>
 
       <current_content>
         ${JSON.stringify(content, null, 2)}
       </current_content>
 
+      <user_request>
+        ${userInput || ''}
+      </user_request>
+
       <task>
-        Help the user improve their newsletter content. If they ask to edit a section,
-        help them refine it. If they want to add or remove sections, guide them through it.
-        Maintain a consistent style and tone throughout the newsletter.
+        Update the newsletter content based on the user's request. Return the COMPLETE updated content structure.
+        Maintain the same JSON structure but with the requested changes applied.
       </task>
 
       <response_format>
         Return a JSON object with:
-        - action: The type of action to take (edit_section, add_section, remove_section, update_style, validate_content)
-        - section: The section details (if applicable)
-          - id: Section identifier
-          - title: Section title
-          - content: Section content
-        - message: The message to show to the user
+        {
+          "updatedContent": {
+            // The complete newsletter content structure with changes
+          },
+          "message": "Explanation of changes made"
+        }
       </response_format>
-
-      <conversation_history>
-        ${JSON.stringify(this.context.messages)}
-      </conversation_history>
     </prompt>`;
-  }
-
-  protected processResponse(response: any): AgentResponse {
-    return {
-      content: response.message,
-      metadata: {
-        type: 'content_editing',
-        action: response.action,
-        section: response.section
-      }
-    };
   }
 
   public async execute(input?: string): Promise<AgentResponse> {
     try {
-      if (input) {
-        this.context.messages.push({
-          role: 'user',
-          content: input
-        });
-      }
+      if (!input) return { content: '', error: 'No input provided' };
 
-      const prompt = this.generatePrompt();
-      const structuredModel = this.model.withStructuredOutput(contentEditingResponseSchema);
-      const response = await structuredModel.invoke([
+      const prompt = this.generatePrompt(input);
+      const response = await this.model.invoke([
         { role: 'user', content: prompt }
       ]);
 
-      this.context.messages.push({
-        role: 'assistant',
-        content: response.message
-      });
+      // Handle different types of message content
+      const content = Array.isArray(response.content)
+        ? response.content.map(part =>
+          typeof part === 'string' ? part : ('text' in part ? part.text : '')
+        ).join('')
+        : typeof response.content === 'string'
+          ? response.content
+          : 'text' in response.content
+            ? (response.content as { text: string }).text
+            : '';
 
-      return this.processResponse(response);
+      return this.processResponse(content);
     } catch (error) {
       console.error('Content editing agent execution error:', error);
       return {
         content: '',
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
+    }
+  }
+
+  protected processResponse(response: string): AgentResponse {
+    try {
+      const result = JSON.parse(response);
+      return {
+        content: result.message,
+        metadata: {
+          type: 'content_update',
+          updates: {
+            generatedContent: JSON.stringify(result.updatedContent)
+          }
+        }
+      };
+    } catch (error) {
+      throw new Error('Failed to process response: ' + error);
     }
   }
 } 
