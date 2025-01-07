@@ -11,6 +11,7 @@ const styles = {
     gap-8
     max-w-3xl
     mx-auto
+    px-4
   `,
   loadingContainer: `
     flex

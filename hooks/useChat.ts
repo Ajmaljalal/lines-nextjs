@@ -1,165 +1,101 @@
-import { useState, useCallback, useEffect } from 'react';
-import { db } from '@/config/firebase';
-import { v4 as uuidv4 } from 'uuid';
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  Timestamp,
-  doc,
-  writeBatch
-} from 'firebase/firestore';
-import { useAuth } from '@/context/AuthContext';
-import { getInitialNewsletterPlan, MessageRole } from '@/types/Newsletter';
-import { getInitialNewsletterConversation } from '@/types/Newsletter';
+import { useState, useCallback } from 'react';
+import { useNewsletter } from '@/context/NewsletterContext';
+import { useBrandTheme } from '@/context/BrandThemeContext';
+import { ChatService } from '@/services/chatService';
+import { AgentMessage } from '@/agents/types';
 
-export interface Message {
-  id: string;
-  content: string;
-  createdAt: Timestamp;
-  userId: string;
-  role: MessageRole;
+interface AgentMetadata {
+  type: 'data_collection' | 'content_editing' | 'design_customization';
+  action: string;
+  field?: string;
+  value?: any;
+  section?: {
+    id: string;
+    title?: string;
+    content?: string;
+  };
+  updates?: {
+    html?: string;
+    css?: string;
+  };
 }
 
-export function useChat() {
-  const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
+export const useChat = () => {
+  const { data, currentStep, updateData } = useNewsletter();
+  const { currentTheme } = useBrandTheme();
+  const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
-  const [newsletterPlanId, setNewsletterPlanId] = useState<string | undefined>(undefined);
 
-  const initiatNewsletterPlan = async (): Promise<{ newsletterPlanId: string, newsletterConversationId: string } | undefined> => {
-    if (!user) return undefined;
-    const newsletterPlanId = uuidv4() + '_' + new Date().getTime();
-    const conversationId = uuidv4() + '_' + new Date().getTime();
+  const chatService = new ChatService(data, currentStep, currentTheme);
 
-    setNewsletterPlanId(newsletterPlanId);
-    setConversationId(conversationId);
-
-    const newsletterPlan = getInitialNewsletterPlan({ userId: user.uid, conversationId, newsletterPlanId });
-    const newsletterConversation = getInitialNewsletterConversation({ userId: user.uid, conversationId, newsletterPlanId });
-
-    const batch = writeBatch(db);
-    const planRef = doc(db, 'newsletter_plans', newsletterPlanId);
-    const conversationRef = doc(db, 'newsletter_conversations', conversationId);
-
-    batch.set(planRef, newsletterPlan);
-    batch.set(conversationRef, newsletterConversation);
-
+  const sendMessage = useCallback(async (message: string) => {
     try {
-      await batch.commit();
-    } catch (error) {
-      console.error('Error initializing newsletter plan:', error);
-      return undefined;
-    }
+      setIsSending(true);
+      setMessages(prev => [...prev, { role: 'user', content: message }]);
 
-    return {
-      newsletterPlanId,
-      newsletterConversationId: conversationId,
-    }
-  }
+      const response = await chatService.processMessage(message);
 
-  // Subscribe to messages
-  const subscribeToMessages = useCallback((conversationId: string) => {
-    if (!user) return;
+      setMessages(prev => [...prev, { role: 'assistant', content: response.message }]);
 
-    setIsFetching(true);
+      // Handle agent actions based on metadata
+      const metadata = response.metadata as AgentMetadata | undefined;
+      if (metadata?.type) {
+        switch (metadata.type) {
+          case 'data_collection':
+            if (metadata.action === 'update_field' && metadata.field) {
+              updateData({ [metadata.field]: metadata.value });
+            }
+            break;
 
-    const q = query(
-      collection(db, `newsletter_conversations/${conversationId}/messages`),
-      orderBy('createdAt', 'asc')
-    );
+          case 'content_editing':
+            if (metadata.action === 'edit_section' && metadata.section?.id) {
+              const content = JSON.parse(data.generatedContent || '{}');
+              const sectionIndex = content.sections.findIndex(
+                (s: any) => s.id === metadata.section?.id
+              );
+              if (sectionIndex !== -1) {
+                content.sections[sectionIndex] = {
+                  ...content.sections[sectionIndex],
+                  ...metadata.section
+                };
+                updateData({ generatedContent: JSON.stringify(content) });
+              }
+            }
+            break;
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Message[];
-      setMessages(newMessages);
-
-      setIsFetching(false);
-    }, (error) => {
-      console.error('Error fetching messages:', error);
-      setIsFetching(false);
-    });
-
-    return unsubscribe;
-  }, [user]);
-
-  // Add a new message
-  const addMessage = async ({
-    text,
-    conversationId
-  }: {
-    text: string,
-    conversationId?: string
-  }) => {
-    if (!user) return;
-
-    setIsSending(true);
-
-    let newsletterPlanId: string | undefined;
-
-    try {
-      // If newsletter conversation id is not provided, create a new newsletter plan and conversation
-      if (!conversationId) {
-        const result = await initiatNewsletterPlan();
-        if (!result) {
-          console.error('Error initializing newsletter plan and conversation');
-          setIsSending(false);
-          return;
+          case 'design_customization':
+            if (metadata.action === 'update_layout' && metadata.updates?.html) {
+              updateData({ htmlContent: metadata.updates.html });
+            }
+            break;
         }
-
-        const { newsletterPlanId: planId, newsletterConversationId } = result;
-        if (!planId || !newsletterConversationId) {
-          setIsSending(false);
-          return;
-        }
-
-        newsletterPlanId = planId;
-        conversationId = newsletterConversationId;
       }
 
-
-      await addDoc(collection(db, `newsletter_conversations/${conversationId}/messages`), {
-        content: text,
-        userId: user.uid,
-        createdAt: Timestamp.now(),
-        role: MessageRole.USER,
-        conversationId,
-      });
-
-      return {
-        success: true,
-        conversationId,
-        newsletterPlanId,
-      }
+      return response;
     } catch (error) {
-      console.error('Error adding message:', error);
+      console.error('Error sending message:', error);
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.'
+        }
+      ]);
       throw error;
     } finally {
       setIsSending(false);
     }
-  };
+  }, [data, currentStep, updateData, currentTheme]);
 
-  useEffect(() => {
-    if (!conversationId) return;
-    const unsubscribe = subscribeToMessages(conversationId);
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [subscribeToMessages, conversationId]);
+  const clearChat = useCallback(() => {
+    setMessages([]);
+    chatService.clearConversation();
+  }, []);
 
   return {
     messages,
     isSending,
-    isFetching,
-    addMessage,
-    subscribeToMessages,
-    conversationId,
-    newsletterPlanId,
+    sendMessage,
+    clearChat
   };
-} 
+}; 

@@ -10,6 +10,7 @@ import MainContent from '../../components/steps/MainContent';
 import { NewsletterProvider, useNewsletter } from '@/context/NewsletterContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useChat } from '@/hooks/useChat';
 
 const styles = {
   container: `
@@ -62,6 +63,7 @@ const NewsletterEditor = () => {
   const searchParams = useSearchParams();
   const newsletterId = searchParams.get('id');
   const { currentStep, setCurrentStep, updateData } = useNewsletter();
+  const { messages, isSending, sendMessage } = useChat();
 
   useEffect(() => {
     if (!user) {
@@ -93,7 +95,7 @@ const NewsletterEditor = () => {
             id: newsletterData.id,
             userId: newsletterData.userId,
             topic: newsletterData.topic || '',
-            content: newsletterData.content || '',
+            userProvidedContent: newsletterData.userProvidedContent || '',
             urls: newsletterData.urls || [],
             style: newsletterData.style || '',
             generatedContent: newsletterData.generatedContent,
@@ -148,13 +150,17 @@ const NewsletterEditor = () => {
           <MainContent onStepComplete={handleStepComplete} />
         </div>
         <div className={styles.rightColumn}>
-          <ChatContainer />
+          <ChatContainer
+            messages={messages}
+            isSending={isSending}
+            onSendMessage={sendMessage}
+            isDisabled={false}
+          />
         </div>
       </main>
     </div>
   );
 };
-
 
 const Home: React.FC = () => {
   return (

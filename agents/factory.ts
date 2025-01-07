@@ -1,25 +1,23 @@
-import { EditorAgent } from './editor';
-import { PlannerAgent } from './planer';
-import { AgentContext, AgentRole, NewsletterPlan } from './types';
-import { WriterAgent } from './writer';
+import { DataCollectionAgent } from './data_collection_agent';
+import { ContentEditingAgent } from './content_editing_agent';
+import { DesignAgent } from './design_agent';
+import { AgentContext, AgentRole } from './types';
+import { BrandTheme } from '@/types/BrandTheme';
 
 export class AgentFactory {
   static createAgent(role: AgentRole, context: AgentContext, additionalData?: any) {
     switch (role) {
-      case AgentRole.PLANNER:
-        return new PlannerAgent(context);
-      case AgentRole.WRITER:
-        if (!additionalData?.plan) {
-          throw new Error('Newsletter plan is required for writer agent');
+      case AgentRole.DATA_COLLECTION:
+        return new DataCollectionAgent(context);
+      case AgentRole.CONTENT_EDITING:
+        return new ContentEditingAgent(context);
+      case AgentRole.DESIGN:
+        if (!additionalData?.brandTheme) {
+          throw new Error('Brand theme is required for design agent');
         }
-        return new WriterAgent(context, additionalData.plan as NewsletterPlan);
-      case AgentRole.EDITOR:
-        if (!additionalData?.content) {
-          throw new Error('Content is required for editor agent');
-        }
-        return new EditorAgent(context, additionalData.content as string);
+        return new DesignAgent(context, additionalData.brandTheme as BrandTheme);
       default:
         throw new Error(`Unknown agent role: ${role}`);
     }
   }
-}
+} 

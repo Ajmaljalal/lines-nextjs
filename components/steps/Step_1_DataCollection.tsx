@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Textarea } from '../core-ui-components/textarea';
 import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
-import { useNewsletter } from '../../context/NewsletterContext';
+import { useNewsletter } from '@/context/NewsletterContext';
 import { Button } from '../core-ui-components/button';
 import { Switch } from '../core-ui-components/switch';
 
@@ -30,7 +30,6 @@ const styles = {
     items-center
     gap-4
   `,
-
   urlList: `
     flex
     flex-wrap
@@ -96,15 +95,12 @@ const FirstStep_DataCollection: React.FC = () => {
   const isValidUrl = (urlString: string): boolean => {
     try {
       const url = new URL(urlString);
-      // Check if it has a valid protocol (http or https)
       if (!url.protocol || !['http:', 'https:'].includes(url.protocol)) {
         return false;
       }
-      // Check if it has a valid hostname
       if (!url.hostname || url.hostname.length < 3) {
         return false;
       }
-      // Check for at least one dot in hostname (e.g., example.com)
       if (!url.hostname.includes('.')) {
         return false;
       }
@@ -226,22 +222,21 @@ const FirstStep_DataCollection: React.FC = () => {
             type="button"
             onClick={addUrl}
             className={`
-                ${styles.addButton}
-                absolute
-                right-[8px]
-                top-1/2
-                -translate-y-1/2
-                h-[calc(100%-16px)]
-                min-w-[50px]
-                text-xs
-                px-2.5
-                text-white
-              `}
+              ${styles.addButton}
+              absolute
+              right-[8px]
+              top-1/2
+              -translate-y-1/2
+              h-[calc(100%-16px)]
+              min-w-[50px]
+              text-xs
+              px-2.5
+              text-white
+            `}
           >
             Add
           </Button>
         </div>
-
       </div>
 
       <div className={styles.formGroup}>

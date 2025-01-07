@@ -4,10 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '../core-ui-components/button';
 import { ArrowUp } from 'lucide-react';
 import { Textarea } from '../core-ui-components/textarea';
-import { useChat } from '@/hooks/useChat';
-import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
+
+interface InputContainerProps {
+  onSendMessage: (message: string) => Promise<any>;
+  isDisabled?: boolean;
+  isSending?: boolean;
+}
 
 const styles = {
   container: 'w-full',
@@ -41,12 +43,12 @@ const styles = {
     overflow-y-auto`
 };
 
-const InputContainer: React.FC = () => {
+const InputContainer: React.FC<InputContainerProps> = ({
+  onSendMessage,
+  isDisabled = false,
+  isSending = false
+}) => {
   const [input, setInput] = useState('');
-  const { addMessage, isSending } = useChat();
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const adjustTextareaHeight = () => {
@@ -77,17 +79,11 @@ const InputContainer: React.FC = () => {
 
   const sendMessage = async () => {
     const message = input?.trim();
-    if (message === '' || isSending) return;
+    if (message === '' || isSending || isDisabled) return;
 
-    const conversationIdFromParams = searchParams.get('conversation') || undefined;
     try {
-      const result = await addMessage({ text: message, conversationId: conversationIdFromParams });
+      await onSendMessage(message);
       setInput('');
-
-      if (!result) return;
-      if (!conversationIdFromParams) {
-        router.push(`${pathname.split('?')[0]}?conversation=${result.conversationId}`);
-      }
 
       // Reset textarea height after sending
       if (textareaRef.current) {
@@ -96,7 +92,6 @@ const InputContainer: React.FC = () => {
       scrollToBottom();
     } catch (error) {
       console.error('Error sending message:', error);
-      // Optionally, show an error message to the user
     }
   };
 
@@ -126,12 +121,12 @@ const InputContainer: React.FC = () => {
             }
           }}
           className={styles.textarea}
-          disabled={isSending}
+          disabled={isDisabled || isSending}
         />
         <Button
           onClick={sendMessage}
           className={styles.button}
-          disabled={isSending}
+          disabled={isDisabled || isSending}
         >
           <ArrowUp className="w-4 h-4" />
         </Button>

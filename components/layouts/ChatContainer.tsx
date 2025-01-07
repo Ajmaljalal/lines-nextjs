@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useChat } from '@/hooks/useChat';
 import { Card } from '../core-ui-components/card';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { MessageRole } from '@/types/Newsletter';
+import { AgentMessage } from '@/agents/types';
 import InputContainer from './InputContainer';
+
+interface ChatContainerProps {
+  messages: AgentMessage[];
+  isSending: boolean;
+  onSendMessage: (message: string) => Promise<any>;
+  isDisabled?: boolean;
+}
 
 const styles = {
   wrapper: `
@@ -50,21 +55,12 @@ const styles = {
     p-4`
 };
 
-const ChatContainer: React.FC = () => {
-  const { messages, isFetching, subscribeToMessages, addMessage } = useChat();
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const conversationId = searchParams.get('conversation') || undefined;
-
-  useEffect(() => {
-    if (!conversationId) return;
-    const unsubscribe = subscribeToMessages(conversationId);
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [subscribeToMessages, conversationId]);
-
+const ChatContainer: React.FC<ChatContainerProps> = ({
+  messages,
+  isSending,
+  onSendMessage,
+  isDisabled = false
+}) => {
   useEffect(() => {
     window.scrollTo({
       top: document.body.scrollHeight,
@@ -72,40 +68,29 @@ const ChatContainer: React.FC = () => {
     });
   }, [messages]);
 
-  const handleExampleClick = async (text: string) => {
-    try {
-      const result = await addMessage({ text, conversationId });
-      if (!result) return;
-      router.push(`${pathname.split('?')[0]}?conversation=${result.conversationId}`);
-    } catch (error) {
-      console.error('Error handling example click:', error);
-    }
-  }
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-
         <div className={styles.messageContainer}>
-          {messages.map((msg) => (
+          {messages?.map((msg, index) => (
             <Card
-              key={msg.id}
+              key={index}
               className={`
                 px-4 
                 py-1
                 rounded-[12px]
-                ${msg.role === MessageRole.AI ? 'bg-zinc-900' : 'bg-zinc-800'}
-                ${msg.role === MessageRole.AI ? 'self-start' : 'self-end'}
+                ${msg.role === 'assistant' ? 'bg-zinc-100' : 'bg-zinc-300'}
+                ${msg.role === 'assistant' ? 'self-start' : 'self-end'}
               `}
             >
-              {msg.role === MessageRole.AI ? (
+              {msg.role === 'assistant' ? (
                 <div dangerouslySetInnerHTML={{ __html: msg.content }}></div>
               ) : (
                 <p>{msg.content}</p>
               )}
             </Card>
           ))}
-          {isFetching && (
+          {isSending && (
             <Card className="self-start px-6 py-3 rounded-[30px] bg-zinc-900">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -115,11 +100,14 @@ const ChatContainer: React.FC = () => {
             </Card>
           )}
         </div>
-
       </div>
       <div className={styles.inputArea}>
         <div className={styles.inputWrapper}>
-          <InputContainer />
+          <InputContainer
+            onSendMessage={onSendMessage}
+            isDisabled={isDisabled}
+            isSending={isSending}
+          />
         </div>
       </div>
     </div>

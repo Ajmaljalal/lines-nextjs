@@ -2,19 +2,19 @@ import { Newsletter } from "@/types/Newsletter";
 
 
 export enum AgentRole {
-  PLANNER = 'planner',
-  WRITER = 'writer',
-  EDITOR = 'editor',
+  DATA_COLLECTION = 'data_collection',
+  CONTENT_EDITING = 'content_editing',
+  DESIGN = 'design',
 }
 
 export interface AgentMessage {
   role: 'user' | 'assistant';
   content: string;
-  type?: 'user' | 'assistant'; // Add this line
+  type?: 'user' | 'assistant';
 }
 
 export interface AgentContext {
-  messages: any[];
+  messages: AgentMessage[];
   data: Newsletter;
 }
 
