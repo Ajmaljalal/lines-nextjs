@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { ContentDrafterAgent } from '@/agents/content_drafter_agent';
+import React from 'react';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { Loader2 } from 'lucide-react';
 
@@ -53,6 +52,42 @@ const styles = {
 const SecondStep_ContentDrafting: React.FC = () => {
   const { data } = useNewsletter();
   const content = data.generatedContent ? JSON.parse(data.generatedContent) : null;
+
+  const renderLoadingState = () => {
+    switch (data.loadingState) {
+      case 'webSearch':
+        return (
+          <div className="flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
+            <p className="text-zinc-400">Searching the web for relevant content...</p>
+          </div>
+        );
+      case 'urlExtraction':
+        return (
+          <div className="flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
+            <p className="text-zinc-400">Extracting content from provided URLs...</p>
+          </div>
+        );
+      case 'contentGeneration':
+        return (
+          <div className="flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
+            <p className="text-zinc-400">Curating content...</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (data.loadingState) {
+    return (
+      <div className={`${styles.container} h-full flex items-center justify-center`}>
+        {renderLoadingState()}
+      </div>
+    );
+  }
 
   if (!content) {
     return (

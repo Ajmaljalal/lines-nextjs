@@ -53,46 +53,51 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   const generateContent = async () => {
     const localData = { ...data };
     const shouldSearch = localData.webSearch ||
-      (!localData.userProvidedContent.trim().length && !localData.urls.length);
+      (!localData.userProvidedContent?.trim() && !localData.urls?.length);
 
+    // Handle web search if enabled
     if (shouldSearch) {
-      setIsWebSearchInProgress(true);
-
+      updateData({ loadingState: 'webSearch' });
       try {
         const response = await TavilyService.searchWeb(localData.topic);
-
-        if (response.results.length === 0) {
-          localData.webSearchContent = [];
-        } else {
-          localData.webSearchContent = response.results.map(result => ({
-            title: result.title,
-            content: result.content,
-            url: result.url,
-          }));
-        }
+        localData.webSearchContent = response.results.map(result => ({
+          title: result.title,
+          content: result.content,
+          url: result.url,
+        }));
+        updateData({ webSearchContent: localData.webSearchContent });
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Web search failed');
-      } finally {
-        setIsWebSearchInProgress(false);
+        return;
       }
-
-      updateData({ webSearchContent: localData.webSearchContent });
     }
 
-    try {
-      setIsGenerating(true);
-      setError(null);
+    // Handle URL content extraction
+    if (localData.urls?.length > 0) {
+      updateData({ loadingState: 'urlExtraction' });
+      try {
+        const extractionResult = await TavilyService.extractContent(localData.urls);
+        localData.urlsExtractedContent = extractionResult.results.map(item => item.raw_content);
+        updateData({ urlsExtractedContent: localData.urlsExtractedContent });
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'URL content extraction failed');
+        return;
+      }
+    }
 
+    // Generate the final content
+    updateData({ loadingState: 'contentGeneration' });
+    try {
       const result = await contentGenerationService.generateContent(localData);
       if (result.error) {
         throw new Error(result.error);
       }
-
-      updateData({ generatedContent: result.content.join('\n') });
+      updateData({
+        generatedContent: result.content[0],
+        loadingState: null
+      });
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Generation failed');
-    } finally {
-      setIsGenerating(false);
     }
   };
 
@@ -175,4 +180,4 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   );
 };
 
-export default MainContent; 
+export default MainContent;

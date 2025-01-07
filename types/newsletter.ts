@@ -203,6 +203,7 @@ export interface Newsletter {
   status: 'draft' | 'sent';
   createdAt: Date;
   updatedAt: Date;
+  loadingState?: 'webSearch' | 'urlExtraction' | 'contentGeneration' | null;
 }
 
 

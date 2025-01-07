@@ -35,7 +35,7 @@ const styles = {
 
   title: `
     text-3xl
-    text-foreground
+    text-[var(--primary-color)]
     font-bold
     flex
     items-center

@@ -55,14 +55,15 @@ export class HtmlGeneratorAgent extends BaseAgent {
   }
 
   private getContentSection(): string {
-    const { generatedContent, style, topic, urls } = this.context.data;
+    const { generatedContent, style, topic, urls, urlsExtractedContent } = this.context.data;
     const parsedContent = generatedContent ? JSON.stringify(generatedContent) : [];
     const parsedUrls = urls ? JSON.stringify(urls) : [];
+    const parsedExtractedContent = urlsExtractedContent ? JSON.stringify(urlsExtractedContent) : [];
 
     return `
       NEWSLETTER CONTENT:
         Topic: ${JSON.stringify(topic, null, 2)}
-        Content: ${JSON.stringify([parsedContent, parsedUrls], null, 2)}
+        Content: ${JSON.stringify([parsedContent, parsedUrls, parsedExtractedContent], null, 2)}
         Style: ${JSON.stringify(style, null, 2)}
     `;
   }

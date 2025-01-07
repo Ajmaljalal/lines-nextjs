@@ -52,73 +52,73 @@ export class ContentDrafterAgent extends BaseAgent {
     if (!this.context.data.webSearchContent?.length) return null;
 
     const prompt = `
-<prompt>
-  <role>
-    You are a professional newsletter writer tasked with creating a structured newsletter about "${this.context.data.topic}".
-  </role>
+    <prompt>
+      <role>
+        You are a professional newsletter writer tasked with creating a structured newsletter about "${this.context.data.topic}".
+      </role>
 
-  <task>
-    Use ONLY the information from these web search results:
-  </task>
+      <task>
+        Use ONLY the information from these web search results:
+      </task>
 
-  <source_data>
-    ${this.context.data.webSearchContent.map((result, index) => `
-    <source id="${index + 1}">
-      <title>${result.title}</title>
-      <content>${result.content}</content>
-      <url>${result.url}</url>
-    </source>`).join('\n')}
-  </source_data>
+      <source_data>
+        ${this.context.data.webSearchContent.map((result, index) => `
+        <source id="${index + 1}">
+          <title>${result.title}</title>
+          <content>${result.content}</content>
+          <url>${result.url}</url>
+        </source>`).join('\n')}
+      </source_data>
 
-  <response_format>
-    <description>Provide a JSON object with exactly these fields:</description>
-    <schema>
-    {
-      "header": {
-        "title": "clear, engaging title",
-        "subtitle": "optional subtitle"
-      },
-      "sections": [
+      <response_format>
+        <description>Provide a JSON object with exactly these fields:</description>
+        <schema>
         {
-          "title": "section title",
-          "content": "section content",
-          "url": "source url",
-          "image": "image url if available"
+          "header": {
+            "title": "clear, engaging title",
+            "subtitle": "optional subtitle"
+          },
+          "sections": [
+            {
+              "title": "section title",
+              "content": "section content",
+              "url": "source url",
+              "image": "image url if available"
+            }
+          ],
+          "footer": {
+            "content": "conclusion",
+            "callToAction": "optional call to action"
+          }
         }
-      ],
-      "footer": {
-        "content": "conclusion",
-        "callToAction": "optional call to action"
-      }
-    }
-    </schema>
-  </response_format>
+        </schema>
+      </response_format>
 
-  <requirements>
-    <section_count>Create exactly 3-5 sections</section_count>
-    
-    <section_rules>
-      <rule>Focus on a distinct aspect of the topic</rule>
-      <rule>Include the source URL</rule>
-      <rule>Contain all key facts from the source</rule>
-      <rule>Use engaging language without altering meaning</rule>
-    </section_rules>
+      <requirements>
+        <section_count>Create exactly 3-5 sections</section_count>
+        
+        <section_rules>
+          <rule>Focus on a distinct aspect of the topic</rule>
+          <rule>Include the source URL</rule>
+          <rule>Contain all key facts from the source</rule>
+          <rule>Use engaging language without altering meaning</rule>
+        </section_rules>
 
-    <restrictions>
-      <rule>Do not add information not in the sources</rule>
-      <rule>Do not remove important details</rule>
-      <rule>Do not merge unrelated facts</rule>
-    </restrictions>
+        <restrictions>
+          <rule>Do not add information not in the sources</rule>
+          <rule>Do not remove important details</rule>
+          <rule>Do not merge unrelated facts</rule>
+        </restrictions>
 
-    <data_preservation>
-      Raw numbers, statistics, and technical details must be preserved exactly
-    </data_preservation>
-  </requirements>
+        <data_preservation>
+          Raw numbers, statistics, and technical details must be preserved exactly
+        </data_preservation>
+      </requirements>
 
-  <output_instructions>
-    Return direct JSON without additional formatting or explanation. The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.
-  </output_instructions>
-</prompt>`;
+      <output_instructions>
+        Return direct JSON without additional formatting or explanation. The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.
+      </output_instructions>
+    </prompt>`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
@@ -141,81 +141,86 @@ export class ContentDrafterAgent extends BaseAgent {
     if (!this.context.data.userProvidedContent?.trim()) return null;
 
     const prompt = `
-<prompt>
-  <role>
-    You are a professional newsletter writer tasked with compiling user-provided content about "${this.context.data.topic}" into a clear newsletter format. Do not remove any information, only compile it into a newsletter format and that's it.
-  </role>
+    <prompt>
+      <role>
+        You are a professional newsletter writer tasked with compiling user-provided content about "${this.context.data.topic}" into a clear newsletter format. Do not remove any information, only compile it into a newsletter format and that's it.
+      </role>
 
-  <input_content>
-    <user_content>
-      ${this.context.data.userProvidedContent}
-    </user_content>
+      <input_content>
+        <user_content>
+          ${this.context.data.userProvidedContent}
+        </user_content>
 
-    ${this.context.data.urls?.length ? `
-    <reference_urls>
-      ${this.context.data.urls.join('\n')}
-    </reference_urls>` : ''}
+        ${this.context.data.urls?.length ? `
+        <reference_urls_content>
+          ${this.context.data.urlsExtractedContent.map((content, index) => `
+            <url_content>
+              <url>${this.context.data.urls[index]}</url>
+              <extracted_content>${content}</extracted_content>
+            </url_content>
+          `).join('\n')}
+        </reference_urls_content>` : ''}
 
-    ${this.context.data.style ? `
-    <style_guide>
-      ${this.context.data.style}
-    </style_guide>` : ''}
-  </input_content>
+        ${this.context.data.style ? `
+        <style_guide>
+          ${this.context.data.style}
+        </style_guide>` : ''}
+      </input_content>
 
-  <response_format>
-    <description>Provide a JSON object with exactly these fields:</description>
-    <schema>
-    {
-      "header": {
-        "title": "clear, engaging title",
-        "subtitle": "optional subtitle"
-      },
-      "sections": [
+      <response_format>
+        <description>Provide a JSON object with exactly these fields:</description>
+        <schema>
         {
-          "title": "section title",
-          "content": "section content",
-          "url": "reference url if provided",
-          "image": "image url if provided"
+          "header": {
+            "title": "clear, engaging title",
+            "subtitle": "optional subtitle"
+          },
+          "sections": [
+            {
+              "title": "section title",
+              "content": "section content",
+              "url": "reference url if provided",
+              "image": "image url if provided"
+            }
+          ],
+          "footer": {
+            "content": "conclusion",
+            "callToAction": "optional call to action"
+          }
         }
-      ],
-      "footer": {
-        "content": "conclusion",
-        "callToAction": "optional call to action"
-      }
-    }
-    </schema>
-  </response_format>
+        </schema>
+      </response_format>
 
-  <requirements>
-    <section_count>Compile user provided content into exactly 3-5 sections</section_count>
-    <content_preservation>Keep the content as close to the original as possible</content_preservation>
+      <requirements>
+        <section_count>Compile user provided content into exactly 3-5 sections</section_count>
+        <content_preservation>Keep the content as close to the original as possible</content_preservation>
 
-    <section_rules>
-      <rule>Cover a distinct aspect</rule>
-      <rule>Include all provided content</rule>
-      <rule>Do not remove or summarize away details</rule>
-      <rule>Preserve technical accuracy</rule>
-      <rule>Use provided URLs where relevant</rule>
-    </section_rules>
+        <section_rules>
+          <rule>Cover a distinct aspect</rule>
+          <rule>Include all provided content</rule>
+          <rule>Do not remove or summarize away details</rule>
+          <rule>Preserve technical accuracy</rule>
+          <rule>Use provided URLs where relevant</rule>
+        </section_rules>
 
-    <restrictions>
-      <rule>Do not add new information</rule>
-      <rule>Do not remove or summarize away details</rule>
-      <rule>Do not alter technical specifications, including code snippets and other technical details</rule>
-    </restrictions>
+        <restrictions>
+          <rule>Do not add new information</rule>
+          <rule>Do not remove or summarize away details</rule>
+          <rule>Do not alter technical specifications, including code snippets and other technical details</rule>
+        </restrictions>
 
-    <strict_preservation>
-      <item>All numbers and statistics</item>
-      <item>Technical details and specifications</item>
-      <item>Code snippets</item>
-      <item>Product features</item>
-    </strict_preservation>
-  </requirements>
+        <strict_preservation>
+          <item>All numbers and statistics</item>
+          <item>Technical details and specifications</item>
+          <item>Code snippets</item>
+          <item>Product features</item>
+        </strict_preservation>
+      </requirements>
 
-  <output_instructions>
-    Return direct JSON without additional formatting or explanation. The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.
-  </output_instructions>
-</prompt>`;
+      <output_instructions>
+        Return direct JSON without additional formatting or explanation. The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.
+      </output_instructions>
+    </prompt>`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
@@ -231,6 +236,39 @@ export class ContentDrafterAgent extends BaseAgent {
       }
     }
     return result;
+  }
+
+  private async generateUrlContent(): Promise<any | null> {
+    if (!this.context.data.urlsExtractedContent?.length) return null;
+
+    const prompt = `
+    <prompt>
+      <role>
+        You are a professional newsletter writer tasked with creating content from extracted URL content about "${this.context.data.topic}".
+      </role>
+
+      <extracted_content>
+        ${this.context.data.urlsExtractedContent.map((content, index) => `
+        <url_content>
+          <url>${this.context.data.urls[index]}</url>
+          <content>${content}</content>
+        </url_content>`).join('\n')}
+      </extracted_content>
+
+      ${this.context.data.style ? `
+      <style_guide>
+        ${this.context.data.style}
+      </style_guide>` : ''}
+
+      <response_format>
+        ${this.getResponseFormat()}
+      </response_format>
+    </prompt>`;
+
+    const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
+    return await structuredModel.invoke([
+      { role: 'user', content: prompt }
+    ]);
   }
 
   // Rest of the class implementation remains the same
@@ -260,24 +298,49 @@ export class ContentDrafterAgent extends BaseAgent {
 
   public async execute(): Promise<AgentResponse> {
     try {
-      if (!this.context.data.webSearchContent?.length && !this.context.data.userProvidedContent?.trim()) {
-        throw new Error('No input content provided - both web search and user content are empty');
+      const hasWebContent = this.context.data.webSearchContent?.length > 0;
+      const hasUserContent = this.context.data.userProvidedContent?.trim().length > 0;
+      const hasUrlContent = this.context.data.urlsExtractedContent?.length > 0;
+
+      if (!hasWebContent && !hasUserContent && !hasUrlContent) {
+        throw new Error('No input content provided');
       }
 
-      const [webContent, userContent] = await Promise.all([
-        this.generateWebContent(),
-        this.generateUserContent()
-      ]);
+      // Generate content from each available source
+      const contentPromises = [];
 
-      const mergedContent = this.mergeContent(webContent, userContent);
+      if (hasWebContent) {
+        contentPromises.push(this.generateWebContent());
+      }
+
+      if (hasUserContent) {
+        contentPromises.push(this.generateUserContent());
+      }
+
+      if (hasUrlContent) {
+        contentPromises.push(this.generateUrlContent());
+      }
+
+      const contents = await Promise.all(contentPromises);
+      const validContents = contents.filter(content => content !== null);
+
+      if (validContents.length === 0) {
+        throw new Error('Failed to generate content from any source');
+      }
+
+      // Merge all valid contents
+      const mergedContent = validContents.reduce((acc, curr) => this.mergeContent(acc, curr));
 
       return {
         content: JSON.stringify(mergedContent),
         metadata: {
           type: 'draft_content',
           sections: mergedContent,
-          sourceType: webContent && userContent ? 'combined' :
-            webContent ? 'web_only' : 'user_only'
+          sourceTypes: {
+            web: hasWebContent,
+            user: hasUserContent,
+            url: hasUrlContent
+          }
         }
       };
     } catch (error) {
@@ -302,5 +365,31 @@ export class ContentDrafterAgent extends BaseAgent {
         type: 'draft_content'
       }
     };
+  }
+
+  private getResponseFormat(): string {
+    return `
+      <description>Provide a JSON object with exactly these fields:</description>
+      <schema>
+      {
+        "header": {
+          "title": "clear, engaging title",
+          "subtitle": "optional subtitle"
+        },
+        "sections": [
+          {
+            "title": "section title",
+            "content": "section content",
+            "url": "source url",
+            "image": "image url if available"
+          }
+        ],
+        "footer": {
+          "content": "conclusion",
+          "callToAction": "optional call to action"
+        }
+      }
+      </schema>
+    `;
   }
 }
