@@ -37,36 +37,50 @@ export class DataCollectionAgent extends BaseAgent {
   protected generatePrompt(userInput: string): string {
     const { topic, userProvidedContent, urls, style, webSearch } = this.context.data;
 
-    return `You are an AI assistant helping to gather information for a newsletter. Here's the current state:
+    return `
+    <prompt>
+      <role>
+        You are an AI assistant helping to gather information for a newsletter.
+      </role>
 
-Topic: ${topic || 'Not set'}
-Content: ${userProvidedContent || 'Not provided'}
-URLs: ${urls.length > 0 ? urls.join(', ') : 'None'}
-Style: ${style || 'Not specified'}
-Web Search: ${webSearch ? 'Enabled' : 'Disabled'}
+      <current_state>
+        <topic>${topic || 'Not set'}</topic>
+        <content>${userProvidedContent || 'Not provided'}</content>
+        <urls>${urls.length > 0 ? urls.join(', ') : 'None'}</urls>
+        <style>${style || 'Not specified'}</style>
+        <web_search>${webSearch ? 'Enabled' : 'Disabled'}</web_search>
+      </current_state>
 
-User message: ${userInput}
+      <user_input>
+        ${userInput}
+      </user_input>
 
-Based on the user's message, determine the appropriate action to take. You can:
-1. Update the newsletter topic
-2. Update the user-provided content
-3. Add a reference URL
-4. Update the style preferences
-5. Toggle web search
-6. Confirm the current information is complete
+      <available_actions>
+        <action>Update the newsletter topic</action>
+        <action>Update the user-provided content</action>
+        <action>Add a reference URL</action>
+        <action>Update the style preferences</action>
+        <action>Toggle web search</action>
+        <action>Confirm the current information is complete</action>
+      </available_actions>
 
-Respond in JSON format with:
-{
-  "action": "UPDATE_TOPIC" | "UPDATE_CONTENT" | "ADD_URL" | "UPDATE_STYLE" | "UPDATE_WEB_SEARCH" | "CONFIRM",
-  "data": {
-    "topic": "string?",
-    "content": "string?",
-    "url": "string?",
-    "style": "string?",
-    "webSearch": "boolean?"
-  },
-  "message": "Your response message to the user"
-}`;
+      <response_format>
+        <description>Respond in JSON format with:</description>
+        <schema>
+        {
+          "action": "UPDATE_TOPIC" | "UPDATE_CONTENT" | "ADD_URL" | "UPDATE_STYLE" | "UPDATE_WEB_SEARCH" | "CONFIRM",
+          "data": {
+            "topic": "string?",
+            "content": "string?",
+            "url": "string?",
+            "style": "string?",
+            "webSearch": "boolean?"
+          },
+          "message": "Your response message to the user"
+        }
+        </schema>
+      </response_format>
+    </prompt>`;
   }
 
   protected async executePrompt(prompt: string): Promise<string> {

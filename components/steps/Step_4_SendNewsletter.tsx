@@ -108,6 +108,19 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
     })();
   }, [user]);
 
+  // Sync local state whenever data changes from the agent
+  useEffect(() => {
+    setSenderName(data.senderName || '');
+  }, [data.senderName]);
+
+  useEffect(() => {
+    setSubject(data.subject || '');
+  }, [data.subject]);
+
+  useEffect(() => {
+    setFromEmail(data.fromEmail || '');
+  }, [data.fromEmail]);
+
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -197,8 +210,9 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           placeholder="Enter the sender's name..."
           value={senderName}
           onChange={(e) => {
-            setSenderName(e.target.value);
-            updateData({ senderName: e.target.value });
+            const val = e.target.value;
+            setSenderName(val);
+            updateData({ senderName: val });
           }}
           required
           disabled={isReadOnly}
@@ -213,8 +227,9 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           placeholder="Enter the email subject line..."
           value={subject}
           onChange={(e) => {
-            setSubject(e.target.value);
-            updateData({ subject: e.target.value });
+            const val = e.target.value;
+            setSubject(val);
+            updateData({ subject: val });
           }}
           required
           disabled={isReadOnly}
@@ -230,8 +245,9 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           placeholder="Enter the sender email address..."
           value={fromEmail}
           onChange={(e) => {
-            setFromEmail(e.target.value);
-            updateData({ fromEmail: e.target.value });
+            const val = e.target.value;
+            setFromEmail(val);
+            updateData({ fromEmail: val });
           }}
           required
           disabled={isReadOnly}

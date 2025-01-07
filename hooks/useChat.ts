@@ -1,8 +1,7 @@
-import { useState, useCallback, useContext, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useNewsletter } from '@/context/NewsletterContext';
 import { useBrandTheme } from '@/context/BrandThemeContext';
 import { ChatService } from '@/services/chatService';
-import { AgentMessage } from '@/agents/types';
 import { useChatContext } from '@/context/ChatContext';
 
 export const useChat = () => {
@@ -16,29 +15,25 @@ export const useChat = () => {
   const sendMessage = useCallback(async (content: string) => {
     try {
       setIsSending(true);
+      addMessage({ role: 'user', content, type: 'user' });
 
-      // Add user message
-      addMessage({
-        role: 'user',
-        content,
-        type: 'user'
-      });
-
-      // Get response from chat service
       const response = await chatService.processMessage(content);
+      addMessage({ role: 'assistant', content: response.message, type: 'assistant' });
 
-      // Add AI response
-      addMessage({
-        role: 'assistant',
-        content: response.message,
-        type: 'assistant'
-      });
-
-      // Handle any updates from the response metadata
       if (response.metadata?.updates) {
-        updateData(response.metadata.updates);
-      }
+        // Immediately update the newsletter data with the new values
+        await updateData(response.metadata.updates);
 
+        // Re-check conditions with updated data
+        const updatedData = { ...data, ...response.metadata.updates };
+        if (updatedData.senderName && updatedData.subject && updatedData.fromEmail && updatedData.recipients?.length > 0) {
+          addMessage({
+            role: 'assistant',
+            content: "Great! All the required information is provided. You can now use the form above to review the details and click the 'Send Newsletter' button when you're ready to send.",
+            type: 'assistant'
+          });
+        }
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       addMessage({
@@ -49,7 +44,7 @@ export const useChat = () => {
     } finally {
       setIsSending(false);
     }
-  }, [chatService, addMessage, updateData]);
+  }, [chatService, addMessage, updateData, data]);
 
   return {
     messages,

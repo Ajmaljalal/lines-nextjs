@@ -3,6 +3,7 @@ import { ContentEditingAgent } from './content_editing_agent';
 import { DesignAgent } from './design_agent';
 import { AgentContext, AgentRole } from './types';
 import { BrandTheme } from '@/types/BrandTheme';
+import { SendPreparationAgent } from './send_preparation_agent';
 
 export class AgentFactory {
   static createAgent(role: AgentRole, context: AgentContext, additionalData?: any) {
@@ -16,6 +17,8 @@ export class AgentFactory {
           throw new Error('Brand theme is required for design agent');
         }
         return new DesignAgent(context, additionalData.brandTheme as BrandTheme);
+      case AgentRole.SEND_PREPARATION:
+        return new SendPreparationAgent(context);
       default:
         throw new Error(`Unknown agent role: ${role}`);
     }

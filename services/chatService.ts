@@ -26,6 +26,8 @@ export class ChatService {
         return AgentRole.CONTENT_EDITING;
       case NewsletterStep.DESIGN:
         return AgentRole.DESIGN;
+      case NewsletterStep.SEND:
+        return AgentRole.SEND_PREPARATION;
       default:
         throw new Error(`No agent available for step: ${this.currentStep}`);
     }
