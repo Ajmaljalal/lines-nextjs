@@ -25,9 +25,10 @@ export class ContentEditingAgent extends BaseAgent {
 
     this.model = new ChatAnthropic({
       temperature: 0.7,
-      model: "claude-3-sonnet-20240229",
-      apiKey: apiKey,
+      model: "claude-3-5-sonnet-20241022",
+      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
       maxRetries: 3,
+      maxTokens: 8192,
     });
   }
 

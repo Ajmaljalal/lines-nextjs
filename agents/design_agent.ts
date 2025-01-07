@@ -20,85 +20,82 @@ export class DesignAgent extends BaseAgent {
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
     this.brandTheme = brandTheme;
+    const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('Anthropic API key not found');
+    }
+
     this.model = new ChatAnthropic({
       temperature: 0.7,
-      model: "claude-3-sonnet-20240229",
+      model: "claude-3-5-sonnet-20241022",
       apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
       maxRetries: 3,
+      maxTokens: 8192,
     });
   }
 
-  protected generatePrompt(): string {
-    const { htmlContent, style } = this.context.data;
+  protected generatePrompt(userInput?: string): string {
+    const { htmlContent } = this.context.data;
+    if (!htmlContent) {
+      return 'No HTML content available. Please generate the content first.';
+    }
 
     return `
     <prompt>
       <role>
-        You are an AI assistant helping users customize their newsletter design. You can help them:
-        1. Update the layout
-        2. Modify colors and branding
-        3. Adjust typography
-        4. Fine-tune spacing and alignment
-        5. Validate design consistency
+        You are an expert HTML email designer. Help update the newsletter design based on user requests.
       </role>
 
-      <current_state>
-        <html_content>${htmlContent || 'Not generated yet'}</html_content>
-        <style_preferences>${style || 'Not specified'}</style_preferences>
-        <brand_theme>${JSON.stringify(this.brandTheme, null, 2)}</brand_theme>
-      </current_state>
+      <current_html>
+        ${htmlContent}
+      </current_html>
+
+      <user_request>
+        ${userInput || ''}
+      </user_request>
+
+      <brand_theme>
+        ${this.brandTheme ? JSON.stringify(this.brandTheme, null, 2) : 'No brand theme specified'}
+      </brand_theme>
 
       <task>
-        Help the user improve their newsletter design. If they want to change the layout,
-        help them adjust it. If they want to modify colors or typography, guide them through it.
-        Ensure all changes maintain email client compatibility and responsive design.
+        Update the newsletter HTML based on the user's request.
+        Return the complete updated HTML while maintaining email compatibility.
+        Only modify the specific elements mentioned in the user request.
       </task>
 
-      <response_format>
-        Return a JSON object with:
-        - action: The type of action to take (update_layout, update_colors, update_typography, update_spacing, validate_design)
-        - updates: The design updates (if applicable)
-          - css: CSS changes
-          - html: HTML changes
-        - message: The message to show to the user
-      </response_format>
-
-      <conversation_history>
-        ${JSON.stringify(this.context.messages)}
-      </conversation_history>
+      <output_instructions>
+        Return only the complete HTML code without any explanations or comments.
+      </output_instructions>
     </prompt>`;
   }
 
   protected processResponse(response: any): AgentResponse {
     return {
-      content: response.message,
+      content: 'Design updated successfully',
       metadata: {
-        type: 'design_customization',
-        action: response.action,
-        updates: response.updates
+        type: 'design_update',
+        updates: {
+          htmlContent: response.html
+        }
       }
     };
   }
 
   public async execute(input?: string): Promise<AgentResponse> {
     try {
-      if (input) {
-        this.context.messages.push({
-          role: 'user',
-          content: input
-        });
-      }
+      if (!input) return { content: '', error: 'No input provided' };
 
-      const prompt = this.generatePrompt();
-      const structuredModel = this.model.withStructuredOutput(designResponseSchema);
+      const prompt = this.generatePrompt(input);
+
+      const designSchema = z.object({
+        html: z.string()
+      });
+
+      const structuredModel = this.model.withStructuredOutput(designSchema);
       const response = await structuredModel.invoke([
         { role: 'user', content: prompt }
       ]);
-
-      this.context.messages.push({
-        role: 'assistant',
-        content: response.message
-      });
 
       return this.processResponse(response);
     } catch (error) {
