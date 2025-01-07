@@ -14,7 +14,7 @@ const newsletterSectionsSchema = z.object({
       title: z.string(),
       content: z.string(),
       url: z.string(),
-      image: z.string().optional(),
+      image: z.string().nullable().optional(),
     })),
     z.string().transform((str) => {
       try {

@@ -11,6 +11,7 @@ import { NewsletterProvider, useNewsletter } from '@/context/NewsletterContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useChat } from '@/hooks/useChat';
+import { ChatProvider } from '@/context/ChatContext';
 
 const styles = {
   container: `
@@ -165,7 +166,9 @@ const NewsletterEditor = () => {
 const Home: React.FC = () => {
   return (
     <NewsletterProvider>
-      <NewsletterEditor />
+      <ChatProvider>
+        <NewsletterEditor />
+      </ChatProvider>
     </NewsletterProvider>
   );
 };

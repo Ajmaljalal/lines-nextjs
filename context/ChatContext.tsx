@@ -1,65 +1,86 @@
-import React, { createContext, useContext, useState } from 'react';
-
-interface Message {
-  sender: 'user' | 'ai';
-  text: string;
-}
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNewsletter } from './NewsletterContext';
+import { NewsletterStep } from '../components/steps/StepsIndicator';
+import { AgentMessage } from '@/agents/types';
 
 interface ChatContextProps {
-  messages: Message[];
-  addMessage: (sender: 'user' | 'ai', text: string) => void;
-  fetchChatResponse: (message: string) => void;
-  loading: boolean;
+  messages: AgentMessage[];
+  addMessage: (message: AgentMessage) => void;
+  clearMessages: () => void;
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
-export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
+const getInitialMessage = (step: NewsletterStep, data: any): string => {
+  switch (step) {
+    case NewsletterStep.TOPIC:
+      return "Hi! What would you like to write about today?";
+    case NewsletterStep.CONTENT:
+      return 'I am generating content for your newsletter now. Please wait a moment and then we can discuss the content.'
+    case NewsletterStep.DESIGN:
+      return 'I am generating the HTML design for your newsletter now. Please wait a moment and then we can discuss the design.'
+    case NewsletterStep.SEND:
+      return "Let's prepare your newsletter for sending. I can help you set up the recipient list, subject line, and sender details. What would you like to configure first?";
+    default:
+      return "Hey there! Ask me anything about your newsletter.";
+  }
+};
 
-  const addMessage = (sender: 'user' | 'ai', text: string) => {
-    setMessages(prev => [...prev, { sender, text }]);
+export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentStep, data } = useNewsletter();
+  const [messagesByStep, setMessagesByStep] = useState<Record<NewsletterStep, AgentMessage[]>>({
+    [NewsletterStep.TOPIC]: [],
+    [NewsletterStep.CONTENT]: [],
+    [NewsletterStep.DESIGN]: [],
+    [NewsletterStep.SEND]: [],
+  });
+
+  // Initialize messages for each step when it becomes active
+  useEffect(() => {
+    if (messagesByStep[currentStep].length === 0) {
+      const initialMessage = getInitialMessage(currentStep, data);
+      setMessagesByStep(prev => ({
+        ...prev,
+        [currentStep]: [
+          {
+            role: 'assistant',
+            content: initialMessage,
+            type: 'assistant'
+          }
+        ]
+      }));
+    }
+  }, [currentStep, data]);
+
+  const addMessage = (message: AgentMessage) => {
+    setMessagesByStep(prev => ({
+      ...prev,
+      [currentStep]: [...prev[currentStep], message]
+    }));
   };
 
-  const fetchChatResponse = async (message: string) => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        body: JSON.stringify({ user_input: message }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      setLoading(false);
-      if (data.error) {
-        addMessage('ai', "Sorry, I couldn't process your request. Please try again.");
-      } else if (typeof data.response === 'string') {
-        addMessage('ai', data.response);
-      } else {
-        console.error('Unexpected response type:', data.response);
-        addMessage('ai', 'Received an unexpected response format.');
-      }
-    } catch (error) {
-      setLoading(false);
-      console.error('Error fetching chat response:', error);
-      addMessage('ai', 'There was an error processing your request.');
-    }
+  const clearMessages = () => {
+    setMessagesByStep(prev => ({
+      ...prev,
+      [currentStep]: []
+    }));
   };
 
   return (
-    <ChatContext.Provider value={{ messages, addMessage, fetchChatResponse, loading }}>
+    <ChatContext.Provider value={{
+      messages: messagesByStep[currentStep],
+      addMessage,
+      clearMessages
+    }}>
       {children}
     </ChatContext.Provider>
   );
 };
 
-export const useChat = () => {
+export const useChatContext = () => {
   const context = useContext(ChatContext);
   if (!context) {
-    throw new Error('useChat must be used within a ChatProvider');
+    throw new Error('useChatContext must be used within a ChatProvider');
   }
   return context;
 };
