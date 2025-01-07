@@ -28,25 +28,30 @@ export class HtmlGeneratorAgent extends BaseAgent {
     if (!this.brandTheme) return '';
 
     return `
-BRAND THEME REQUIREMENTS:
-Colors:
-- Primary: ${this.brandTheme.primaryColor}
-- Secondary: ${this.brandTheme.secondaryColor}
-- Accent: ${this.brandTheme.accentColor}
-- Text: ${this.brandTheme.textColor}
-- Background: ${this.brandTheme.backgroundColor}
-${this.brandTheme.logoUrl ? `- Logo: ${this.brandTheme.logoUrl}` : ''}
+      <brand_theme_requirements>
+        <colors>
+          <primary>${this.brandTheme.primaryColor}</primary>
+          <secondary>${this.brandTheme.secondaryColor}</secondary>
+          <accent>${this.brandTheme.accentColor}</accent>
+          <text>${this.brandTheme.textColor}</text>
+          <background>${this.brandTheme.backgroundColor}</background>
+          ${this.brandTheme.logoUrl ? `<logo>${this.brandTheme.logoUrl}</logo>` : ''}
+        </colors>
 
-Footer Links (all open in new tabs):
-- Website: ${this.brandTheme.websiteUrl}
-- Unsubscribe: ${this.brandTheme.unsubscribeUrl}
-- Social Media: ${JSON.stringify(this.brandTheme.socialMediaUrls, null, 2)}
+        <footer_links description="all open in new tabs">
+          <website>${this.brandTheme.websiteUrl}</website>
+          <unsubscribe>${this.brandTheme.unsubscribeUrl}</unsubscribe>
+          <social_media>${JSON.stringify(this.brandTheme.socialMediaUrls, null, 2)}</social_media>
+        </footer_links>
 
-Brand Implementation:
-1. Use exact brand colors as specified above
-2. Apply colors consistently throughout the design
-3. Use brand font family if provided
-4. Place logo in header if provided`;
+        <brand_implementation>
+          <requirement>Use exact brand colors as specified above</requirement>
+          <requirement>Apply colors consistently throughout the design</requirement>
+          <requirement>Use brand font family if provided</requirement>
+          <requirement>Place logo in header if provided</requirement>
+        </brand_implementation>
+      </brand_theme_requirements>
+    `;
   }
 
   private getContentSection(): string {
@@ -55,10 +60,11 @@ Brand Implementation:
     const parsedUrls = urls ? JSON.stringify(urls) : [];
 
     return `
-NEWSLETTER CONTENT:
-Topic: ${JSON.stringify(topic, null, 2)}
-Content: ${JSON.stringify([parsedContent, parsedUrls], null, 2)}
-Style: ${JSON.stringify(style, null, 2)}`;
+      NEWSLETTER CONTENT:
+        Topic: ${JSON.stringify(topic, null, 2)}
+        Content: ${JSON.stringify([parsedContent, parsedUrls], null, 2)}
+        Style: ${JSON.stringify(style, null, 2)}
+    `;
   }
 
   protected generatePrompt(): string {
@@ -67,46 +73,64 @@ Style: ${JSON.stringify(style, null, 2)}`;
       return 'No content provided. Please complete the previous step first.';
     }
 
-    return `You are an expert newsletter designer known for creating modern, attention-grabbing, and highly engaging designs. Produce a visually striking professional HTML newsletter that follows the core requirements, brand guidelines, and content instructions below. Strive for a fresh, polished, and captivating look to keep readers interested from start to finish.
+    return `
+    <prompt>
+      <role>
+        You are an expert newsletter designer known for creating modern, attention-grabbing, and highly engaging designs. Produce a visually striking professional HTML newsletter that follows the core requirements, brand guidelines, and content instructions below. Strive for a fresh, polished, and captivating look to keep readers interested from start to finish.
+      </role>
 
-MAIN GOAL:
-- Focus solely on designing a professional HTML newsletter that captivates. Do not change, exclude, or add any content beyond what is provided.
+      <main_goal>
+        Focus solely on designing a professional HTML newsletter that captivates. Use the provided content as is and do not change, exclude, or add any content beyond what is provided.
+      </main_goal>
 
-CORE REQUIREMENTS:
-1. Technical Requirements
-   - Use only email-safe HTML
-   - All styles must be inline (no style tags or external CSS)
-   - Implement table-based layout for maximum email client compatibility
-   - Ensure mobile responsiveness
-   - Use web-safe fonts with appropriate fallbacks
-   - If code and other special characters are present, use the appropriate HTML entities like code blocks.
+      <core_requirements>
+        <technical_requirements>
+          <requirement>Use only email-safe HTML</requirement>
+          <requirement>All styles must be inline (no style tags or external CSS)</requirement>
+          <requirement>Implement table-based layout for maximum email client compatibility</requirement>
+          <requirement>Ensure mobile responsiveness</requirement>
+          <requirement>Use web-safe fonts with appropriate fallbacks</requirement>
+          <requirement>If code and other special characters are present, use the appropriate HTML entities like code blocks</requirement>
+        </technical_requirements>
 
-2. Design Elements
-   - Aim for a sleek, contemporary layout with consistent spacing
-   - Establish a clear visual hierarchy with well-defined sections
-   - Incorporate responsive image placeholders with alt text
-   - Include eye-catching, mobile-friendly call-to-action buttons
-   - Showcase statistics and numbers prominently
-   - Integrate charts/graphs for data visualization where appropriate
-   - Include all relevant URLs within content sections
-   - Include hightlighted content in a different color and eye catching if needed
-   - Use font size of 16px to 18px for the content.
+        <design_elements>
+          <element>Aim for a sleek, contemporary layout with consistent spacing</element>
+          <element>Establish a clear visual hierarchy with well-defined sections</element>
+          <element>Incorporate responsive image placeholders with alt text</element>
+          <element>Include eye-catching, mobile-friendly call-to-action buttons</element>
+          <element>Showcase statistics and numbers prominently</element>
+          <element>Integrate charts/graphs for data visualization where appropriate</element>
+          <element>Include all relevant URLs within content sections</element>
+          <element>Include hightlighted content in a different color and eye catching if needed</element>
+          <element>Use font size of 16px to 18px for the content</element>
+        </design_elements>
 
-3. Email Compatibility
-   - Add necessary email client meta tags
-   - Specify dimensions for all images
-   - Where needed, include VML fallbacks for background images
+        <email_compatibility>
+          <requirement>Add necessary email client meta tags</requirement>
+          <requirement>Specify dimensions for all images</requirement>
+          <requirement>Where needed, include VML fallbacks for background images</requirement>
+        </email_compatibility>
 
-4. Content
-   - Use all the provided content without omission
-   - Do not add any new content beyond what is given
-   - Preserve the wording of the content as provided
+        <content_requirements>
+          <requirement>Use all the provided content without omission</requirement>
+          <requirement>Do not add any new content beyond what is given</requirement>
+          <requirement>Preserve the wording of the content as provided</requirement>
+        </content_requirements>
+      </core_requirements>
 
-${this.getBrandThemeInstructions()}
+      <brand_theme>
+        ${this.getBrandThemeInstructions()}
+      </brand_theme>
 
-${this.getContentSection()}
+      <newsletter_content>
+        ${this.getContentSection()}
+      </newsletter_content>
 
-Return only the complete HTML code without any explanations or comments.`;
+      <output_instructions>
+        Return only the complete HTML code without any explanations or comments.
+      </output_instructions>
+    </prompt>
+  `;
   }
 
   protected processResponse(response: any): AgentResponse {

@@ -51,53 +51,74 @@ export class ContentDrafterAgent extends BaseAgent {
   private async generateWebContent(): Promise<any | null> {
     if (!this.context.data.webSearchContent?.length) return null;
 
-    const prompt = `You are a professional newsletter writer tasked with creating a structured newsletter about "${this.context.data.topic}". 
-    
-Your task is to use ONLY the information from these web search results:
+    const prompt = `
+<prompt>
+  <role>
+    You are a professional newsletter writer tasked with creating a structured newsletter about "${this.context.data.topic}".
+  </role>
 
-${this.context.data.webSearchContent.map((result, index) => `
-[Source ${index + 1}]
-Title: ${result.title}
-Content: ${result.content}
-URL: ${result.url}
----`).join('\n')}
+  <task>
+    Use ONLY the information from these web search results:
+  </task>
 
-RESPONSE FORMAT:
-Provide a JSON object with exactly these fields:
-{
-  "header": {
-    "title": "clear, engaging title",
-    "subtitle": "optional subtitle"
-  },
-  "sections": [
+  <source_data>
+    ${this.context.data.webSearchContent.map((result, index) => `
+    <source id="${index + 1}">
+      <title>${result.title}</title>
+      <content>${result.content}</content>
+      <url>${result.url}</url>
+    </source>`).join('\n')}
+  </source_data>
+
+  <response_format>
+    <description>Provide a JSON object with exactly these fields:</description>
+    <schema>
     {
-      "title": "section title",
-      "content": "section content",
-      "url": "source url",
-      "image": "image url if available"
+      "header": {
+        "title": "clear, engaging title",
+        "subtitle": "optional subtitle"
+      },
+      "sections": [
+        {
+          "title": "section title",
+          "content": "section content",
+          "url": "source url",
+          "image": "image url if available"
+        }
+      ],
+      "footer": {
+        "content": "conclusion",
+        "callToAction": "optional call to action"
+      }
     }
-  ],
-  "footer": {
-    "content": "conclusion",
-    "callToAction": "optional call to action"
-  }
-}
+    </schema>
+  </response_format>
 
-STRICT REQUIREMENTS:
-1. Create exactly 3-5 sections
-2. Each section must:
-   - Focus on a distinct aspect of the topic
-   - Include the source URL
-   - Contain all key facts from the source
-   - Use engaging language without altering meaning
-3. Do not:
-   - Add information not in the sources
-   - Remove important details
-   - Merge unrelated facts
-4. Raw numbers, statistics, and technical details must be preserved exactly
-5. Return direct JSON without additional formatting or explanation
+  <requirements>
+    <section_count>Create exactly 3-5 sections</section_count>
+    
+    <section_rules>
+      <rule>Focus on a distinct aspect of the topic</rule>
+      <rule>Include the source URL</rule>
+      <rule>Contain all key facts from the source</rule>
+      <rule>Use engaging language without altering meaning</rule>
+    </section_rules>
 
-Note: The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.`;
+    <restrictions>
+      <rule>Do not add information not in the sources</rule>
+      <rule>Do not remove important details</rule>
+      <rule>Do not merge unrelated facts</rule>
+    </restrictions>
+
+    <data_preservation>
+      Raw numbers, statistics, and technical details must be preserved exactly
+    </data_preservation>
+  </requirements>
+
+  <output_instructions>
+    Return direct JSON without additional formatting or explanation. The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.
+  </output_instructions>
+</prompt>`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
@@ -119,56 +140,82 @@ Note: The response must be valid JSON that matches the schema exactly. Do not in
   private async generateUserContent(): Promise<any | null> {
     if (!this.context.data.userProvidedContent?.trim()) return null;
 
-    const prompt = `You are a professional newsletter writer tasked with restructuring this user-provided content about "${this.context.data.topic}" into a clear newsletter format.
+    const prompt = `
+<prompt>
+  <role>
+    You are a professional newsletter writer tasked with compiling user-provided content about "${this.context.data.topic}" into a clear newsletter format. Do not remove any information, only compile it into a newsletter format and that's it.
+  </role>
 
-User Provided Content:
-${this.context.data.userProvidedContent}
+  <input_content>
+    <user_content>
+      ${this.context.data.userProvidedContent}
+    </user_content>
 
-${this.context.data.urls?.length ? `REFERENCE URLS:\n${this.context.data.urls.join('\n')}` : ''}
-${this.context.data.style ? `STYLE GUIDE:\n${this.context.data.style}` : ''}
+    ${this.context.data.urls?.length ? `
+    <reference_urls>
+      ${this.context.data.urls.join('\n')}
+    </reference_urls>` : ''}
 
-RESPONSE FORMAT:
-Provide a JSON object with exactly these fields:
-{
-  "header": {
-    "title": "clear, engaging title",
-    "subtitle": "optional subtitle"
-  },
-  "sections": [
+    ${this.context.data.style ? `
+    <style_guide>
+      ${this.context.data.style}
+    </style_guide>` : ''}
+  </input_content>
+
+  <response_format>
+    <description>Provide a JSON object with exactly these fields:</description>
+    <schema>
     {
-      "title": "section title",
-      "content": "section content",
-      "url": "reference url if provided",
-      "image": "image url if provided"
+      "header": {
+        "title": "clear, engaging title",
+        "subtitle": "optional subtitle"
+      },
+      "sections": [
+        {
+          "title": "section title",
+          "content": "section content",
+          "url": "reference url if provided",
+          "image": "image url if provided"
+        }
+      ],
+      "footer": {
+        "content": "conclusion",
+        "callToAction": "optional call to action"
+      }
     }
-  ],
-  "footer": {
-    "content": "conclusion",
-    "callToAction": "optional call to action"
-  }
-}
+    </schema>
+  </response_format>
 
-STRICT REQUIREMENTS:
-1. Compile user provided content into exactly 3-5 sections
-2. Keep the content as close to the original as possible
-3. Each section must:
-   - Cover a distinct aspect
-   - Include all provided content
-   - Do not remove or summarize away details
-   - Preserve technical accuracy
-   - Use provided URLs where relevant
-4. Do not:
-   - Do not add new information
-   - Do not remove or summarize away details
-   - Do not alter technical specifications, including code snippets and other technical details
-5. Preserve exactly:
-   - All numbers and statistics
-   - Technical details and specifications
-   - Code snippets
-   - Product features
-6. Return direct JSON without additional formatting or explanation
+  <requirements>
+    <section_count>Compile user provided content into exactly 3-5 sections</section_count>
+    <content_preservation>Keep the content as close to the original as possible</content_preservation>
 
-Note: The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.`;
+    <section_rules>
+      <rule>Cover a distinct aspect</rule>
+      <rule>Include all provided content</rule>
+      <rule>Do not remove or summarize away details</rule>
+      <rule>Preserve technical accuracy</rule>
+      <rule>Use provided URLs where relevant</rule>
+    </section_rules>
+
+    <restrictions>
+      <rule>Do not add new information</rule>
+      <rule>Do not remove or summarize away details</rule>
+      <rule>Do not alter technical specifications, including code snippets and other technical details</rule>
+    </restrictions>
+
+    <strict_preservation>
+      <item>All numbers and statistics</item>
+      <item>Technical details and specifications</item>
+      <item>Code snippets</item>
+      <item>Product features</item>
+    </strict_preservation>
+  </requirements>
+
+  <output_instructions>
+    Return direct JSON without additional formatting or explanation. The response must be valid JSON that matches the schema exactly. Do not include any text outside the JSON structure.
+  </output_instructions>
+</prompt>`;
 
     const structuredModel = this.model.withStructuredOutput(newsletterSectionsSchema);
     const result = await structuredModel.invoke([
