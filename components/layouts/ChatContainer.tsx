@@ -79,7 +79,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                 px-4 
                 py-1
                 rounded-[12px]
-                ${msg.role === 'assistant' ? 'bg-zinc-100' : 'bg-zinc-300'}
+                ${msg.role === 'assistant' ? 'bg-transparent' : 'bg-zinc-100'}
                 ${msg.role === 'assistant' ? 'self-start' : 'self-end'}
               `}
             >
@@ -91,7 +91,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
             </Card>
           ))}
           {isSending && (
-            <Card className="self-start px-6 py-3 rounded-[30px] bg-zinc-900">
+            <Card className="self-start px-6 py-3 rounded-[30px] bg-transparent">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                 <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>

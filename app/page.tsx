@@ -1,6 +1,4 @@
-// app/welcome/page.tsx
 'use client'
-
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
@@ -16,7 +14,8 @@ import { v4 as uuidv4 } from 'uuid';
 const styles = {
   container: `
     min-h-screen 
-    bg-background 
+    bg-transparent
+    backdrop-blur-[200px]
     flex 
     flex-col
   `,
@@ -54,7 +53,7 @@ const styles = {
     py-3 
     bg-muted 
     rounded-t-lg 
-    font-medium 
+    font-bold 
     text-sm 
     text-muted-foreground
   `,
@@ -70,7 +69,8 @@ const styles = {
   `,
   listContainer: `
     border 
-    rounded-lg 
+    border-border-color
+    rounded-[12px]
     bg-card 
     divide-y 
     divide-border
@@ -175,6 +175,7 @@ const HomePage = () => {
               <NewsletterCard
                 key={newsletter.id}
                 newsletter={newsletter}
+                onClick={() => router.push(`/editor?id=${newsletter.id}`)}
               />
             ))}
           </div>

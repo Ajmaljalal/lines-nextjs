@@ -3,21 +3,15 @@ import { Newsletter } from '@/types/Newsletter';
 import { Badge } from '../core-ui-components/badge';
 import { Button } from '../core-ui-components/button';
 import { ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 interface NewsletterRowProps {
   newsletter: Newsletter;
+  onClick: () => void;
 }
 
-const NewsletterRow: React.FC<NewsletterRowProps> = ({ newsletter }) => {
-  const router = useRouter();
-
-  const handleEdit = () => {
-    router.push(`/editor?id=${newsletter.id}`);
-  };
-
+const NewsletterRow: React.FC<NewsletterRowProps> = ({ newsletter, onClick }) => {
   return (
-    <div className="flex items-center justify-between p-4 border-b border-border hover:bg-muted/50 transition-all">
+    <div className="flex items-center justify-between px-4 py-3 border-b border-border hover:bg-muted/50 transition-all cursor-pointer" onClick={onClick}>
       <div className="w-24">
         <Badge variant={newsletter.status === 'sent' ? 'success' : 'info'}>
           {newsletter.status}
@@ -30,7 +24,6 @@ const NewsletterRow: React.FC<NewsletterRowProps> = ({ newsletter }) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleEdit}
         >
           {newsletter.status === 'sent' ? 'View' : 'Edit'}
           <ArrowRight className="w-4 h-4 ml-2" />

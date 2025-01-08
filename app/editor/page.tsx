@@ -20,7 +20,8 @@ const styles = {
     h-screen
     overflow-hidden
     font-[var(--font-geist-sans)] 
-    bg-background
+    bg-transparent
+    backdrop-blur-[200px]
     text-foreground
     transition-colors
     duration-200

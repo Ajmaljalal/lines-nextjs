@@ -19,7 +19,10 @@ const styles = {
     overflow-y-auto
     min-h-screen
     px-4
-    bg-background
+    bg-transparent
+    backdrop-blur-[200px]
+    relative
+    z-10
   `,
 
   logoContainer: `
@@ -85,7 +88,7 @@ const SignIn: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.logoContainer}>
         <Image
-          src="/images/send-orange.png"
+          src="/images/send-purple.png"
           alt="SendLines Logo"
           width={64}
           height={64}

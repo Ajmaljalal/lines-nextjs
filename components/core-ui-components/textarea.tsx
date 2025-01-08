@@ -15,7 +15,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             w-full  
             rounded-[10px] 
             border 
-            border-color
+            border-border
             bg-muted
             px-3 
             py-2 

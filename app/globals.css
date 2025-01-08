@@ -10,7 +10,7 @@
 /* Brand colors and constants - these stay the same regardless of theme */
 :root {
   --primary-color: #6366F1;
-  --secondary-color:  #818CF8;
+  --secondary-color: #818CF8;
   --accent-color: #4F46E5;
   --text-color: #1F2937;
   --light-bg: #F3F4F6;
@@ -23,6 +23,8 @@
 :root {
   --background: var(--dark-bg);
   --foreground: var(--white);
+  --gradient-start: rgba(99, 102, 241, 0.25);
+  --gradient-end: rgba(79, 70, 229, 0.40);
 
   --card: #1a202c;
   --card-foreground: var(--white);
@@ -33,14 +35,16 @@
   --muted: #1f2937;
   --muted-foreground: #9CA3AF;
 
-  --border: #010101;
-  --border-color: #000000;
+  --border: 246 60% 40%;
+  --border-color: 246 60% 40%;
 }
 
 /* Light theme */
 :root[data-theme="light"] {
   --background: var(--light-bg);
   --foreground: var(--text-color);
+  --gradient-start: rgba(99, 102, 241, 0.10);
+  --gradient-end: rgba(79, 70, 229, 0.15);
 
   --card: var(--white);
   --card-foreground: var(--text-color);
@@ -51,8 +55,8 @@
   --muted: #f3f4f6;
   --muted-foreground: #4B5563;
 
-  --border: var(--muted);
-  --border-color: var(--muted);
+  --border: 246 45% 88%;
+  --border-color: 246 45% 88%;
 
   --input-background: #F3F4F6;
   --input-foreground: #1F2937;
@@ -60,7 +64,7 @@
 }
 
 body {
-  background-color: var(--background);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
   color: var(--foreground);
   overflow-y: auto;
   overflow-x: hidden;
@@ -85,4 +89,9 @@ body * {
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+}
+
+.backdrop-blur {
+  -webkit-backdrop-filter: blur(200px);
+  backdrop-filter: blur(200px);
 }

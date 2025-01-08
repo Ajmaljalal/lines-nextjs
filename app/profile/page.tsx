@@ -19,7 +19,7 @@ const ProfilePage = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent backdrop-blur-[200px]">
       <Header />
       <UnderConstruction />
     </div>

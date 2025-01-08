@@ -18,7 +18,8 @@ const styles = {
     fixed
     top-0
     z-100
-    bg-gray-100
+    bg-transparent
+    backdrop-blur
     px-8
     py-4
     border-b
