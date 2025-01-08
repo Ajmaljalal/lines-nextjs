@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react';
-import { Check, Loader2, Circle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Check, Lock, Hourglass } from 'lucide-react';
 import { useNewsletter } from '@/context/NewsletterContext';
 
 export enum NewsletterStep {
@@ -32,9 +32,15 @@ const styles = {
     cursor-pointer
     transition-all
     duration-200
+    hover:bg-zinc-100/50
+    border
+    border-transparent
+    w-[105px]
   `,
   stepActive: `
     text-[var(--primary-color)]
+    bg-zinc-100
+    hover:bg-zinc-100
   `,
   stepCompleted: `
     text-green-500
@@ -43,8 +49,11 @@ const styles = {
     text-zinc-400
   `,
   stepIcon: `
-    w-5
-    h-5
+    w-4
+    h-4
+    flex
+    items-center
+    justify-center
   `,
   stepText: `
     text-sm
@@ -76,28 +85,33 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
     {
       id: NewsletterStep.TOPIC,
       shortLabel: 'Topic',
-      longLabel: 'Topic & Resources'
+      longLabel: 'Topic'
     },
     {
       id: NewsletterStep.CONTENT,
       shortLabel: 'Content',
-      longLabel: 'Content Drafting'
+      longLabel: 'Draft'
     },
     {
       id: NewsletterStep.DESIGN,
       shortLabel: 'Design',
-      longLabel: 'Design & Editing'
+      longLabel: 'Design'
     },
     {
       id: NewsletterStep.SEND,
       shortLabel: 'Send',
-      longLabel: 'Sending'
+      longLabel: 'Send'
     },
   ];
 
+  useEffect(() => {
+    console.log('Current step is:', currentStep);
+  }, [currentStep]);
+
   const getStepStatus = (stepId: NewsletterStep) => {
     if (stepId === currentStep) return 'active';
-    return isStepValid(stepId) ? 'completed' : 'pending';
+    if (isStepValid(stepId)) return 'completed';
+    return 'pending';
   };
 
   const isStepDisabled = (stepId: NewsletterStep) => {
@@ -115,35 +129,44 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
       {steps.map((step) => {
         const status = getStepStatus(step.id);
         const disabled = isStepDisabled(step.id);
+        const isActive = status === 'active';
+
+        console.log('Step ID:', step.id, 'Status:', status, 'Disabled:', disabled);
 
         return (
           <div
             key={step.id}
-            className={`${styles.step} ${disabled ? styles.stepDisabled : ''}`}
+            className={`
+              ${styles.step}
+              ${disabled ? styles.stepDisabled : ''}
+              ${isActive ? styles.stepActive : ''}
+            `}
             onClick={() => !disabled && onStepClick(step.id)}
           >
-            <div className={styles.stepIcon}>
+            <div className={`${styles.stepIcon} ${isActive ? styles.stepActive : ''}`}>
               {status === 'completed' && (
                 <Check className={styles.stepCompleted} />
               )}
               {status === 'active' && (
-                <Loader2 className={`${styles.stepActive} ${styles.spinAnimation}`} />
+                <Hourglass className={styles.stepActive} />
               )}
               {status === 'pending' && (
-                <Circle className={styles.stepPending} />
+                <Lock className={styles.stepPending} />
               )}
             </div>
             <span
-              className={`${styles.stepText} ${status === 'completed' ? styles.stepCompleted :
-                status === 'active' ? styles.stepActive :
-                  styles.stepPending
+              className={`${styles.stepText} ${status === 'completed'
+                ? styles.stepCompleted
+                : isActive
+                  ? styles.stepActive
+                  : styles.stepPending
                 }`}
             >
               <span className={styles.stepTextLong}>{step.shortLabel}</span>
               <span className={styles.stepTextShort}>{step.longLabel}</span>
             </span>
           </div>
-        )
+        );
       })}
     </div>
   );
