@@ -4,13 +4,14 @@ import { useNewsletter } from '@/context/NewsletterContext';
 const styles = {
   container: `
     w-full
+    h-full
     flex
     flex-col
     gap-8
-    max-w-4xl
     mx-auto
-    p-4
-    rounded-[12px]
+    scrollbar-hide
+    overflow-hidden
+    relative
   `,
   loadingContainer: `
     flex
@@ -21,7 +22,15 @@ const styles = {
   `,
   iframe: `
     w-full
-  `
+    h-full
+    border-0
+    scrollbar-hide
+    overflow-hidden
+    [&::-webkit-scrollbar]:hidden
+    [-ms-overflow-style:'none']
+    [scrollbar-width:none]
+  `,
+
 };
 
 const ThirdStep_HtmlPreview: React.FC = () => {
@@ -38,10 +47,17 @@ const ThirdStep_HtmlPreview: React.FC = () => {
   }
 
   return (
-    <div
-      dangerouslySetInnerHTML={{ __html: data.htmlContent }}
-      className={styles.container}
-    />
+    <div className={styles.container}>
+      <iframe
+        srcDoc={data.htmlContent}
+        className={styles.iframe}
+        sandbox="allow-same-origin"
+        title="Newsletter Preview"
+        style={{
+          scrollbarWidth: 'thin'
+        }}
+      />
+    </div>
   );
 };
 

@@ -103,7 +103,7 @@ export class HtmlGeneratorAgent extends BaseAgent {
           <element>Integrate charts/graphs for data visualization where appropriate</element>
           <element>Include all relevant URLs within content sections</element>
           <element>Include hightlighted content in a different color and eye catching if needed</element>
-          <element>Use font size of 16px to 18px for the content</element>
+          <element>Use font size of 20px for the content</element>
         </design_elements>
 
         <email_compatibility>
