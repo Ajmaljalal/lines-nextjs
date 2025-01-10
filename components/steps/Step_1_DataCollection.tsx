@@ -148,14 +148,14 @@ const FirstStep_DataCollection: React.FC = () => {
             <Label>
               Newsletter / Email Topic <span className="text-red-500">*</span>
             </Label>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={webSearch}
-                onCheckedChange={handleWebSearchChange}
-                disabled={isReadOnly}
-              />
-              <span className="text-sm text-zinc-400">Web Search</span>
-            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={webSearch}
+              onCheckedChange={handleWebSearchChange}
+              disabled={isReadOnly}
+            />
+            <span className="text-sm text-zinc-400">Web Search</span>
           </div>
         </div>
         <Input
