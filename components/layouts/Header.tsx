@@ -32,6 +32,7 @@ const styles = {
     flex
     justify-between
     items-center
+    cursor-pointer
   `,
 
   title: `
@@ -173,9 +174,14 @@ const Header: React.FC = () => {
   return (
     <header className={styles.container}>
       <div className={styles.titleContainer}>
-        <div className={styles.title}>
+        <div className={styles.title} onClick={() => handleNavigation('/')}>
           <SendIcon />
           SendLines
+          <span
+            className="text-xs text-primary py-1 font-medium ml-[-2px] mb-[10px]"
+          >
+            Beta
+          </span>
         </div>
 
         <div className={styles.navigation}>
