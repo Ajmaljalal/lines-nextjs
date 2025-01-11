@@ -13,10 +13,7 @@ export class AgentFactory {
       case AgentRole.CONTENT_EDITING:
         return new ContentEditingAgent(context);
       case AgentRole.DESIGN:
-        if (!additionalData?.brandTheme) {
-          throw new Error('Brand theme is required for design agent');
-        }
-        return new DesignAgent(context, additionalData.brandTheme as BrandTheme);
+        return new DesignAgent(context, additionalData?.brandTheme || null);
       case AgentRole.SEND_PREPARATION:
         return new SendPreparationAgent(context);
       default:

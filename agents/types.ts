@@ -1,3 +1,4 @@
+import { BrandTheme } from "@/types/BrandTheme";
 
 
 
@@ -43,6 +44,7 @@ export interface AgentMessage {
 export interface AgentContext {
   messages: AgentMessage[];
   data: Newsletter;
+  brandTheme?: BrandTheme | null;
 }
 
 export interface NewsletterPlan {

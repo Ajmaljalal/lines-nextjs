@@ -212,7 +212,13 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           onChange={(e) => {
             const val = e.target.value;
             setSenderName(val);
-            updateData({ senderName: val });
+            // Generate and set email automatically
+            const generatedEmail = val.toLowerCase().replace(/\s+/g, '') + '@sendlines.com';
+            setFromEmail(generatedEmail);
+            updateData({
+              senderName: val,
+              fromEmail: generatedEmail
+            });
           }}
           required
           disabled={isReadOnly}
@@ -242,16 +248,14 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         </Label>
         <Input
           type="email"
-          placeholder="Enter the sender email address..."
           value={fromEmail}
-          onChange={(e) => {
-            const val = e.target.value;
-            setFromEmail(val);
-            updateData({ fromEmail: val });
-          }}
-          required
-          disabled={isReadOnly}
+          readOnly
+          disabled={true}
+          className="bg-muted cursor-not-allowed"
         />
+        <p className="text-sm text-muted-foreground mt-1">
+          Email is automatically generated based on the sender name
+        </p>
       </div>
 
       <div className={styles.formGroup}>

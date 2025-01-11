@@ -12,7 +12,8 @@ export class ChatService {
   constructor(data: Newsletter, currentStep: NewsletterStep, brandTheme: BrandTheme | null = null) {
     this.context = {
       messages: [],
-      data
+      data,
+      brandTheme: brandTheme || undefined
     };
     this.currentStep = currentStep;
     this.brandTheme = brandTheme;

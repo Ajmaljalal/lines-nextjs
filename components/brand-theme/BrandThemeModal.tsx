@@ -18,7 +18,7 @@ interface BrandThemeModalProps {
 
 export const BrandThemeModal: React.FC<BrandThemeModalProps> = ({ isOpen, onClose }) => {
   const { user } = useAuth();
-  const { currentTheme, themes, saveTheme } = useBrandTheme();
+  const { currentTheme, saveTheme, setCurrentTheme } = useBrandTheme();
   const [name, setName] = useState(currentTheme?.name || '');
   const [primaryColor, setPrimaryColor] = useState(currentTheme?.primaryColor || '#FF5722');
   const [secondaryColor, setSecondaryColor] = useState(currentTheme?.secondaryColor || '#FF8A65');
@@ -86,6 +86,7 @@ export const BrandThemeModal: React.FC<BrandThemeModalProps> = ({ isOpen, onClos
       };
 
       await saveTheme(theme);
+      setCurrentTheme(theme);
       onClose();
     } catch (error) {
       console.error('Error saving theme:', error);

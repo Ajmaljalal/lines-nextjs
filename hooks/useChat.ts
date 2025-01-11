@@ -10,7 +10,11 @@ export const useChat = () => {
   const { messages, addMessage, clearMessages } = useChatContext();
   const [isSending, setIsSending] = useState(false);
 
-  const chatService = useMemo(() => new ChatService(data, currentStep, currentTheme), [data, currentStep, currentTheme]);
+  // Initialize chat service with brand theme
+  const chatService = useMemo(() =>
+    new ChatService(data, currentStep, currentTheme),
+    [data, currentStep, currentTheme]
+  );
 
   const sendMessage = useCallback(async (content: string) => {
     try {
@@ -21,8 +25,7 @@ export const useChat = () => {
       addMessage({ role: 'assistant', content: response.message, type: 'assistant' });
 
       if (response.metadata?.updates) {
-        // Immediately update the newsletter data with the new values
-        await updateData(response.metadata.updates);
+        updateData(response.metadata.updates);
 
         // Re-check conditions with updated data
         const updatedData = { ...data, ...response.metadata.updates };
@@ -48,8 +51,8 @@ export const useChat = () => {
 
   return {
     messages,
-    sendMessage,
     isSending,
+    sendMessage,
     clearMessages
   };
 }; 

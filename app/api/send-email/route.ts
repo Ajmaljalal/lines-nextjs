@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const msg: MailDataRequired = {
       to: subscribers.map(email => ({ email })),
       from: {
-        email: process.env.SENDGRID_VERIFIED_SENDER || fromEmail,
+        email: fromEmail.endsWith('@sendlines.com') ? fromEmail : `${senderName.toLowerCase().replace(/\s+/g, '')}@sendlines.com`,
         name: senderName,
       },
       subject,

@@ -15,7 +15,6 @@ const designResponseSchema = z.object({
 
 export class DesignAgent extends BaseAgent {
   private model: ChatAnthropic;
-  private brandTheme: BrandTheme | null;
 
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
@@ -54,9 +53,11 @@ export class DesignAgent extends BaseAgent {
         ${userInput || ''}
       </user_request>
 
+      ${this.brandTheme ? `
       <brand_theme>
-        ${this.brandTheme ? JSON.stringify(this.brandTheme, null, 2) : 'No brand theme specified'}
+        ${JSON.stringify(this.brandTheme, null, 2)}
       </brand_theme>
+      ` : ''}
 
       <task>
         Update the newsletter HTML based on the user's request.

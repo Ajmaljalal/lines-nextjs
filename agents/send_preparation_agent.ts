@@ -100,10 +100,15 @@ export class SendPreparationAgent extends BaseAgent {
       const parsedResponse = JSON.parse(response);
       const validatedResponse = SendPreparationSchema.parse(parsedResponse);
 
+      const senderName = validatedResponse.data.senderName ?? this.context.data.senderName;
+      const generatedEmail = senderName
+        ? `${senderName.toLowerCase().replace(/\s+/g, '')}@sendlines.com`
+        : this.context.data.fromEmail;
+
       const updates = {
-        senderName: validatedResponse.data.senderName ?? this.context.data.senderName ?? null,
+        senderName: senderName ?? null,
         subject: validatedResponse.data.subject ?? this.context.data.subject ?? null,
-        fromEmail: validatedResponse.data.fromEmail ?? this.context.data.fromEmail ?? null
+        fromEmail: generatedEmail ?? null
       };
 
       return {
