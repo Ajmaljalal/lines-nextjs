@@ -307,7 +307,7 @@ export class ContentDrafterAgent extends BaseAgent {
       }
 
       // Generate content from each available source
-      const contentPromises = [];
+      const contentPromises: Promise<any | null>[] = [];
 
       if (hasWebContent) {
         contentPromises.push(this.generateWebContent());
