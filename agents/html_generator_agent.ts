@@ -10,7 +10,7 @@ const newsletterHtmlSchema = z.object({
 
 export class HtmlGeneratorAgent extends BaseAgent {
   private model: ChatAnthropic;
-  private brandTheme: BrandTheme | null;
+  protected brandTheme: BrandTheme | null;
 
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
@@ -24,7 +24,7 @@ export class HtmlGeneratorAgent extends BaseAgent {
     });
   }
 
-  private getBrandThemeInstructions(): string {
+  protected getBrandThemeInstructions(): string {
     if (!this.brandTheme) return '';
 
     return `
