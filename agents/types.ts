@@ -1,4 +1,4 @@
-import { Newsletter } from "@/types/Newsletter";
+import { Newsletter } from "../types/Newsletter";
 
 
 export enum AgentRole {
