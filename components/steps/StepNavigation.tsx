@@ -160,14 +160,14 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
             {error}
           </div>
         )}
-        {step !== NewsletterStep.TOPIC && (
-          <Button
-            onClick={() => router.back()}
-            className={`${styles.button} ${styles.backButton}`}
-          >
-            Back
-          </Button>
-        )}
+
+        <Button
+          onClick={() => router.back()}
+          className={`${styles.button} ${styles.backButton}`}
+        >
+          Cancel
+        </Button>
+
         <Button
           onClick={() => saveNewsletter('draft')}
           className={`${styles.button} ${styles.cancelButton}`}

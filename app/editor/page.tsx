@@ -64,7 +64,7 @@ const NewsletterEditor = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const newsletterId = searchParams.get('id');
-  const { currentStep, setCurrentStep, updateData } = useNewsletter();
+  const { currentStep, setCurrentStep, updateData, data } = useNewsletter();
   const { messages, isSending, sendMessage } = useChat();
 
   useEffect(() => {
@@ -156,7 +156,7 @@ const NewsletterEditor = () => {
             messages={messages}
             isSending={isSending}
             onSendMessage={sendMessage}
-            isDisabled={false}
+            isDisabled={data.status === 'sent'}
           />
         </div>
       </main>
