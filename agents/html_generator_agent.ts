@@ -110,6 +110,8 @@ export class HtmlGeneratorAgent extends BaseAgent {
           <requirement>Add necessary email client meta tags</requirement>
           <requirement>Specify dimensions for all images</requirement>
           <requirement>Where needed, include VML fallbacks for background images</requirement>
+          <requirement>Use UTF-8 encoding for all text content</requirement>
+          <requirement>Ensure all content is properly formatted and within valid HTML opening and closing tags</requirement>
         </email_compatibility>
 
         <content_requirements>

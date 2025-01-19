@@ -5,7 +5,9 @@ if (!process.env.NEXT_PUBLIC_SENDGRID_API_KEY) {
   throw new Error('SENDGRID_API_KEY is not set in environment variables');
 }
 
-sgMail.setApiKey(process.env.NEXT_PUBLIC_SENDGRID_API_KEY);
+const sendgridApiKey = process.env.NEXT_PUBLIC_SENDGRID_API_KEY.trim();
+
+sgMail.setApiKey(sendgridApiKey);
 
 export async function POST(request: Request) {
   try {
