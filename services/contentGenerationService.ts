@@ -1,9 +1,10 @@
 import { ContentDrafterAgent } from '@/agents/content_drafter_agent';
 import { Newsletter } from '@/types/Newsletter';
 import { TavilyService } from '@/services/tavilyService';
+import { ContentData } from '@/types/EmailContent';
 
 export const contentGenerationService = {
-  async generateContent(data: Newsletter): Promise<{ content: string[]; error?: string }> {
+  async generateContent(data: ContentData): Promise<{ content: string[]; error?: string }> {
     try {
       // 1. If there are URLs, extract content from them
       if (data.urls && data.urls.length > 0) {
@@ -27,7 +28,8 @@ export const contentGenerationService = {
           style: data.style,
           webSearch: data.webSearch,
           webSearchContent: data.webSearchContent,
-          urlsExtractedContent: data.urlsExtractedContent
+          urlsExtractedContent: data.urlsExtractedContent,
+          contentType: data.contentType
         }
       });
 
