@@ -95,3 +95,12 @@ body * {
   -webkit-backdrop-filter: blur(200px);
   backdrop-filter: blur(200px);
 }
+
+/* Add pointer cursor to clickable elements */
+button,
+a,
+[role="button"],
+[onClick],
+.cursor-pointer {
+  cursor: pointer;
+}
