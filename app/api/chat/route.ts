@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ChatService } from '@/services/chatService';
-import { NewsletterStep } from '@/components/steps/StepsIndicator';
+import { EmailCreationStep } from '@/components/steps/StepsIndicator';
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     const chatService = new ChatService(
       newsletter_data,
-      step as NewsletterStep
+      step as EmailCreationStep
     );
 
     const response = await chatService.processMessage(user_input);
