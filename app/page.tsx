@@ -7,10 +7,11 @@ import { ContentData } from '@/types/EmailContent';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { Button } from '@/components/core-ui-components/button';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, Mail, Newspaper } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { ContentTypeModal } from '@/components/core-ui-components/content-type-modal';
 import ContentCard from '@/components/dashboard/ContentCard';
+import { EmptyState } from '@/components/core-ui-components/empty-state';
 
 const styles = {
   container: `
@@ -88,6 +89,37 @@ const styles = {
     border-border-color
     rounded-[12px]
     bg-card
+  `,
+  tabContainer: `
+    flex 
+    gap-2 
+    mb-4
+    border
+    border-border-color
+    rounded-[12px]
+    p-1
+    bg-muted/30
+  `,
+  tab: `
+    px-4 
+    py-2 
+    rounded-[8px]
+    text-sm 
+    font-medium 
+    transition-all
+    duration-200
+    cursor-pointer
+    flex-1
+    text-center
+  `,
+  activeTab: `
+    bg-[var(--primary-color)] 
+    text-white
+    shadow-sm
+  `,
+  inactiveTab: `
+    text-muted-foreground 
+    hover:bg-muted
   `
 };
 
@@ -97,6 +129,7 @@ const HomePage = () => {
   const [contents, setContents] = useState<ContentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'newsletter' | 'marketing' | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -116,8 +149,20 @@ const HomePage = () => {
         const fetchedContents = querySnapshot.docs.map(doc => ({
           ...doc.data(),
           id: doc.id,
-        }));
-        setContents(fetchedContents as ContentData[]);
+        })) as ContentData[];
+        setContents(fetchedContents);
+
+        // Set initial active tab based on available content
+        const hasMarketing = fetchedContents.some(content => content.contentType === 'marketing');
+        const hasNewsletters = fetchedContents.some(content => content.contentType === 'newsletter');
+
+        if (hasMarketing) {
+          setActiveTab('marketing');
+        } else if (hasNewsletters) {
+          setActiveTab('newsletter');
+        } else {
+          setActiveTab('marketing'); // Default to marketing if no content
+        }
       } catch (error) {
         console.error('Error fetching contents:', error);
       } finally {
@@ -134,6 +179,13 @@ const HomePage = () => {
     setShowModal(false);
   };
 
+  const filteredContents = activeTab
+    ? contents.filter(content => content.contentType === activeTab)
+    : contents;
+
+  const hasNewsletters = contents.some(content => content.contentType === 'newsletter');
+  const hasMarketing = contents.some(content => content.contentType === 'marketing');
+
   if (!user) return null;
 
   return (
@@ -142,9 +194,9 @@ const HomePage = () => {
       <main className={styles.content}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h1 className={styles.title}>Content</h1>
+            <h1 className={styles.title}>All Emails</h1>
             <p className={styles.subtitle}>
-              Manage your newsletters and marketing emails
+              Create and manage your email campaigns
             </p>
           </div>
           <Button
@@ -167,29 +219,52 @@ const HomePage = () => {
           <div className="flex justify-center items-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : contents.length > 0 ? (
-          <div className={styles.listContainer}>
-            <div className={styles.tableHeader}>
-              <div className={styles.headerStatus}>Status</div>
-              <div className={styles.headerTopic}>Topic</div>
-              <div className={styles.headerDate}></div>
-            </div>
-            {contents.map((content) => (
-              <ContentCard
-                key={content.id}
-                content={content}
-                onClick={() => router.push(`/editor?id=${content.id}`)}
-              />
-            ))}
-          </div>
         ) : (
-          <div className="text-center py-12 border rounded-lg bg-card">
-            <p className="text-muted-foreground mb-4">No content yet</p>
-            <Button onClick={() => setShowModal(true)} variant="outline">
-              <Plus className="w-4 h-4 mr-2" />
-              Create your first content
-            </Button>
-          </div>
+          <>
+            <div className={styles.tabContainer}>
+              <div
+                className={`${styles.tab} ${activeTab === 'marketing' ? styles.activeTab : styles.inactiveTab}`}
+                onClick={() => setActiveTab('marketing')}
+              >
+                Marketing Emails {hasMarketing && `(${contents.filter(c => c.contentType === 'marketing').length})`}
+              </div>
+              <div
+                className={`${styles.tab} ${activeTab === 'newsletter' ? styles.activeTab : styles.inactiveTab}`}
+                onClick={() => setActiveTab('newsletter')}
+              >
+                Newsletters {hasNewsletters && `(${contents.filter(c => c.contentType === 'newsletter').length})`}
+              </div>
+            </div>
+            <div className={styles.listContainer}>
+              {filteredContents.length > 0 ? (
+                <>
+                  <div className={styles.tableHeader}>
+                    <div className={styles.headerStatus}>Status</div>
+                    <div className={styles.headerTopic}>Topic</div>
+                    <div className={styles.headerDate}></div>
+                  </div>
+                  {filteredContents.map((content) => (
+                    <ContentCard
+                      key={content.id}
+                      content={content}
+                      onClick={() => router.push(`/editor?id=${content.id}`)}
+                    />
+                  ))}
+                </>
+              ) : (
+                <EmptyState
+                  icon={activeTab === 'marketing' ? Mail : Newspaper}
+                  title={`No ${activeTab === 'marketing' ? 'marketing emails' : 'newsletters'} yet`}
+                  description={`Create your first ${activeTab === 'marketing' ? 'marketing email' : 'newsletter'} to get started`}
+                  action={{
+                    label: `Create ${activeTab === 'marketing' ? 'Marketing Email' : 'Newsletter'}`,
+                    onClick: () => setShowModal(true),
+                    icon: Plus
+                  }}
+                />
+              )}
+            </div>
+          </>
         )}
       </main>
       <ContentTypeModal
