@@ -2,6 +2,8 @@ import Image from 'next/image';
 import { Button } from '../core-ui-components/button';
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ContentTypeModal } from '../core-ui-components/content-type-modal';
 
 const styles = {
   container: `
@@ -60,11 +62,13 @@ interface WelcomeMessageProps {
 
 const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
-  const handleStartNew = async () => {
+  const handleContentTypeSelect = async (type: 'newsletter' | 'marketing') => {
     const newsletterId = uuidv4();
     await onStartNew();
-    router.push(`/editor?id=${newsletterId}`);
+    router.push(`/editor?id=${newsletterId}&type=${type}`);
+    setShowModal(false);
   };
 
   return (
@@ -83,7 +87,7 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
         Your intelligent assistant in crafting beautifully designed emails & newsletters.
       </h3>
       <Button
-        onClick={handleStartNew}
+        onClick={() => setShowModal(true)}
         className={styles.startNewButton}
       >
         <span>Start writing</span>
@@ -103,6 +107,11 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
           />
         </svg>
       </Button>
+      <ContentTypeModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSelect={handleContentTypeSelect}
+      />
     </div>
   )
 }

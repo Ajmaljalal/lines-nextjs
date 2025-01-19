@@ -3,13 +3,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import Header from '@/components/layouts/Header';
-import { Newsletter } from '@/types/Newsletter';
+import { ContentData } from '@/types/EmailContent';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import NewsletterCard from '@/components/dashboard/NewsletterCard';
 import { Button } from '@/components/core-ui-components/button';
 import { Plus, Loader2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { ContentTypeModal } from '@/components/core-ui-components/content-type-modal';
+import ContentCard from '@/components/dashboard/ContentCard';
 
 const styles = {
   container: `
@@ -93,8 +94,9 @@ const styles = {
 const HomePage = () => {
   const router = useRouter();
   const { user } = useAuth();
-  const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
+  const [contents, setContents] = useState<ContentData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -102,7 +104,7 @@ const HomePage = () => {
       return;
     }
 
-    const fetchNewsletters = async () => {
+    const fetchContents = async () => {
       try {
         const q = query(
           collection(db, 'newsletters'),
@@ -111,24 +113,25 @@ const HomePage = () => {
         );
 
         const querySnapshot = await getDocs(q);
-        const fetchedNewsletters = querySnapshot.docs.map(doc => ({
+        const fetchedContents = querySnapshot.docs.map(doc => ({
           ...doc.data(),
           id: doc.id,
-        })) as Newsletter[];
-        setNewsletters(fetchedNewsletters);
+        }));
+        setContents(fetchedContents as ContentData[]);
       } catch (error) {
-        console.error('Error fetching newsletters:', error);
+        console.error('Error fetching contents:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNewsletters();
+    fetchContents();
   }, [user, router]);
 
-  const handleCreateNew = () => {
-    const newsletterId = uuidv4();
-    router.push(`/editor?id=${newsletterId}`);
+  const handleCreateNew = (type: 'newsletter' | 'marketing') => {
+    const contentId = uuidv4();
+    router.push(`/editor?id=${contentId}&type=${type}`);
+    setShowModal(false);
   };
 
   if (!user) return null;
@@ -139,13 +142,13 @@ const HomePage = () => {
       <main className={styles.content}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h1 className={styles.title}>Newsletters</h1>
+            <h1 className={styles.title}>Content</h1>
             <p className={styles.subtitle}>
-              Manage and track all your newsletters
+              Manage your newsletters and marketing emails
             </p>
           </div>
           <Button
-            onClick={handleCreateNew}
+            onClick={() => setShowModal(true)}
             className="
               bg-[var(--primary-color)]
               hover:bg-[var(--secondary-color)]
@@ -156,7 +159,7 @@ const HomePage = () => {
             "
           >
             <Plus className="w-4 h-4 mr-2" />
-            New Newsletter
+            Create New
           </Button>
         </div>
 
@@ -164,31 +167,36 @@ const HomePage = () => {
           <div className="flex justify-center items-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : newsletters.length > 0 ? (
+        ) : contents.length > 0 ? (
           <div className={styles.listContainer}>
             <div className={styles.tableHeader}>
               <div className={styles.headerStatus}>Status</div>
               <div className={styles.headerTopic}>Topic</div>
               <div className={styles.headerDate}></div>
             </div>
-            {newsletters.map((newsletter) => (
-              <NewsletterCard
-                key={newsletter.id}
-                newsletter={newsletter}
-                onClick={() => router.push(`/editor?id=${newsletter.id}`)}
+            {contents.map((content) => (
+              <ContentCard
+                key={content.id}
+                content={content}
+                onClick={() => router.push(`/editor?id=${content.id}`)}
               />
             ))}
           </div>
         ) : (
           <div className="text-center py-12 border rounded-lg bg-card">
-            <p className="text-muted-foreground mb-4">No newsletters yet</p>
-            <Button onClick={handleCreateNew} variant="outline">
+            <p className="text-muted-foreground mb-4">No content yet</p>
+            <Button onClick={() => setShowModal(true)} variant="outline">
               <Plus className="w-4 h-4 mr-2" />
-              Create your first newsletter
+              Create your first content
             </Button>
           </div>
         )}
       </main>
+      <ContentTypeModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSelect={handleCreateNew}
+      />
     </div>
   );
 };

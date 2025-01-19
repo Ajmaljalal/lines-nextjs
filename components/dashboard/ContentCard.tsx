@@ -4,28 +4,28 @@ import { Badge } from '../core-ui-components/badge';
 import { Button } from '../core-ui-components/button';
 import { ArrowRight } from 'lucide-react';
 
-interface NewsletterRowProps {
-  newsletter: ContentData;
+interface ContentCardProps {
+  content: ContentData;
   onClick: () => void;
 }
 
-const NewsletterRow: React.FC<NewsletterRowProps> = ({ newsletter, onClick }) => {
+const ContentCard: React.FC<ContentCardProps> = ({ content, onClick }) => {
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-border hover:bg-muted/50 transition-all cursor-pointer" onClick={onClick}>
       <div className="w-24">
-        <Badge variant={newsletter.status === 'sent' ? 'success' : 'info'}>
-          {newsletter.status}
+        <Badge variant={content.status === 'sent' ? 'success' : 'info'}>
+          {content.status}
         </Badge>
       </div>
       <div className="flex-1 font-medium">
-        {newsletter.topic || 'Untitled Newsletter'}
+        {content.topic || 'Untitled Content'}
       </div>
       <div className="w-48 flex items-center justify-end space-x-4">
         <Button
           variant="ghost"
           size="sm"
         >
-          {newsletter.status === 'sent' ? 'View' : 'Edit'}
+          {content.status === 'sent' ? 'View' : 'Edit'}
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
@@ -33,4 +33,4 @@ const NewsletterRow: React.FC<NewsletterRowProps> = ({ newsletter, onClick }) =>
   );
 };
 
-export default NewsletterRow; 
+export default ContentCard; 

@@ -1,11 +1,11 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 import { useBrandTheme } from '@/context/BrandThemeContext';
 import { ChatService } from '@/services/chatService';
 import { useChatContext } from '@/context/ChatContext';
 
 export const useChat = () => {
-  const { data, currentStep, updateData } = useNewsletter();
+  const { data, currentStep, updateData } = useContent();
   const { currentTheme } = useBrandTheme();
   const { messages, addMessage, clearMessages } = useChatContext();
   const [isSending, setIsSending] = useState(false);
@@ -32,7 +32,7 @@ export const useChat = () => {
         if (updatedData.senderName && updatedData.subject && updatedData.fromEmail && updatedData.recipients?.length > 0) {
           addMessage({
             role: 'assistant',
-            content: "Great! All the required information is provided. You can now use the form above to review the details and click the 'Send Newsletter' button when you're ready to send.",
+            content: "Great! All the required information is provided. You can now use the form above to review the details and click the 'Send' button when you're ready to send.",
             type: 'assistant'
           });
         }

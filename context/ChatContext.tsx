@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNewsletter } from './NewsletterContext';
+import { useContent } from './ContentContext';
 import { NewsletterStep } from '../components/steps/StepsIndicator';
 import { AgentMessage } from '@/agents/types';
 
@@ -16,18 +16,18 @@ const getInitialMessage = (step: NewsletterStep, data: any): string => {
     case NewsletterStep.TOPIC:
       return "Hi! What would you like to write about today?";
     case NewsletterStep.CONTENT:
-      return 'I am generating content for your newsletter now. Please wait a moment and then we can discuss the content.'
+      return 'I am generating content now. Please wait a moment and then we can discuss the content.'
     case NewsletterStep.DESIGN:
-      return 'I am generating the HTML design for your newsletter now. Please wait a moment and then we can discuss the design.'
+      return 'I am generating the HTML design now. Please wait a moment and then we can discuss the design.'
     case NewsletterStep.SEND:
-      return "Let's prepare your newsletter for sending. I can help you set up the recipient list, subject line, and sender details. What would you like to configure first?";
+      return "Let's prepare your content for sending. I can help you set up the recipient list, subject line, and sender details. What would you like to configure first?";
     default:
-      return "Hey there! Ask me anything about your newsletter.";
+      return "Hey there! Ask me anything about your content.";
   }
 };
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentStep, data } = useNewsletter();
+  const { currentStep, data } = useContent();
   const [messagesByStep, setMessagesByStep] = useState<Record<NewsletterStep, AgentMessage[]>>({
     [NewsletterStep.TOPIC]: [],
     [NewsletterStep.CONTENT]: [],

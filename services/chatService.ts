@@ -1,6 +1,6 @@
 import { AgentFactory } from '@/agents/factory';
 import { AgentRole, AgentContext } from '@/agents/types';
-import { Newsletter } from '@/types/Newsletter';
+import { ContentData } from '@/types/EmailContent';
 import { BrandTheme } from '@/types/BrandTheme';
 import { NewsletterStep } from '@/components/steps/StepsIndicator';
 
@@ -9,7 +9,7 @@ export class ChatService {
   private currentStep: NewsletterStep;
   private brandTheme: BrandTheme | null;
 
-  constructor(data: Newsletter, currentStep: NewsletterStep, brandTheme: BrandTheme | null = null) {
+  constructor(data: ContentData, currentStep: NewsletterStep, brandTheme: BrandTheme | null = null) {
     this.context = {
       messages: [],
       data,

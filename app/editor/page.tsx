@@ -7,7 +7,7 @@ import Header from '../../components/layouts/Header';
 import ChatContainer from '../../components/layouts/ChatContainer';
 import StepsIndicator, { NewsletterStep } from '../../components/steps/StepsIndicator';
 import MainContent from '../../components/steps/MainContent';
-import { NewsletterProvider, useNewsletter } from '@/context/NewsletterContext';
+import { ContentProvider, useContent } from '@/context/ContentContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useChat } from '@/hooks/useChat';
@@ -59,12 +59,13 @@ const styles = {
     `
 };
 
-const NewsletterEditor = () => {
+const ContentEditor = () => {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const newsletterId = searchParams.get('id');
-  const { currentStep, setCurrentStep, updateData, data } = useNewsletter();
+  const contentId = searchParams.get('id');
+  const contentType = searchParams.get('type') as 'newsletter' | 'marketing' || 'newsletter';
+  const { currentStep, setCurrentStep, updateData, data } = useContent();
   const { messages, isSending, sendMessage } = useChat();
 
   useEffect(() => {
@@ -73,53 +74,67 @@ const NewsletterEditor = () => {
       return;
     }
 
-    const loadNewsletter = async () => {
-      if (!newsletterId) {
+    const loadContent = async () => {
+      if (!contentId) {
         router.push('/');
         return;
       }
 
       try {
-        const newsletterRef = doc(db, 'newsletters', newsletterId);
-        const newsletterDoc = await getDoc(newsletterRef);
+        const contentRef = doc(db, 'newsletters', contentId);
+        const contentDoc = await getDoc(contentRef);
 
-        if (newsletterDoc.exists()) {
-          const newsletterData = newsletterDoc.data();
+        if (contentDoc.exists()) {
+          const contentData = contentDoc.data();
 
-          // Only allow access if the user owns the newsletter
-          if (newsletterData.userId !== user.uid) {
+          // Only allow access if the user owns the content
+          if (contentData.userId !== user.uid) {
             console.error('Unauthorized access');
             router.push('/');
             return;
           }
 
           updateData({
-            id: newsletterData.id,
-            userId: newsletterData.userId,
-            topic: newsletterData.topic || '',
-            userProvidedContent: newsletterData.userProvidedContent || '',
-            urls: newsletterData.urls || [],
-            style: newsletterData.style || '',
-            generatedContent: newsletterData.generatedContent,
-            htmlContent: newsletterData.htmlContent,
-            recipients: newsletterData.recipients,
-            subject: newsletterData.subject,
-            fromEmail: newsletterData.fromEmail,
-            senderName: newsletterData.senderName,
-            status: newsletterData.status,
-            createdAt: newsletterData.createdAt,
-            updatedAt: newsletterData.updatedAt,
+            id: contentData.id,
+            userId: contentData.userId,
+            topic: contentData.topic || '',
+            contentType: contentData.type || contentType,
+            userProvidedContent: contentData.userProvidedContent || '',
+            urls: contentData.urls || [],
+            style: contentData.style || '',
+            generatedContent: contentData.generatedContent,
+            htmlContent: contentData.htmlContent,
+            recipients: contentData.recipients,
+            subject: contentData.subject,
+            fromEmail: contentData.fromEmail,
+            senderName: contentData.senderName,
+            status: contentData.status,
+            createdAt: contentData.createdAt,
+            updatedAt: contentData.updatedAt,
+          });
+        } else {
+          // Initialize with content type for new content
+          updateData({
+            id: contentId,
+            userId: user.uid,
+            contentType: contentType,
+            topic: '',
+            userProvidedContent: '',
+            urls: [],
+            style: '',
+            status: 'draft',
+            createdAt: new Date(),
+            updatedAt: new Date(),
           });
         }
-        // If document doesn't exist, continue with empty state
       } catch (error) {
-        console.error('Error loading newsletter:', error);
+        console.error('Error loading content:', error);
         router.push('/');
       }
     };
 
-    loadNewsletter();
-  }, [user, newsletterId]);
+    loadContent();
+  }, [user, contentId]);
 
   if (!user) return null;
 
@@ -166,11 +181,11 @@ const NewsletterEditor = () => {
 
 const Home: React.FC = () => {
   return (
-    <NewsletterProvider>
+    <ContentProvider>
       <ChatProvider>
-        <NewsletterEditor />
+        <ContentEditor />
       </ChatProvider>
-    </NewsletterProvider>
+    </ContentProvider>
   );
 };
 

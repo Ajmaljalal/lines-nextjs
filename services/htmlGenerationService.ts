@@ -1,9 +1,10 @@
 import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
-import { Newsletter } from '@/types/Newsletter';
+import { ContentData } from '@/types/EmailContent';
 import { BrandTheme } from '@/types/BrandTheme';
 
+
 export const htmlGenerationService = {
-  async generateHtml(data: Newsletter, currentTheme: BrandTheme | null): Promise<{ content: string; error?: string }> {
+  async generateHtml(data: ContentData, currentTheme: BrandTheme | null): Promise<{ content: string; error?: string }> {
     try {
       const agent = new HtmlGeneratorAgent({
         messages: [],
@@ -20,7 +21,8 @@ export const htmlGenerationService = {
           userProvidedContent: data.userProvidedContent || '',
           webSearch: data.webSearch || false,
           webSearchContent: data.webSearchContent || [],
-          urlsExtractedContent: data.urlsExtractedContent || []
+          urlsExtractedContent: data.urlsExtractedContent || [],
+          contentType: data.contentType || 'newsletter',
         }
       }, currentTheme);
 
