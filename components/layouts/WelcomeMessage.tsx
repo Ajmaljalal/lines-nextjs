@@ -3,7 +3,7 @@ import { Button } from '../core-ui-components/button';
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ContentTypeModal } from '../core-ui-components/content-type-modal';
+import { EmailTypeModal } from '../core-ui-components/email-type-modal';
 
 const styles = {
   container: `
@@ -107,7 +107,7 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
           />
         </svg>
       </Button>
-      <ContentTypeModal
+      <EmailTypeModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onSelect={handleContentTypeSelect}

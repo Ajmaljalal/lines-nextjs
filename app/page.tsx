@@ -9,7 +9,7 @@ import { db } from '@/config/firebase';
 import { Button } from '@/components/core-ui-components/button';
 import { Plus, Loader2, Mail, Newspaper } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ContentTypeModal } from '@/components/core-ui-components/content-type-modal';
+import { EmailTypeModal } from '@/components/core-ui-components/email-type-modal';
 import ContentCard from '@/components/dashboard/ContentCard';
 import { EmptyState } from '@/components/core-ui-components/empty-state';
 
@@ -219,6 +219,17 @@ const HomePage = () => {
           <div className="flex justify-center items-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
+        ) : contents.length === 0 ? (
+          <EmptyState
+            icon={Mail}
+            title="No emails yet"
+            description="Create your first email campaign to get started"
+            action={{
+              label: "Create Email",
+              onClick: () => setShowModal(true),
+              icon: Plus
+            }}
+          />
         ) : (
           <>
             <div className={styles.tabContainer}>
@@ -267,7 +278,7 @@ const HomePage = () => {
           </>
         )}
       </main>
-      <ContentTypeModal
+      <EmailTypeModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onSelect={handleCreateNew}

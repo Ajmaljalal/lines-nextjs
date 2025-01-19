@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { Button } from './button';
 import { Mail, Newspaper } from 'lucide-react';
 
-interface ContentTypeModalProps {
+interface EmailTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (type: 'newsletter' | 'marketing') => void;
@@ -54,7 +54,7 @@ const styles = {
   `
 };
 
-export const ContentTypeModal: React.FC<ContentTypeModalProps> = ({
+export const EmailTypeModal: React.FC<EmailTypeModalProps> = ({
   isOpen,
   onClose,
   onSelect
@@ -63,7 +63,7 @@ export const ContentTypeModal: React.FC<ContentTypeModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] p-0 rounded-[12px] overflow-hidden">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-xl font-bold">Choose Content Type</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Choose Email Type</DialogTitle>
         </DialogHeader>
         <div className={styles.optionsContainer}>
           <button className={styles.option} onClick={() => onSelect('newsletter')}>
