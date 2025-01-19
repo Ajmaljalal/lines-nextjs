@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useContent } from './ContentContext';
-import { NewsletterStep } from '../components/steps/StepsIndicator';
+import { EmailCreationStep } from '../components/steps/StepsIndicator';
 import { AgentMessage } from '@/agents/types';
 
 interface ChatContextProps {
@@ -11,15 +11,15 @@ interface ChatContextProps {
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
-const getInitialMessage = (step: NewsletterStep, data: any): string => {
+const getInitialMessage = (step: EmailCreationStep, data: any): string => {
   switch (step) {
-    case NewsletterStep.TOPIC:
+    case EmailCreationStep.TOPIC:
       return "Hi! What would you like to write about today?";
-    case NewsletterStep.CONTENT:
+    case EmailCreationStep.CONTENT:
       return 'I am generating content now. Please wait a moment and then we can discuss the content.'
-    case NewsletterStep.DESIGN:
+    case EmailCreationStep.DESIGN:
       return 'I am generating the HTML design now. Please wait a moment and then we can discuss the design.'
-    case NewsletterStep.SEND:
+    case EmailCreationStep.SEND:
       return "Let's prepare your content for sending. I can help you set up the recipient list, subject line, and sender details. What would you like to configure first?";
     default:
       return "Hey there! Ask me anything about your content.";
@@ -28,11 +28,11 @@ const getInitialMessage = (step: NewsletterStep, data: any): string => {
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentStep, data } = useContent();
-  const [messagesByStep, setMessagesByStep] = useState<Record<NewsletterStep, AgentMessage[]>>({
-    [NewsletterStep.TOPIC]: [],
-    [NewsletterStep.CONTENT]: [],
-    [NewsletterStep.DESIGN]: [],
-    [NewsletterStep.SEND]: [],
+  const [messagesByStep, setMessagesByStep] = useState<Record<EmailCreationStep, AgentMessage[]>>({
+    [EmailCreationStep.TOPIC]: [],
+    [EmailCreationStep.CONTENT]: [],
+    [EmailCreationStep.DESIGN]: [],
+    [EmailCreationStep.SEND]: [],
   });
 
   // Initialize messages for each step when it becomes active

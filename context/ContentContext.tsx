@@ -1,16 +1,16 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { NewsletterStep } from '../components/steps/StepsIndicator';
+import { EmailCreationStep } from '../components/steps/StepsIndicator';
 import { ContentData, } from '../types/EmailContent';
 
 
 interface ContentContextType {
   data: ContentData;
-  currentStep: number;
+  currentStep: EmailCreationStep;
   isLoading: boolean;
   updateData: (newData: Partial<ContentData>) => void;
-  setCurrentStep: (step: number) => void;
-  validateStep: (step: number) => boolean;
+  setCurrentStep: (step: EmailCreationStep) => void;
+  validateStep: (step: EmailCreationStep) => boolean;
   sendContent: () => Promise<void>;
 }
 
@@ -19,22 +19,22 @@ const ContentContext = createContext<ContentContextType | undefined>(undefined);
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const [data, setData] = useState<ContentData>({} as ContentData);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(EmailCreationStep.TOPIC);
   const [isLoading, setIsLoading] = useState(false);
 
   const updateData = useCallback((newData: Partial<ContentData>) => {
     setData(prevData => ({ ...prevData, ...newData }));
   }, []);
 
-  const validateStep = useCallback((step: number): boolean => {
+  const validateStep = useCallback((step: EmailCreationStep): boolean => {
     switch (step) {
-      case 1:
+      case EmailCreationStep.TOPIC:
         return Boolean(data.topic && data.topic.trim());
-      case 2:
+      case EmailCreationStep.CONTENT:
         return Boolean(data.generatedContent);
-      case 3:
+      case EmailCreationStep.DESIGN:
         return Boolean(data.htmlContent);
-      case 4:
+      case EmailCreationStep.SEND:
         return Boolean(
           data.subject &&
           data.senderName &&

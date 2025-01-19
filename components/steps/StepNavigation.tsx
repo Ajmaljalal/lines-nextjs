@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '../core-ui-components/button';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useNewsletter } from '@/context/NewsletterContext';
-import { NewsletterStep } from './StepsIndicator';
+import { EmailCreationStep } from './StepsIndicator';
 import { db } from '@/config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
@@ -42,7 +42,7 @@ const styles = {
 interface StepNavigationProps {
   onNext: () => void;
   isLoading?: boolean;
-  step: NewsletterStep;
+  step: EmailCreationStep;
 }
 
 const StepNavigation: React.FC<StepNavigationProps> = ({
@@ -129,14 +129,14 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   };
 
   const handleNext = async () => {
-    if (step === NewsletterStep.SEND && isStepValid(step)) {
+    if (step === EmailCreationStep.SEND && isStepValid(step)) {
       await sendNewsletter();
     } else {
       onNext();
     }
   };
 
-  const buttonText = step === NewsletterStep.SEND ? 'Send Newsletter' : 'Next';
+  const buttonText = step === EmailCreationStep.SEND ? 'Send Newsletter' : 'Next';
 
   if (isNewsletterSent) {
     return (

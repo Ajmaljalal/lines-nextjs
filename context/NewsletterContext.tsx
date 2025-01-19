@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useState } from 'react';
-import { NewsletterStep } from '../components/steps/StepsIndicator';
+import { EmailCreationStep } from '../components/steps/StepsIndicator';
 import { Newsletter } from '../types/Newsletter';
 
 
 interface NewsletterContextType {
   data: Newsletter;
   updateData: (updates: Partial<Newsletter>) => void;
-  isStepValid: (step: NewsletterStep) => boolean;
-  currentStep: NewsletterStep;
-  setCurrentStep: (step: NewsletterStep) => void;
+  isStepValid: (step: EmailCreationStep) => boolean;
+  currentStep: EmailCreationStep;
+  setCurrentStep: (step: EmailCreationStep) => void;
 }
 
 const NewsletterContext = createContext<NewsletterContextType | undefined>(undefined);
@@ -29,7 +29,7 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     style: '',
     senderName: '',
   });
-  const [currentStep, setCurrentStep] = useState<NewsletterStep>(NewsletterStep.TOPIC);
+  const [currentStep, setCurrentStep] = useState<EmailCreationStep>(EmailCreationStep.TOPIC);
 
   const updateData = (updates: Partial<Newsletter>) => {
     setData(current => ({
@@ -38,15 +38,15 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }));
   };
 
-  const isStepValid = (step: NewsletterStep): boolean => {
+  const isStepValid = (step: EmailCreationStep): boolean => {
     switch (step) {
-      case NewsletterStep.TOPIC:
+      case EmailCreationStep.TOPIC:
         return data.topic.trim().length > 0;
-      case NewsletterStep.CONTENT:
+      case EmailCreationStep.CONTENT:
         return !!data.generatedContent;
-      case NewsletterStep.DESIGN:
+      case EmailCreationStep.DESIGN:
         return !!data.htmlContent;
-      case NewsletterStep.SEND:
+      case EmailCreationStep.SEND:
         return (data.recipients?.length ?? 0) > 0 &&
           !!data.subject?.trim() &&
           !!data.fromEmail?.trim() &&

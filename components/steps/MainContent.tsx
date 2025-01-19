@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { NewsletterStep } from './StepsIndicator';
+import { EmailCreationStep } from './StepsIndicator';
 import FirstStep_DataCollection from './Step_1_DataCollection';
 import SecondStep_ContentDrafting from './Step_2_ContentDrafting';
 import ThirdStep_HtmlPreview from './Step_3_HtmlPreview';
@@ -13,6 +13,7 @@ import { contentGenerationService } from '@/services/contentGenerationService';
 import { htmlGenerationService } from '@/services/htmlGenerationService';
 import { useBrandTheme } from '@/context/BrandThemeContext';
 import { TavilyService } from '@/services/tavilyService';
+import { useContent } from '@/context/ContentContext';
 
 interface MainContentProps {
   onStepComplete: () => void;
@@ -43,7 +44,7 @@ const styles = {
 };
 
 const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
-  const { currentStep, data, updateData } = useNewsletter();
+  const { currentStep, data, updateData } = useContent();
   const { currentTheme } = useBrandTheme();
   const [isSending, setIsSending] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -120,9 +121,9 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   };
 
   useEffect(() => {
-    if (currentStep === NewsletterStep.CONTENT && !data.generatedContent) {
+    if (currentStep === EmailCreationStep.CONTENT && !data.generatedContent) {
       generateContent();
-    } else if (currentStep === NewsletterStep.DESIGN && !data.htmlContent) {
+    } else if (currentStep === EmailCreationStep.DESIGN && !data.htmlContent) {
       generateHtml();
     }
   }, [currentStep]);
@@ -143,7 +144,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
         <div className="flex flex-col items-center justify-center h-full gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-color)]" />
           <p className="text-zinc-400">
-            {currentStep === NewsletterStep.CONTENT
+            {currentStep === EmailCreationStep.CONTENT
               ? 'Generating email content...'
               : 'Designing email content...'}
           </p>
@@ -153,13 +154,13 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     }
 
     switch (currentStep) {
-      case NewsletterStep.TOPIC:
+      case EmailCreationStep.TOPIC:
         return <FirstStep_DataCollection />;
-      case NewsletterStep.CONTENT:
+      case EmailCreationStep.CONTENT:
         return <SecondStep_ContentDrafting />;
-      case NewsletterStep.DESIGN:
+      case EmailCreationStep.DESIGN:
         return <ThirdStep_HtmlPreview />;
-      case NewsletterStep.SEND:
+      case EmailCreationStep.SEND:
         return <FourthStep_SendNewsletter onComplete={onStepComplete} />;
       default:
         return null;

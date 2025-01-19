@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { Check, Lock, Hourglass } from 'lucide-react';
 import { useNewsletter } from '@/context/NewsletterContext';
 
-export enum NewsletterStep {
+export enum EmailCreationStep {
   TOPIC = 'topic',
   CONTENT = 'content',
   DESIGN = 'design',
@@ -12,7 +12,7 @@ export enum NewsletterStep {
 }
 
 interface StepIndicatorProps {
-  onStepClick: (step: NewsletterStep) => void;
+  onStepClick: (step: EmailCreationStep) => void;
 }
 
 const styles = {
@@ -83,22 +83,22 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
   const { currentStep, isStepValid } = useNewsletter();
   const steps = [
     {
-      id: NewsletterStep.TOPIC,
+      id: EmailCreationStep.TOPIC,
       shortLabel: 'Topic',
       longLabel: 'Topic'
     },
     {
-      id: NewsletterStep.CONTENT,
+      id: EmailCreationStep.CONTENT,
       shortLabel: 'Content',
       longLabel: 'Draft'
     },
     {
-      id: NewsletterStep.DESIGN,
+      id: EmailCreationStep.DESIGN,
       shortLabel: 'Design',
       longLabel: 'Design'
     },
     {
-      id: NewsletterStep.SEND,
+      id: EmailCreationStep.SEND,
       shortLabel: 'Send',
       longLabel: 'Send'
     },
@@ -108,13 +108,13 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
     console.log('Current step is:', currentStep);
   }, [currentStep]);
 
-  const getStepStatus = (stepId: NewsletterStep) => {
+  const getStepStatus = (stepId: EmailCreationStep) => {
     if (stepId === currentStep) return 'active';
     if (isStepValid(stepId)) return 'completed';
     return 'pending';
   };
 
-  const isStepDisabled = (stepId: NewsletterStep) => {
+  const isStepDisabled = (stepId: EmailCreationStep) => {
     const stepIndex = steps.findIndex(s => s.id === stepId);
     const currentIndex = steps.findIndex(s => s.id === currentStep);
 

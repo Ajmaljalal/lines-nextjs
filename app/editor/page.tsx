@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '../../components/layouts/Header';
 import ChatContainer from '../../components/layouts/ChatContainer';
-import StepsIndicator, { NewsletterStep } from '../../components/steps/StepsIndicator';
+import StepsIndicator, { EmailCreationStep } from '../../components/steps/StepsIndicator';
 import MainContent from '../../components/steps/MainContent';
 import { ContentProvider, useContent } from '@/context/ContentContext';
 import { doc, getDoc } from 'firebase/firestore';
@@ -138,16 +138,16 @@ const ContentEditor = () => {
 
   if (!user) return null;
 
-  const handleStepClick = (step: NewsletterStep) => {
+  const handleStepClick = (step: EmailCreationStep) => {
     setCurrentStep(step);
   };
 
   const handleStepComplete = () => {
     const steps = [
-      NewsletterStep.TOPIC,
-      NewsletterStep.CONTENT,
-      NewsletterStep.DESIGN,
-      NewsletterStep.SEND,
+      EmailCreationStep.TOPIC,
+      EmailCreationStep.CONTENT,
+      EmailCreationStep.DESIGN,
+      EmailCreationStep.SEND,
     ];
 
     const currentIndex = steps.indexOf(currentStep);
