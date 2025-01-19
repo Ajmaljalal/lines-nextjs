@@ -107,7 +107,7 @@ const HomePage = () => {
     const fetchContents = async () => {
       try {
         const q = query(
-          collection(db, 'newsletters'),
+          collection(db, 'emails'),
           where('userId', '==', user.uid),
           orderBy('updatedAt', 'desc')
         );

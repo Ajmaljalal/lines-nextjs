@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Textarea } from '../core-ui-components/textarea';
 import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 import { Button } from '../core-ui-components/button';
 import { Switch } from '../core-ui-components/switch';
 
@@ -59,7 +59,7 @@ const styles = {
 };
 
 const FirstStep_DataCollection: React.FC = () => {
-  const { data, updateData } = useNewsletter();
+  const { data, updateData } = useContent();
   const [topic, setTopic] = useState<string>(data.topic || '');
   const [content, setContent] = useState<string>(data.userProvidedContent || '');
   const [style, setStyle] = useState<string>(data.style || '');
@@ -120,17 +120,17 @@ const FirstStep_DataCollection: React.FC = () => {
       return;
     }
 
-    if (data.urls.includes(urlToAdd)) {
+    if ((data.urls || []).includes(urlToAdd)) {
       return;
     }
 
-    const newUrls = [...data.urls, urlToAdd];
+    const newUrls = [...(data.urls || []), urlToAdd];
     updateData({ urls: newUrls });
     setCurrentUrl('');
   };
 
   const removeUrl = (urlToRemove: string) => {
-    const newUrls = data.urls.filter(url => url !== urlToRemove);
+    const newUrls = (data.urls || []).filter(url => url !== urlToRemove);
     updateData({ urls: newUrls });
   };
 
@@ -187,9 +187,9 @@ const FirstStep_DataCollection: React.FC = () => {
           Reference URLs <span className="text-zinc-500 text-sm font-normal">(optional)</span>
         </Label>
 
-        {data.urls.length > 0 && (
+        {(data.urls || []).length > 0 && (
           <div className={styles.urlList}>
-            {data.urls.map((url, index) => (
+            {(data.urls || []).map((url, index) => (
               <div key={index} className={styles.urlChip}>
                 <span className="truncate max-w-[300px]">{url}</span>
                 {!isReadOnly && (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 
 const styles = {
   container: `
@@ -34,7 +34,7 @@ const styles = {
 };
 
 const ThirdStep_HtmlPreview: React.FC = () => {
-  const { data } = useNewsletter();
+  const { data } = useContent();
 
   if (!data.htmlContent) {
     return (

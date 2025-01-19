@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 import { Button } from '../core-ui-components/button';
 import { Upload, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -78,7 +78,7 @@ interface FourthStep_SendNewsletterProps {
 }
 
 const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ onComplete }) => {
-  const { data, updateData } = useNewsletter();
+  const { data, updateData } = useContent();
   const { user } = useAuth();
   const [senderName, setSenderName] = useState(data.senderName || '');
   const [subject, setSubject] = useState(data.subject || '');

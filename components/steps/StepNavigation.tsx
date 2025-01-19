@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../core-ui-components/button';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 import { EmailCreationStep } from './StepsIndicator';
 import { db } from '@/config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
@@ -53,7 +53,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const newsletterId = searchParams.get('id');
-  const { data, updateData, isStepValid } = useNewsletter();
+  const { data, updateData, validateStep } = useContent();
   const { user } = useAuth();
   const [isSending, setIsSending] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -81,7 +81,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
     };
 
     try {
-      const newsletterRef = doc(db, 'newsletters', newsletterId);
+      const newsletterRef = doc(db, 'emails', newsletterId);
       await setDoc(newsletterRef, newsletter, { merge: true });
     } catch (error) {
       console.error('Error saving newsletter:', error);
@@ -129,7 +129,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   };
 
   const handleNext = async () => {
-    if (step === EmailCreationStep.SEND && isStepValid(step)) {
+    if (step === EmailCreationStep.SEND && validateStep(step)) {
       await sendNewsletter();
     } else {
       onNext();
@@ -185,7 +185,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
       </div>
       <Button
         onClick={handleNext}
-        disabled={!isStepValid(step) || isSending || isSaving}
+        disabled={!validateStep(step) || isSending || isSaving}
         className={`${styles.button} ${styles.nextButton} ${(isSending || isSaving || isSaving) ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {isSending ? (

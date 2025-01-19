@@ -7,13 +7,12 @@ import SecondStep_ContentDrafting from './Step_2_ContentDrafting';
 import ThirdStep_HtmlPreview from './Step_3_HtmlPreview';
 import FourthStep_SendNewsletter from './Step_4_SendNewsletter';
 import StepNavigation from './StepNavigation';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 import { Loader2 } from 'lucide-react';
 import { contentGenerationService } from '@/services/contentGenerationService';
 import { htmlGenerationService } from '@/services/htmlGenerationService';
 import { useBrandTheme } from '@/context/BrandThemeContext';
 import { TavilyService } from '@/services/tavilyService';
-import { useContent } from '@/context/ContentContext';
 
 interface MainContentProps {
   onStepComplete: () => void;

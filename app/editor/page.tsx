@@ -81,7 +81,7 @@ const ContentEditor = () => {
       }
 
       try {
-        const contentRef = doc(db, 'newsletters', contentId);
+        const contentRef = doc(db, 'emails', contentId);
         const contentDoc = await getDoc(contentRef);
 
         if (contentDoc.exists()) {

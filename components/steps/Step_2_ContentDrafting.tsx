@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 import { Loader2 } from 'lucide-react';
 
 const styles = {
@@ -51,7 +51,7 @@ const styles = {
 };
 
 const SecondStep_ContentDrafting: React.FC = () => {
-  const { data } = useNewsletter();
+  const { data } = useContent();
   const content = data.generatedContent ? JSON.parse(data.generatedContent) : null;
 
   const renderLoadingState = () => {

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { Check, Lock, Hourglass } from 'lucide-react';
-import { useNewsletter } from '@/context/NewsletterContext';
+import { useContent } from '@/context/ContentContext';
 
 export enum EmailCreationStep {
   TOPIC = 'topic',
@@ -80,7 +80,7 @@ const styles = {
 };
 
 const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
-  const { currentStep, isStepValid } = useNewsletter();
+  const { currentStep, validateStep } = useContent();
   const steps = [
     {
       id: EmailCreationStep.TOPIC,
@@ -110,7 +110,7 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
 
   const getStepStatus = (stepId: EmailCreationStep) => {
     if (stepId === currentStep) return 'active';
-    if (isStepValid(stepId)) return 'completed';
+    if (validateStep(stepId)) return 'completed';
     return 'pending';
   };
 
@@ -119,7 +119,7 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
     const currentIndex = steps.findIndex(s => s.id === currentStep);
 
     if (getStepStatus(stepId) === 'completed') return false;
-    if (stepIndex === currentIndex + 1 && isStepValid(currentStep)) return false;
+    if (stepIndex === currentIndex + 1 && validateStep(currentStep)) return false;
     if (stepIndex > currentIndex) return true;
     return false;
   };
