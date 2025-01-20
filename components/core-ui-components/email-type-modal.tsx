@@ -66,15 +66,6 @@ export const EmailTypeModal: React.FC<EmailTypeModalProps> = ({
           <DialogTitle className="text-xl font-bold">Choose Email Type</DialogTitle>
         </DialogHeader>
         <div className={styles.optionsContainer}>
-          <button className={styles.option} onClick={() => onSelect('newsletter')}>
-            <div className={styles.iconContainer}>
-              <Newspaper className="w-6 h-6" />
-            </div>
-            <span className={styles.title}>Newsletter</span>
-            <p className={styles.description}>
-              Create a newsletter with curated content and updates for your subscribers
-            </p>
-          </button>
           <button className={styles.option} onClick={() => onSelect('marketing')}>
             <div className={styles.iconContainer}>
               <Mail className="w-6 h-6" />
@@ -84,6 +75,16 @@ export const EmailTypeModal: React.FC<EmailTypeModalProps> = ({
               Create a targeted marketing email to promote your products or services
             </p>
           </button>
+          <button className={styles.option} onClick={() => onSelect('newsletter')}>
+            <div className={styles.iconContainer}>
+              <Newspaper className="w-6 h-6" />
+            </div>
+            <span className={styles.title}>Newsletter</span>
+            <p className={styles.description}>
+              Create a newsletter with curated content and updates for your subscribers
+            </p>
+          </button>
+
         </div>
       </DialogContent>
     </Dialog>

@@ -97,7 +97,7 @@ export const BrandThemeModal: React.FC<BrandThemeModalProps> = ({ isOpen, onClos
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-background max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[600px] bg-background max-h-[90vh] flex flex-col ">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-xl font-bold">{currentTheme ? 'Edit Brand Theme' : 'Create Brand Theme'}</DialogTitle>
         </DialogHeader>
@@ -223,7 +223,7 @@ export const BrandThemeModal: React.FC<BrandThemeModalProps> = ({ isOpen, onClos
 
               {/* Social Media URLs */}
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="twitter" className="text-right text-sm font-medium">X (formerly Twitter) URL</Label>
+                <Label htmlFor="twitter" className="text-right text-sm font-medium">X URL</Label>
                 <Input
                   id="twitter"
                   value={socialMediaUrls.twitter}
@@ -276,7 +276,7 @@ export const BrandThemeModal: React.FC<BrandThemeModalProps> = ({ isOpen, onClos
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-[var(--primary-color)] hover:bg-[var(--secondary-color)] text-white text-sm font-medium px-4 py-2 h-9"
+            className="rounded-[12px] bg-[var(--primary-color)] hover:bg-[var(--secondary-color)] text-white text-sm font-medium px-4 py-2 h-9"
           >
             {isSaving ? (
               <>
