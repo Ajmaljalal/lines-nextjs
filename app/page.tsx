@@ -94,32 +94,31 @@ const styles = {
     flex 
     gap-2 
     mb-4
-    border
-    border-border-color
-    rounded-[12px]
-    p-1
-    bg-muted/30
+    justify-start
   `,
   tab: `
     px-4 
     py-2 
-    rounded-[8px]
     text-sm 
     font-medium 
     transition-all
     duration-200
     cursor-pointer
-    flex-1
     text-center
+    border-2
+    border-border-color
+    rounded-[12px]
+    hover:bg-muted/50
   `,
   activeTab: `
-    bg-[var(--primary-color)] 
-    text-white
-    shadow-sm
+    border-[var(--primary-color)]
+    text-[var(--primary-color)]
+    bg-muted/30
+    font-semibold
   `,
   inactiveTab: `
     text-muted-foreground 
-    hover:bg-muted
+    hover:text-foreground
   `
 };
 
