@@ -1,4 +1,4 @@
-import { BaseAgent } from './base_agent';
+import { BaseAgent } from './base_agent_data_collection';
 import { AgentContext, AgentResponse } from './types';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from 'zod';

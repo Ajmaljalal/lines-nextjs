@@ -1,6 +1,5 @@
-import { ContentDrafterAgent } from '@/agents/content_drafter_agent';
-import { MarketingContentDrafterAgent } from '@/agents/marketing_content_drafter_agent';
-import { Newsletter } from '@/types/Newsletter';
+import { ContentDrafterAgent } from '@/agents/newsletter/content_drafter_agent';
+import { MarketingContentDrafterAgent } from '@/agents/marketing/marketing_content_drafter_agent';
 import { TavilyService } from '@/services/tavilyService';
 import { ContentData } from '@/types/EmailContent';
 

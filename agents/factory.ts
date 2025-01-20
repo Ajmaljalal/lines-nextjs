@@ -4,8 +4,8 @@ import { DesignAgent } from './design_agent';
 import { AgentContext, AgentRole } from './types';
 import { BrandTheme } from '@/types/BrandTheme';
 import { SendPreparationAgent } from './send_preparation_agent';
-import { MarketingContentDrafterAgent } from './marketing_content_drafter_agent';
-import { MarketingHtmlGeneratorAgent } from './marketing_html_generator_agent';
+import { MarketingContentDrafterAgent } from './marketing/marketing_content_drafter_agent';
+import { MarketingHtmlGeneratorAgent } from './marketing/marketing_html_generator_agent';
 
 export class AgentFactory {
   static createAgent(role: AgentRole, context: AgentContext, additionalData?: any) {

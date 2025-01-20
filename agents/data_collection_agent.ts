@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AgentContext, AgentResponse } from './types';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { BaseAgent } from './base_agent';
+import { BaseAgent } from './base_agent_data_collection';
 
 const DataCollectionActionSchema = z.object({
   action: z.enum(['UPDATE_TOPIC', 'UPDATE_CONTENT', 'ADD_URL', 'UPDATE_STYLE', 'UPDATE_WEB_SEARCH', 'CONFIRM']),

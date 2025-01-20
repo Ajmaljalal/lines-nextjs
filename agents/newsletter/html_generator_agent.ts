@@ -1,14 +1,14 @@
-import { BaseAgent } from './base';
-import { AgentContext, AgentResponse } from './types';
+import { BaseAgent } from '../base_agent';
+import { AgentContext, AgentResponse } from '../types';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from "zod";
 import { BrandTheme } from '@/types/BrandTheme';
 
-const marketingHtmlSchema = z.object({
+const newsletterHtmlSchema = z.object({
   html: z.string()
 });
 
-export class MarketingHtmlGeneratorAgent extends BaseAgent {
+export class HtmlGeneratorAgent extends BaseAgent {
   private model: ChatAnthropic;
   protected brandTheme: BrandTheme | null;
 
@@ -16,7 +16,7 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     super(context);
     this.brandTheme = brandTheme;
     this.model = new ChatAnthropic({
-      temperature: 0.5,
+      temperature: 0.7,
       model: "claude-3-5-sonnet-20241022",
       apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
       maxRetries: 3,
@@ -61,7 +61,7 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     const parsedExtractedContent = urlsExtractedContent ? JSON.stringify(urlsExtractedContent) : [];
 
     return `
-      MARKETING EMAIL CONTENT:
+      NEWSLETTER CONTENT:
         Topic: ${JSON.stringify(topic, null, 2)}
         Content: ${JSON.stringify([parsedContent, parsedUrls, parsedExtractedContent], null, 2)}
         Style: ${JSON.stringify(style, null, 2)}
@@ -77,11 +77,11 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     return `
     <prompt>
       <role>
-        You are an expert marketing email designer known for creating high-converting, visually striking designs that drive action. Produce a professional HTML marketing email that follows the core requirements, brand guidelines, and content instructions below. Focus on creating a design that guides readers towards the main call-to-action.
+        You are an expert newsletter designer known for creating modern, attention-grabbing, and highly engaging designs. Produce a visually striking professional HTML newsletter that follows the core requirements, brand guidelines, and content instructions below. Strive for a fresh, polished, and captivating look to keep readers interested from start to finish.
       </role>
 
       <main_goal>
-        Focus solely on designing a professional HTML marketing email that converts. Use the provided content as is and do not change, exclude, or add any content beyond what is provided.
+        Focus solely on designing a professional HTML newsletter that captivates. Use the provided content as is and do not change, exclude, or add any content beyond what is provided.
       </main_goal>
 
       <core_requirements>
@@ -91,19 +91,19 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
           <requirement>Implement table-based layout for maximum email client compatibility</requirement>
           <requirement>Ensure mobile responsiveness</requirement>
           <requirement>Use web-safe fonts with appropriate fallbacks</requirement>
-          <requirement>If code and other special characters are present, use the appropriate HTML entities</requirement>
+          <requirement>If code and other special characters are present, use the appropriate HTML entities like code blocks</requirement>
         </technical_requirements>
 
         <design_elements>
-          <element>Create a clean, focused layout that guides attention to CTAs</element>
-          <element>Use ample white space to improve readability</element>
-          <element>Make CTAs stand out with contrasting colors and clear buttons</element>
-          <element>Ensure CTAs are easily tappable on mobile (min 44px height)</element>
-          <element>Use visual hierarchy to emphasize key benefits</element>
-          <element>Include responsive image placeholders with alt text</element>
-          <element>Highlight testimonials or social proof in callout boxes</element>
-          <element>Use font size of 16px for body text and 24px+ for headlines</element>
-          <element>Keep paragraphs short and scannable (2-3 lines max)</element>
+          <element>Aim for a sleek, contemporary layout with consistent spacing</element>
+          <element>Establish a clear visual hierarchy with well-defined sections</element>
+          <element>Incorporate responsive image placeholders with alt text</element>
+          <element>Include eye-catching, mobile-friendly call-to-action buttons</element>
+          <element>Showcase statistics and numbers prominently</element>
+          <element>Integrate charts/graphs for data visualization where appropriate</element>
+          <element>Include all relevant URLs within content sections</element>
+          <element>Include hightlighted content in a different color and eye catching if needed</element>
+          <element>Use font size of 20px for the content</element>
         </design_elements>
 
         <email_compatibility>
@@ -111,32 +111,23 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
           <requirement>Specify dimensions for all images</requirement>
           <requirement>Where needed, include VML fallbacks for background images</requirement>
           <requirement>Use UTF-8 encoding for all text content</requirement>
-          <requirement>Ensure all content is properly formatted and within valid HTML tags</requirement>
+          <requirement>Ensure all content is properly formatted and within valid HTML opening and closing tags</requirement>
         </email_compatibility>
 
         <content_requirements>
           <requirement>Use all the provided content without omission</requirement>
           <requirement>Do not add any new content beyond what is given</requirement>
           <requirement>Preserve the wording of the content as provided</requirement>
-          <requirement>Maintain the persuasive tone of the copy</requirement>
         </content_requirements>
-
-        <cta_requirements>
-          <requirement>Make CTAs prominent and visually distinct</requirement>
-          <requirement>Use action-oriented button text</requirement>
-          <requirement>Include hover states for buttons</requirement>
-          <requirement>Ensure sufficient padding around CTAs</requirement>
-          <requirement>Use contrasting colors for maximum visibility</requirement>
-        </cta_requirements>
       </core_requirements>
 
       <brand_theme>
         ${this.getBrandThemeInstructions()}
       </brand_theme>
 
-      <marketing_content>
+      <newsletter_content>
         ${this.getContentSection()}
-      </marketing_content>
+      </newsletter_content>
 
       <output_instructions>
         Return only the complete HTML code without any explanations or comments.
@@ -158,18 +149,18 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     try {
       const prompt = this.generatePrompt();
 
-      const structuredModel = this.model.withStructuredOutput(marketingHtmlSchema);
+      const structuredModel = this.model.withStructuredOutput(newsletterHtmlSchema);
       const response = await structuredModel.invoke([
         { role: 'user', content: prompt }
       ]);
 
       return this.processResponse(response);
     } catch (error) {
-      console.error('Marketing HTML generator agent execution error:', error);
+      console.error('HTML generator agent execution error:', error);
       return {
         content: '',
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
     }
   }
-} 
+}

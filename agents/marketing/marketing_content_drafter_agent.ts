@@ -1,5 +1,5 @@
-import { BaseAgent } from './base';
-import { AgentContext, AgentResponse } from './types';
+import { BaseAgent } from '../base_agent';
+import { AgentContext, AgentResponse } from '../types';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from "zod";
 
@@ -62,7 +62,7 @@ export class MarketingContentDrafterAgent extends BaseAgent {
       </role>
 
       <task>
-        Use ONLY the information from these web search results:
+        Use ONLY the information provided in the following sources:
       </task>
 
       <source_data>
@@ -103,25 +103,24 @@ export class MarketingContentDrafterAgent extends BaseAgent {
       </response_format>
 
       <requirements>
-        <section_count>Create 2-3 focused sections</section_count>
+        <section_count>Include all the information provided in the sources</section_count>
         
         <section_rules>
           <rule>Each section should build towards the main call to action</rule>
           <rule>Use persuasive language that drives action</rule>
           <rule>Include clear value propositions</rule>
           <rule>Focus on benefits over features</rule>
-          <rule>Use social proof where available</rule>
-          <rule>Include the source URL</rule>
+          <rule>Include the source URL if available</rule>
         </section_rules>
 
         <restrictions>
           <rule>Do not add information not in the sources</rule>
-          <rule>Do not remove important details</rule>
+          <rule>Do not remove details</rule>
           <rule>Keep the tone professional but persuasive</rule>
         </restrictions>
 
         <data_preservation>
-          Raw numbers, statistics, and technical details must be preserved exactly
+          Raw numbers, statistics, and technical details must be preserved exactly and designed into graphs and charts if possible.
         </data_preservation>
       </requirements>
 

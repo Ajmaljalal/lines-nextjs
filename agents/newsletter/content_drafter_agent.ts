@@ -1,5 +1,6 @@
-import { BaseAgent } from './base';
-import { AgentContext, AgentResponse } from './types';
+
+import { BaseAgent } from '../base_agent';
+import { AgentContext, AgentResponse } from '../types';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from "zod";
 

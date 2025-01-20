@@ -1,4 +1,4 @@
-import { BaseAgent } from './base';
+import { BaseAgent } from './base_agent';
 import { AgentContext, AgentResponse } from './types';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from "zod";
@@ -42,7 +42,7 @@ export class DesignAgent extends BaseAgent {
     return `
     <prompt>
       <role>
-        You are an expert HTML email designer. Help update the newsletter design based on user requests.
+        You are an expert HTML email designer. Help update the newsletter design based on the user requests.
       </role>
 
       <current_html>

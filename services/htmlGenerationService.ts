@@ -1,5 +1,5 @@
-import { HtmlGeneratorAgent } from '@/agents/html_generator_agent';
-import { MarketingHtmlGeneratorAgent } from '@/agents/marketing_html_generator_agent';
+import { HtmlGeneratorAgent } from '@/agents/newsletter/html_generator_agent';
+import { MarketingHtmlGeneratorAgent } from '@/agents/marketing/marketing_html_generator_agent';
 import { ContentData } from '@/types/EmailContent';
 import { BrandTheme } from '@/types/BrandTheme';
 
