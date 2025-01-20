@@ -63,7 +63,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
 }) => {
   useEffect(() => {
     window.scrollTo({
-      top: document.body.scrollHeight,
+      top: document.body.scrollHeight + 10,
       behavior: 'smooth'
     });
   }, [messages]);

@@ -140,13 +140,15 @@ const FirstStep_DataCollection: React.FC = () => {
     updateData({ style: newStyle });
   };
 
+  const topicLabel = data.contentType === 'newsletter' ? 'Newsletter Topic' : 'Email Topic';
+
   return (
     <form className={styles.container}>
       <div className={styles.formGroup}>
         <div className={styles.labelContainer}>
           <div className={styles.labelGroup}>
             <Label>
-              Newsletter / Email Topic <span className="text-red-500">*</span>
+              {topicLabel} <span className="text-red-500">*</span>
             </Label>
           </div>
           <div className="flex items-center gap-2">

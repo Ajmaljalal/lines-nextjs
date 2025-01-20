@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useContent } from './ContentContext';
 import { EmailCreationStep } from '../components/steps/StepsIndicator';
 import { AgentMessage } from '@/agents/types';
-
+import { ContentData } from '@/types/EmailContent';
 interface ChatContextProps {
   messages: AgentMessage[];
   addMessage: (message: AgentMessage) => void;
@@ -11,7 +11,7 @@ interface ChatContextProps {
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
-const getInitialMessage = (step: EmailCreationStep, data: any): string => {
+const getInitialMessage = (step: EmailCreationStep, data: ContentData): string => {
   switch (step) {
     case EmailCreationStep.TOPIC:
       return "Hi! What would you like to write about today?";
