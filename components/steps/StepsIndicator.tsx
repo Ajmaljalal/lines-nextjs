@@ -104,10 +104,6 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
     },
   ];
 
-  useEffect(() => {
-    console.log('Current step is:', currentStep);
-  }, [currentStep]);
-
   const getStepStatus = (stepId: EmailCreationStep) => {
     if (stepId === currentStep) return 'active';
     if (validateStep(stepId)) return 'completed';
@@ -130,8 +126,6 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
         const status = getStepStatus(step.id);
         const disabled = isStepDisabled(step.id);
         const isActive = status === 'active';
-
-        console.log('Step ID:', step.id, 'Status:', status, 'Disabled:', disabled);
 
         return (
           <div

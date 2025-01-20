@@ -6,7 +6,9 @@ export enum AgentRole {
   DATA_COLLECTION = 'data_collection',
   CONTENT_EDITING = 'content_editing',
   DESIGN = 'design',
-  SEND_PREPARATION = 'send_preparation'
+  SEND_PREPARATION = 'send_preparation',
+  MARKETING_CONTENT_DRAFT = 'marketing_content_draft',
+  MARKETING_HTML_GENERATION = 'marketing_html_generation'
 }
 
 export interface AgentMessage {

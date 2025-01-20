@@ -52,16 +52,16 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const newsletterId = searchParams.get('id');
+  const emailId = searchParams.get('id');
   const { data, updateData, validateStep } = useContent();
   const { user } = useAuth();
   const [isSending, setIsSending] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isNewsletterSent = data.status === 'sent';
+  const isEmailSent = data.status === 'sent';
 
-  const saveNewsletter = async (status: 'draft' | 'sent') => {
-    if (!user || !newsletterId) return;
+  const saveEmail = async (status: 'draft' | 'sent') => {
+    if (!user || !emailId) return;
 
     setIsSaving(true);
     // Clean the data by removing undefined values
@@ -72,27 +72,27 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
       return acc;
     }, {} as Record<string, any>);
 
-    const newsletter = {
+    const email = {
       ...cleanData,
-      id: newsletterId,
+      id: emailId,
       userId: user.uid,
       status,
       updatedAt: new Date()
     };
 
     try {
-      const newsletterRef = doc(db, 'emails', newsletterId);
-      await setDoc(newsletterRef, newsletter, { merge: true });
+      const emailRef = doc(db, 'emails', emailId);
+      await setDoc(emailRef, email, { merge: true });
     } catch (error) {
-      console.error('Error saving newsletter:', error);
+      console.error('Error saving email:', error);
       throw error;
     } finally {
       setIsSaving(false);
     }
   };
 
-  const sendNewsletter = async () => {
-    if (!user || !newsletterId) return;
+  const sendEmail = async () => {
+    if (!user || !emailId) return;
     try {
       setIsSending(true);
       setError(null);
@@ -118,7 +118,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
         throw new Error(responseData.error || responseData.details || 'Failed to send newsletter');
       }
 
-      await saveNewsletter('sent');
+      await saveEmail('sent');
       router.push('/'); // Redirect to home after successful send
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to send newsletter');
@@ -130,18 +130,18 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
 
   const handleNext = async () => {
     if (step === EmailCreationStep.SEND && validateStep(step)) {
-      await sendNewsletter();
+      await sendEmail();
     } else {
       onNext();
     }
   };
 
-  const buttonText = step === EmailCreationStep.SEND ? 'Send Newsletter' : 'Next';
+  const buttonText = step === EmailCreationStep.SEND ? 'Send' : 'Next';
 
-  if (isNewsletterSent) {
+  if (isEmailSent) {
     return (
       <div className="flex items-center justify-between gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-[8px] text-sm border border-green-300 shadow-lg">
-        Newsletter has already been sent
+        Email has already been sent
         <Button
           onClick={() => router.push('/')}
           className="h-6 w-6 ml-2 hover:bg-green-200 rounded-full p-1 shadow-lg border border-green-300"
@@ -169,7 +169,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
         </Button>
 
         <Button
-          onClick={() => saveNewsletter('draft')}
+          onClick={() => saveEmail('draft')}
           className={`${styles.button} ${styles.cancelButton}`}
           disabled={isSaving}
         >
