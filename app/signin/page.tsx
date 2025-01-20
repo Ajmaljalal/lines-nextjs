@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/core-ui-components/button';
@@ -68,9 +68,15 @@ const styles = {
 };
 
 const SignIn: React.FC = () => {
-  const { signInWithGoogle, error } = useAuth();
+  const { signInWithGoogle, error, user } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   const handleSignIn = async () => {
     try {
