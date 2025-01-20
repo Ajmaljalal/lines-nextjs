@@ -98,7 +98,7 @@ const ContentEditor = () => {
             id: contentData.id,
             userId: contentData.userId,
             topic: contentData.topic || '',
-            contentType: contentData.type || contentType,
+            contentType: contentData.contentType || contentType,
             userProvidedContent: contentData.userProvidedContent || '',
             urls: contentData.urls || [],
             style: contentData.style || '',
