@@ -9,6 +9,7 @@ const SendPreparationSchema = z.object({
     senderName: z.string().optional().nullable(),
     subject: z.string().optional().nullable(),
     fromEmail: z.string().optional().nullable(),
+    replyToEmail: z.string().optional().nullable(),
   }),
   message: z.string()
 });
@@ -41,21 +42,23 @@ export class SendPreparationAgent extends BaseAgent {
   }
 
   protected generatePrompt(userInput: string): string {
-    const { generatedContent, senderName, subject, fromEmail } = this.context.data;
+    const { generatedContent, senderName, subject, fromEmail, replyToEmail } = this.context.data;
     const content = generatedContent ? JSON.parse(generatedContent) : null;
 
     return `
     <prompt>
       <role>
         You are an AI assistant helping to prepare a newsletter for sending.
+        Your task is to help the user set up the sender details, subject line, and email addresses.
       </role>
 
-      <current_state>
-        <topic>${content?.header?.title || 'Not available'}</topic>
-        <sender_name>${senderName || 'Not set'}</sender_name>
-        <subject_line>${subject || 'Not set'}</subject_line>
-        <from_email>${fromEmail || 'Not set'}</from_email>
-      </current_state>
+      <context>
+        Current settings:
+        - Sender Name: ${senderName || 'Not set'}
+        - Subject: ${subject || 'Not set'}
+        - From Email: ${fromEmail || 'Not set'}
+        - Reply-To Email: ${replyToEmail || 'Not set (will use From Email)'}
+      </context>
 
       <user_input>
         ${userInput}

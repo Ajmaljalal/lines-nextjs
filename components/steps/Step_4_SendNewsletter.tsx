@@ -83,6 +83,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
   const [senderName, setSenderName] = useState(data.senderName || '');
   const [subject, setSubject] = useState(data.subject || '');
   const [fromEmail, setFromEmail] = useState(data.fromEmail || '');
+  const [replyToEmail, setReplyToEmail] = useState(data.replyToEmail || '');
   const [currentRecipient, setCurrentRecipient] = useState('');
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -99,7 +100,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
       try {
         const subscribers = await getExistingSubscribers(user.uid);
         // Merge or Overwrite with Firestore data
-        // If you want to keep user’s local recipients, 
+        // If you want to keep user's local recipients, 
         // you can optionally merge them here
         updateData({ recipients: subscribers });
       } catch (error) {
@@ -120,6 +121,10 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
   useEffect(() => {
     setFromEmail(data.fromEmail || '');
   }, [data.fromEmail]);
+
+  useEffect(() => {
+    setReplyToEmail(data.replyToEmail || '');
+  }, [data.replyToEmail]);
 
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -187,7 +192,7 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
           isValidEmail
         );
 
-        // Here we’re overwriting local recipients with the newly combined list
+        // Here we're overwriting local recipients with the newly combined list
         updateData({ recipients: newEmails });
         setUploadStatus(
           `Successfully uploaded ${newEmails.length} subscribers (${totalUnique} total unique subscribers)`
@@ -255,6 +260,26 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
         />
         <p className="text-sm text-muted-foreground mt-1">
           Email is automatically generated based on the sender name
+        </p>
+      </div>
+
+      <div className={styles.formGroup}>
+        <Label>
+          Reply-To Email
+        </Label>
+        <Input
+          type="email"
+          placeholder="Enter reply-to email address (optional)..."
+          value={replyToEmail}
+          onChange={(e) => {
+            const val = e.target.value;
+            setReplyToEmail(val);
+            updateData({ replyToEmail: val });
+          }}
+          disabled={isReadOnly}
+        />
+        <p className="text-sm text-muted-foreground mt-1">
+          If not set, replies will go to the From Email address
         </p>
       </div>
 

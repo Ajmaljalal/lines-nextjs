@@ -11,7 +11,7 @@ sgMail.setApiKey(sendgridApiKey);
 
 export async function POST(request: Request) {
   try {
-    const { subject, senderName, fromEmail, htmlContent, subscribers } = await request.json();
+    const { subject, senderName, fromEmail, htmlContent, subscribers, replyToEmail } = await request.json();
 
     // Validate basic fields
     if (!subject || !senderName || !fromEmail || !htmlContent) {
@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       subject,
       html: htmlContent,
       text: 'Please enable HTML to view the message content.',
+      replyTo: replyToEmail,
     };
 
     // Send email

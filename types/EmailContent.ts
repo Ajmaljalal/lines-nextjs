@@ -54,6 +54,7 @@ export interface ContentData {
   recipients?: string[];
   subject?: string;
   fromEmail?: string;
+  replyToEmail?: string;
   senderName?: string;
   status: 'draft' | 'sent';
   createdAt: Date;

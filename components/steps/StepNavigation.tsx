@@ -109,6 +109,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
           htmlContent: data.htmlContent,
           subscribers: data.recipients,
           userId: user.uid,
+          replyToEmail: data.replyToEmail
         }),
       });
 
