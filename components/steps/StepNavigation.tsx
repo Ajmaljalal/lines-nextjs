@@ -6,7 +6,10 @@ import { EmailCreationStep } from './StepsIndicator';
 import { db } from '@/config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Send } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../core-ui-components/dialog';
+import { Input } from '../core-ui-components/input';
+import { Label } from '../core-ui-components/label';
 
 const styles = {
   container: `
@@ -45,6 +48,153 @@ interface StepNavigationProps {
   step: EmailCreationStep;
 }
 
+interface TestEmailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSendTest: (emails: string[]) => Promise<void>;
+  isTestSending: boolean;
+}
+
+const TestEmailModal: React.FC<TestEmailModalProps> = ({
+  isOpen,
+  onClose,
+  onSendTest,
+  isTestSending
+}) => {
+  const [testEmails, setTestEmails] = useState<string[]>([]);
+  const [currentEmail, setCurrentEmail] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const addEmail = () => {
+    if (!currentEmail.trim()) return;
+
+    const emailToAdd = currentEmail.trim();
+    if (!isValidEmail(emailToAdd)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (testEmails.includes(emailToAdd)) {
+      setError('Email already added');
+      return;
+    }
+
+    if (testEmails.length >= 5) {
+      setError('Maximum 5 test emails allowed');
+      return;
+    }
+
+    setTestEmails([...testEmails, emailToAdd]);
+    setCurrentEmail('');
+    setError(null);
+  };
+
+  const removeEmail = (emailToRemove: string) => {
+    setTestEmails(testEmails.filter(email => email !== emailToRemove));
+  };
+
+  const handleSubmit = async () => {
+    if (testEmails.length === 0) {
+      setError('Please add at least one email address');
+      return;
+    }
+
+    try {
+      await onSendTest(testEmails);
+      setTestEmails([]);
+      onClose();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to send test email');
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Send Test Email</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          {testEmails.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {testEmails.map((email, index) => (
+                <div key={index} className="bg-muted text-foreground px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                  <span className="truncate max-w-[300px]">{email}</span>
+                  <button
+                    onClick={() => removeEmail(email)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="relative">
+            <Input
+              type="email"
+              placeholder="Enter email addresses and press Enter or Add..."
+              value={currentEmail}
+              onChange={(e) => {
+                setCurrentEmail(e.target.value);
+                setError(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addEmail();
+                }
+              }}
+            />
+            <Button
+              type="button"
+              onClick={addEmail}
+              className="absolute right-[8px] top-1/2 -translate-y-1/2 h-[calc(100%-16px)] min-w-[50px] text-xs px-2.5 bg-[var(--primary-color)] hover:bg-[var(--secondary-color)] text-white rounded-[8px]"
+              disabled={testEmails.length >= 5}
+            >
+              Add
+            </Button>
+          </div>
+          {error && (
+            <p className="text-red-500 text-sm mt-2">{error}</p>
+          )}
+        </div>
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="rounded-[8px]"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isTestSending || testEmails.length === 0}
+            className="bg-[var(--primary-color)] hover:bg-[var(--secondary-color)] text-white rounded-[8px]"
+          >
+            {isTestSending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4 mr-2" />
+                Send Test
+              </>
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const StepNavigation: React.FC<StepNavigationProps> = ({
   onNext,
   isLoading,
@@ -57,6 +207,8 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   const { user } = useAuth();
   const [isSending, setIsSending] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTestSending, setIsTestSending] = useState(false);
+  const [showTestEmailModal, setShowTestEmailModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEmailSent = data.status === 'sent';
 
@@ -129,6 +281,42 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
     }
   };
 
+  const sendTestEmail = async (testEmails: string[]) => {
+    if (!user || !emailId) return;
+    try {
+      setIsTestSending(true);
+      setError(null);
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subject: `[TEST] ${data.subject}`,
+          senderName: data.senderName,
+          fromEmail: data.fromEmail,
+          htmlContent: data.htmlContent,
+          subscribers: testEmails,
+          userId: user.uid,
+          replyToEmail: data.replyToEmail
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.error || responseData.details || 'Failed to send test email');
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to send test email');
+      console.error('Send test email error:', error);
+      throw error;
+    } finally {
+      setIsTestSending(false);
+    }
+  };
+
   const handleNext = async () => {
     if (step === EmailCreationStep.SEND && validateStep(step)) {
       await sendEmail();
@@ -184,20 +372,37 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
           )}
         </Button>
       </div>
-      <Button
-        onClick={handleNext}
-        disabled={!validateStep(step) || isSending || isSaving}
-        className={`${styles.button} ${styles.nextButton} ${(isSending || isSaving || isSaving) ? 'opacity-50 cursor-not-allowed' : ''}`}
-      >
-        {isSending ? (
-          <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Sending...
-          </div>
-        ) : (
-          buttonText
+      <div className="flex items-center gap-2">
+        {step === EmailCreationStep.SEND && (
+          <Button
+            onClick={() => setShowTestEmailModal(true)}
+            className={`${styles.button} bg-gray-100 hover:bg-gray-200`}
+            disabled={!validateStep(step)}
+          >
+            Test Send
+          </Button>
         )}
-      </Button>
+        <Button
+          onClick={handleNext}
+          disabled={!validateStep(step) || isSending || isSaving}
+          className={`${styles.button} ${styles.nextButton} ${(isSending || isSaving) ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {isSending ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Sending...
+            </div>
+          ) : (
+            buttonText
+          )}
+        </Button>
+      </div>
+      <TestEmailModal
+        isOpen={showTestEmailModal}
+        onClose={() => setShowTestEmailModal(false)}
+        onSendTest={sendTestEmail}
+        isTestSending={isTestSending}
+      />
     </div>
   );
 };
