@@ -108,7 +108,9 @@ const ContentEditor = () => {
             subject: contentData.subject,
             fromEmail: contentData.fromEmail,
             senderName: contentData.senderName,
+            replyToEmail: contentData.replyToEmail,
             status: contentData.status,
+            templateId: contentData.templateId,
             createdAt: contentData.createdAt,
             updatedAt: contentData.updatedAt,
           });

@@ -57,6 +57,7 @@ export interface ContentData {
   replyToEmail?: string;
   senderName?: string;
   status: 'draft' | 'sent';
+  templateId?: string;
   createdAt: Date;
   updatedAt: Date;
   loadingState?: 'webSearch' | 'urlExtraction' | 'contentGeneration' | null;

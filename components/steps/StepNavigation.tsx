@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../core-ui-components/button';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useContent } from '@/context/ContentContext';
@@ -10,6 +10,7 @@ import { X, Loader2, Send } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../core-ui-components/dialog';
 import { Input } from '../core-ui-components/input';
 import { Label } from '../core-ui-components/label';
+import { emailTemplateService } from '@/services/emailTemplateService';
 
 const styles = {
   container: `
@@ -53,6 +54,15 @@ interface TestEmailModalProps {
   onClose: () => void;
   onSendTest: (emails: string[]) => Promise<void>;
   isTestSending: boolean;
+}
+
+interface SaveTemplateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (name: string) => Promise<void>;
+  isSaving: boolean;
+  initialName?: string;
+  isUpdate?: boolean;
 }
 
 const TestEmailModal: React.FC<TestEmailModalProps> = ({
@@ -195,6 +205,93 @@ const TestEmailModal: React.FC<TestEmailModalProps> = ({
   );
 };
 
+const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  isSaving,
+  initialName = '',
+  isUpdate = false
+}) => {
+  const [templateName, setTemplateName] = useState(initialName);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTemplateName(initialName);
+    }
+  }, [isOpen, initialName]);
+
+  const handleSubmit = async () => {
+    if (!templateName.trim()) {
+      setError('Please enter a template name');
+      return;
+    }
+
+    try {
+      await onSave(templateName.trim());
+      if (!isUpdate) {
+        setTemplateName('');
+      }
+      onClose();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to save template');
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>{isUpdate ? 'Update Template' : 'Save as Template'}</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="templateName">Template Name</Label>
+              <Input
+                id="templateName"
+                placeholder="Enter template name..."
+                value={templateName}
+                onChange={(e) => {
+                  setTemplateName(e.target.value);
+                  setError(null);
+                }}
+              />
+            </div>
+            {error && (
+              <p className="text-red-500 text-sm">{error}</p>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="rounded-[8px]"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isSaving}
+            className="bg-[var(--primary-color)] hover:bg-[var(--secondary-color)] text-white rounded-[8px]"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isUpdate ? 'Updating...' : 'Saving...'}
+              </>
+            ) : (
+              isUpdate ? 'Update Template' : 'Save Template'
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const StepNavigation: React.FC<StepNavigationProps> = ({
   onNext,
   isLoading,
@@ -211,6 +308,9 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   const [showTestEmailModal, setShowTestEmailModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEmailSent = data.status === 'sent';
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
+  const [templateName, setTemplateName] = useState<string>('');
 
   const saveEmail = async (status: 'draft' | 'sent') => {
     if (!user || !emailId) return;
@@ -317,6 +417,50 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
     }
   };
 
+  const saveTemplateIdToEmail = async (templateId: string) => {
+    if (!emailId) return;
+
+    const emailRef = doc(db, 'emails', emailId);
+    await setDoc(emailRef, {
+      templateId,
+      updatedAt: new Date()
+    }, { merge: true });
+  };
+
+  const handleSaveTemplate = async (name: string) => {
+    if (!user || !data.htmlContent) return;
+
+    try {
+      setIsSavingTemplate(true);
+      if (data.templateId) {
+        // Only update the template, don't touch the email document
+        await emailTemplateService.updateTemplate(data.templateId, name, data.htmlContent);
+      } else {
+        // Save new template and update both email document and content state
+        const templateId = await emailTemplateService.saveTemplate(user.uid, name, data.htmlContent);
+        await saveTemplateIdToEmail(templateId);
+        updateData({ templateId });
+      }
+      setTemplateName(name);
+    } catch (error) {
+      console.error('Error saving template:', error);
+      setError('Failed to save template');
+      throw error;
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  };
+
+  useEffect(() => {
+    if (data.templateId) {
+      emailTemplateService.getTemplate(data.templateId).then(template => {
+        if (template) {
+          setTemplateName(template.name);
+        }
+      });
+    }
+  }, [data.templateId]);
+
   const handleNext = async () => {
     if (step === EmailCreationStep.SEND && validateStep(step)) {
       await sendEmail();
@@ -371,6 +515,16 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
             'Save as Draft'
           )}
         </Button>
+
+        {step === EmailCreationStep.DESIGN && (
+          <Button
+            onClick={() => setShowSaveTemplateModal(true)}
+            disabled={isSavingTemplate}
+            className={`${styles.button} ${styles.backButton}`}
+          >
+            {data.templateId ? 'Update Template' : 'Save as Template'}
+          </Button>
+        )}
       </div>
       <div className="flex items-center gap-2">
         {step === EmailCreationStep.SEND && (
@@ -402,6 +556,14 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
         onClose={() => setShowTestEmailModal(false)}
         onSendTest={sendTestEmail}
         isTestSending={isTestSending}
+      />
+      <SaveTemplateModal
+        isOpen={showSaveTemplateModal}
+        onClose={() => setShowSaveTemplateModal(false)}
+        onSave={handleSaveTemplate}
+        isSaving={isSavingTemplate}
+        initialName={templateName}
+        isUpdate={!!data.templateId}
       />
     </div>
   );
