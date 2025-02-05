@@ -3,7 +3,7 @@ import { AgentContext, AgentResponse } from './types';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from "zod";
 import { BrandTheme } from '@/types/BrandTheme';
-
+import { ChatOpenAI } from '@langchain/openai';
 const designResponseSchema = z.object({
   action: z.enum(['update_layout', 'update_colors', 'update_typography', 'update_spacing', 'validate_design']),
   updates: z.object({
@@ -14,7 +14,7 @@ const designResponseSchema = z.object({
 });
 
 export class DesignAgent extends BaseAgent {
-  private model: ChatAnthropic;
+  private model: ChatOpenAI;
 
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
@@ -24,12 +24,14 @@ export class DesignAgent extends BaseAgent {
       throw new Error('Anthropic API key not found');
     }
 
-    this.model = new ChatAnthropic({
-      temperature: 0.7,
-      model: "claude-3-5-sonnet-20241022",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+    this.model = new ChatOpenAI({
+      // temperature: 0.5,
+      model: "o3-mini",
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
       maxRetries: 3,
-      maxTokens: 8192,
+      reasoningEffort: "medium",
+
+      // maxCompletionTokens: 8192,
     });
   }
 

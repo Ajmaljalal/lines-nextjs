@@ -49,8 +49,8 @@ const config: Config = {
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
 				},
-				border: 'hsl(var(--border))',
-				'border-color': 'hsl(var(--border-color))'
+				// border: '#ff0000',        // Bright red
+				// 'border-color': '#ff0000' // Bright red
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

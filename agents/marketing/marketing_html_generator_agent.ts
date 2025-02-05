@@ -3,24 +3,33 @@ import { AgentContext, AgentResponse } from '../types';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { z } from "zod";
 import { BrandTheme } from '@/types/BrandTheme';
-
+import { ChatOpenAI } from '@langchain/openai';
 const marketingHtmlSchema = z.object({
   html: z.string()
 });
 
 export class MarketingHtmlGeneratorAgent extends BaseAgent {
-  private model: ChatAnthropic;
+  private model: ChatOpenAI;
   protected brandTheme: BrandTheme | null;
 
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
     this.brandTheme = brandTheme;
-    this.model = new ChatAnthropic({
-      temperature: 0.5,
-      model: "claude-3-5-sonnet-20241022",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+    //   this.model = new ChatAnthropic({
+    //     temperature: 0.5,
+    //     model: "claude-3-5-sonnet-20241022",
+    //     apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+    //     maxRetries: 3,
+    //     maxTokens: 8192,
+    //   });
+    this.model = new ChatOpenAI({
+      // temperature: 0.5,
+      model: "o3-mini",
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
       maxRetries: 3,
-      maxTokens: 8192,
+      reasoningEffort: "medium",
+
+      // maxCompletionTokens: 8192,
     });
   }
 

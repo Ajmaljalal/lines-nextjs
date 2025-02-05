@@ -1,14 +1,15 @@
-@tailwind base;
-@tailwind components;
+@import "tailwindcss";
 @tailwind utilities;
 
+/* Remove or adjust the universal border rule if not needed */
 * {
   scrollbar-width: none;
+  /* Remove or comment out the following line if not required */
   border-width: -0.5px;
 }
 
 /* Brand colors and constants - these stay the same regardless of theme */
-:root {
+@theme {
   --primary-color: #6366F1;
   --secondary-color: #818CF8;
   --accent-color: #4F46E5;
@@ -17,10 +18,8 @@
   --white: #FFFFFF;
   --dark-bg: #111827;
   --transition: all 0.001s ease;
-}
 
-/* Dark theme (default) */
-:root {
+  /* Dark theme (default) */
   --background: var(--dark-bg);
   --foreground: var(--white);
   --gradient-start: rgba(99, 102, 241, 0.25);
@@ -35,12 +34,12 @@
   --muted: #1f2937;
   --muted-foreground: #9CA3AF;
 
-  --border: 246 60% 40%;
-  --border-color: 246 60% 40%;
+  /* --border: #4338ca;
+  --border-color: #4338ca; */
 }
 
 /* Light theme */
-:root[data-theme="light"] {
+@theme [data-theme="light"] {
   --background: var(--light-bg);
   --foreground: var(--text-color);
   --gradient-start: rgba(99, 102, 241, 0.10);
@@ -55,12 +54,8 @@
   --muted: #f3f4f6;
   --muted-foreground: #4B5563;
 
-  --border: 246 45% 88%;
-  --border-color: 246 45% 88%;
-
-  --input-background: #F3F4F6;
-  --input-foreground: #1F2937;
-  --input-placeholder: #6B7280;
+  /* --border: #e0e7ff;
+  --border-color: #e0e7ff; */
 }
 
 body {
@@ -88,6 +83,11 @@ body * {
 
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  .border-color {
+    border-color: #6B7280 !important;
+    border-style: solid !important;
   }
 }
 
