@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { Users } from 'lucide-react';
 
 const styles = {
   navigation: `
@@ -58,6 +59,12 @@ const NavigationBar = () => {
         onClick={() => handleNavigation('/')}
       >
         Dashboard
+      </NavButton>
+      <NavButton
+        isActive={pathname === '/audience'}
+        onClick={() => handleNavigation('/audience')}
+      >
+        Audience
       </NavButton>
       <NavButton
         isActive={pathname === '/analytics'}
