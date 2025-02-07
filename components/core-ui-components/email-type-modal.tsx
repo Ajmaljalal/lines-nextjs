@@ -25,7 +25,7 @@ const styles = {
     gap-4
     p-6
     border
-    border-border
+    border-gray-300
     rounded-[12px]
     hover:border-[var(--primary-color)]
     hover:bg-muted/50

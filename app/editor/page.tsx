@@ -41,7 +41,7 @@ const styles = {
 
   leftColumn: `
     border
-    border-border-color
+    border-gray-300
     rounded-[12px]
     `,
 
@@ -54,7 +54,7 @@ const styles = {
     w-[350px]
     min-w-[350px]
     border
-    border-border-color
+    border-gray-300
     rounded-[12px]
     `
 };

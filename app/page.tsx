@@ -71,7 +71,7 @@ const styles = {
   `,
   listContainer: `
     border 
-    border-border-color
+    border-gray-300
     rounded-[12px]
     bg-card 
     divide-y 
@@ -105,8 +105,8 @@ const styles = {
     duration-200
     cursor-pointer
     text-center
-    border-2
-    border-border-color
+    border-1
+    border-gray-300
     rounded-[12px]
     hover:bg-muted/50
   `,

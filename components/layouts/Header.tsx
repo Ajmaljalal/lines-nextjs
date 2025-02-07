@@ -19,7 +19,7 @@ const styles = {
     px-8
     py-4
     border-b
-    border-color
+    border-gray-300
   `,
 
   titleContainer: `

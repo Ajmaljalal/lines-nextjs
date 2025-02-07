@@ -11,7 +11,19 @@ interface ContentCardProps {
 
 const ContentCard: React.FC<ContentCardProps> = ({ content, onClick }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-border hover:bg-muted/50 transition-all cursor-pointer" onClick={onClick}>
+    <div className={`
+      flex 
+      items-center
+      justify-between
+      px-4 
+      py-3
+      hover:bg-muted/50
+      transition-all
+      cursor-pointer
+      border-gray-300
+    `}
+      onClick={onClick}
+    >
       <div className="w-24">
         <Badge variant={content.status === 'sent' ? 'success' : 'info'}>
           {content.status}

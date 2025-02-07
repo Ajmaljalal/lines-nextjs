@@ -22,7 +22,7 @@ const styles = {
     px-4
     border
     border-dashed
-    border-border-color
+    border-gray-300
     rounded-[12px]
     bg-card/50
     text-center

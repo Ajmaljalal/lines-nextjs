@@ -26,7 +26,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           disabled:cursor-not-allowed
           disabled:opacity-50
           border
-          border-border
+          border-gray-300
           md:text-sm`,
           className
         )}

@@ -11,7 +11,7 @@ interface NewsletterRowProps {
 
 const NewsletterRow: React.FC<NewsletterRowProps> = ({ newsletter, onClick }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-border hover:bg-muted/50 transition-all cursor-pointer" onClick={onClick}>
+    <div className={`flex items-center justify-between px-4 py-3 border-b border-gray-300 hover:bg-muted/50 transition-all cursor-pointer`} onClick={onClick}>
       <div className="w-24">
         <Badge variant={newsletter.status === 'sent' ? 'success' : 'info'}>
           {newsletter.status}
