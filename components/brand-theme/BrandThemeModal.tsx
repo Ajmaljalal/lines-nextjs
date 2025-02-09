@@ -11,6 +11,10 @@ import { useAuth } from '@/context/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
 import { Loader2 } from 'lucide-react';
 
+const colorPickerStyles = {
+  input: 'p-0 border border-2 border-gray-300 w-full h-10 cursor-pointer [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch-wrapper]:w-full [&::-webkit-color-swatch-wrapper]:h-full [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:w-full [&::-webkit-color-swatch]:h-full [&::-moz-color-swatch]:border-none [&::-moz-color-swatch]:w-full [&::-moz-color-swatch]:h-full',
+}
+
 interface BrandThemeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -116,70 +120,64 @@ export const BrandThemeModal: React.FC<BrandThemeModalProps> = ({ isOpen, onClos
 
           {/* Colors Section */}
           <div className="border-t pt-4">
-            <h3 className="text-sm font-semibold mb-4">Colors</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="primaryColor" className="text-right text-sm font-medium">Primary Color</Label>
                 <div className="col-span-3 flex gap-2 items-center">
-                  <div className="w-8 h-8 rounded border" style={{ backgroundColor: primaryColor }} />
                   <Input
                     id="primaryColor"
                     type="color"
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-full h-10"
+                    className={colorPickerStyles.input}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="secondaryColor" className="text-right text-sm font-medium">Secondary Color</Label>
                 <div className="col-span-3 flex gap-2 items-center">
-                  <div className="w-8 h-8 rounded border" style={{ backgroundColor: secondaryColor }} />
                   <Input
                     id="secondaryColor"
                     type="color"
                     value={secondaryColor}
                     onChange={(e) => setSecondaryColor(e.target.value)}
-                    className="w-full h-10"
+                    className={colorPickerStyles.input}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="accentColor" className="text-right text-sm font-medium">Accent Color</Label>
                 <div className="col-span-3 flex gap-2 items-center">
-                  <div className="w-8 h-8 rounded border" style={{ backgroundColor: accentColor }} />
                   <Input
                     id="accentColor"
                     type="color"
                     value={accentColor}
                     onChange={(e) => setAccentColor(e.target.value)}
-                    className="w-full h-10"
+                    className={colorPickerStyles.input}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="textColor" className="text-right text-sm font-medium">Text Color</Label>
                 <div className="col-span-3 flex gap-2 items-center">
-                  <div className="w-8 h-8 rounded border" style={{ backgroundColor: textColor }} />
                   <Input
                     id="textColor"
                     type="color"
                     value={textColor}
                     onChange={(e) => setTextColor(e.target.value)}
-                    className="w-full h-10"
+                    className={colorPickerStyles.input}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="backgroundColor" className="text-right text-sm font-medium">Background</Label>
                 <div className="col-span-3 flex gap-2 items-center">
-                  <div className="w-8 h-8 rounded border" style={{ backgroundColor: backgroundColor }} />
                   <Input
                     id="backgroundColor"
                     type="color"
                     value={backgroundColor}
                     onChange={(e) => setBackgroundColor(e.target.value)}
-                    className="w-full h-10"
+                    className={colorPickerStyles.input}
                   />
                 </div>
               </div>
@@ -188,7 +186,6 @@ export const BrandThemeModal: React.FC<BrandThemeModalProps> = ({ isOpen, onClos
 
           {/* URLs Section */}
           <div className="border-t pt-4">
-            <h3 className="text-sm font-semibold mb-4">URLs</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="logoUrl" className="text-right text-sm font-medium">Logo URL</Label>
