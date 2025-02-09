@@ -23,11 +23,14 @@ const styles = {
   `,
   sectionLabel: `
     text-xs
-    font-medium
+    font-semibold
     text-[var(--primary-color)]
     uppercase
     tracking-wider
-    mb-2
+    bg-gray-300
+    p-2
+    rounded-md
+
   `,
   section: `
     space-y-4
@@ -103,7 +106,7 @@ const SecondStep_ContentDrafting: React.FC = () => {
   return (
     <div className={styles.container}>
       <div>
-        <div className={styles.sectionLabel}>Newsletter Header</div>
+        <div className={styles.sectionLabel}>Header</div>
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>{content.header.title}</h2>
           {content.header.subtitle && (
@@ -113,7 +116,7 @@ const SecondStep_ContentDrafting: React.FC = () => {
       </div>
 
       <div>
-        <div className={styles.sectionLabel}>Main Content Sections</div>
+        <div className={styles.sectionLabel}>Main Content</div>
         {content.sections.map((section: any, index: number) => (
           <div key={index} className="mt-4">
             <div className={styles.section}>
@@ -135,7 +138,7 @@ const SecondStep_ContentDrafting: React.FC = () => {
       </div>
 
       <div>
-        <div className={styles.sectionLabel}>Newsletter Footer</div>
+        <div className={styles.sectionLabel}>Footer</div>
         <div className={styles.section}>
           <div className={styles.content}>{content.footer.content}</div>
           {content.footer.callToAction && (
