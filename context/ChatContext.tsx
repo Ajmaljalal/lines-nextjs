@@ -16,13 +16,13 @@ const getInitialMessage = (step: EmailCreationStep, data: ContentData): string =
     case EmailCreationStep.TOPIC:
       return "Hi! What would you like to write about today?";
     case EmailCreationStep.CONTENT:
-      return 'I am generating content now. Please wait a moment and then we can discuss the content.'
+      return 'I am generating content now...'
     case EmailCreationStep.DESIGN:
-      return 'I am generating the HTML design now. Please wait a moment and then we can discuss the design.'
+      return 'I am generating the design now...'
     case EmailCreationStep.SEND:
-      return "Let's prepare your content for sending. I can help you set up the recipient list, subject line, and sender details. What would you like to configure first?";
+      return "Let's prepare your email for sending...";
     default:
-      return "Hey there! Ask me anything about your content.";
+      return "Hey there! let me help you with your email...";
   }
 };
 
