@@ -9,7 +9,7 @@ const marketingHtmlSchema = z.object({
 });
 
 export class MarketingHtmlGeneratorAgent extends BaseAgent {
-  private model: ChatOpenAI;
+  private model: ChatAnthropic;
   protected brandTheme: BrandTheme | null;
 
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
@@ -22,12 +22,12 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     //     maxRetries: 3,
     //     maxTokens: 8192,
     //   });
-    this.model = new ChatOpenAI({
-      // temperature: 0.5,
-      model: "o3-mini",
-      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+    this.model = new ChatAnthropic({
+      temperature: 1,
+      model: "claude-3-5-sonnet-20241022",
+      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
       maxRetries: 3,
-      reasoningEffort: "medium",
+      // reasoningEffort: "medium",
 
       // maxCompletionTokens: 8192,
     });

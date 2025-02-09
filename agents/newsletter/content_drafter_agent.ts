@@ -41,11 +41,12 @@ export class ContentDrafterAgent extends BaseAgent {
   constructor(context: AgentContext) {
     super(context);
     this.model = new ChatOpenAI({
-      temperature: 0.1,
-      model: "gpt-4o",
+      // temperature: 0.1,
+      model: "o3-mini",
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-      maxRetries: 3,
-      maxTokens: 8192,
+      reasoningEffort: "medium",
+      // maxRetries: 3,
+      // maxTokens: 8192,
     });
   }
 
