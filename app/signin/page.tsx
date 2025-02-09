@@ -9,7 +9,6 @@ import { Spinner } from '@/components/core-ui-components/spinner';
 const styles = {
   container: `
     w-full
-    max-w-4xl
     mx-auto
     flex
     flex-col
@@ -23,6 +22,15 @@ const styles = {
     backdrop-blur-[200px]
     relative
     z-10
+    before:content-['']
+    before:fixed
+    before:top-0
+    before:left-0
+    before:w-full
+    before:h-full
+    before:-z-10
+    before:bg-[linear-gradient(135deg,rgba(99,102,241,0.4),rgba(79,70,229,0.6))]
+    before:opacity-95
   `,
 
   logoContainer: `
