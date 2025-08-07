@@ -1,6 +1,6 @@
 import { BaseAgent } from './base_agent_data_collection';
 import { AgentContext, AgentResponse } from './types';
-import { ChatAnthropic } from '@langchain/anthropic';
+import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 
 const SendPreparationSchema = z.object({
@@ -15,18 +15,18 @@ const SendPreparationSchema = z.object({
 });
 
 export class SendPreparationAgent extends BaseAgent {
-  private model: ChatAnthropic;
+  private model: ChatOpenAI;
 
   constructor(context: AgentContext) {
     super(context);
-    const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error('Anthropic API key not found');
+      throw new Error('OpenAI API key not found');
     }
 
-    this.model = new ChatAnthropic({
+    this.model = new ChatOpenAI({
       temperature: 0.7,
-      model: "claude-3-sonnet-20240229",
+      model: "gpt-4.1",
       apiKey: apiKey,
       maxRetries: 3,
     });

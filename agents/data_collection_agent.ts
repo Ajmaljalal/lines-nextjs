@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AgentContext, AgentResponse } from './types';
 import { ChatAnthropic } from '@langchain/anthropic';
+import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { BaseAgent } from './base_agent_data_collection';
 
@@ -17,18 +18,18 @@ const DataCollectionActionSchema = z.object({
 });
 
 export class DataCollectionAgent extends BaseAgent {
-  private model: ChatAnthropic;
+  private model: ChatOpenAI;
 
   constructor(context: AgentContext) {
     super(context);
-    const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error('Anthropic API key not found. Please set NEXT_PUBLIC_ANTHROPIC_API_KEY in your environment variables.');
+      throw new Error('OpenAI API key not found. Please set NEXT_PUBLIC_OPENAI_API_KEY in your environment variables.');
     }
 
-    this.model = new ChatAnthropic({
+    this.model = new ChatOpenAI({
       temperature: 0.7,
-      model: "claude-3-sonnet-20240229",
+      model: "gpt-4.1",
       apiKey: apiKey,
       maxRetries: 3,
     });
