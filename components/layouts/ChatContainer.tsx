@@ -79,7 +79,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                 px-4 
                 py-1
                 rounded-[12px]
-                ${msg.role === 'assistant' ? 'bg-transparent' : 'bg-zinc-100'}
+                ${msg.role === 'assistant' ? 'bg-transparent' : 'bg-muted text-foreground'}
                 ${msg.role === 'assistant' ? 'self-start' : 'self-end'}
               `}
             >

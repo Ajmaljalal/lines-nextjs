@@ -19,10 +19,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             bg-muted
             px-3 
             py-2 
-            text-sm 
+            text-base 
             text-foreground
             placeholder:text-muted-foreground !important
-            placeholder:opacity-40 !important 
+            placeholder:opacity-60 !important 
             focus-visible:outline-none 
             disabled:cursor-not-allowed 
             resize-none

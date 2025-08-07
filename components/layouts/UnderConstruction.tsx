@@ -17,7 +17,7 @@ const styles = {
     mb-4
   `,
   title: `
-    text-2xl 
+    text-3xl 
     font-semibold 
     mb-2
   `,

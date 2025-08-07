@@ -14,11 +14,11 @@ const BrandThemeButton = () => {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 bg-muted hover:bg-background text-sm font-medium h-9 px-4">
+    <div className="flex items-center gap-2 bg-muted hover:bg-background text-base font-medium h-9 px-4">
       <Button
         variant="ghost"
         onClick={() => toggleBrandThemeModal(true)}
-        className="flex items-center gap-2 bg-muted hover:bg-background text-sm font-medium h-9 px-4"
+        className="flex items-center gap-2 bg-muted hover:bg-background text-base font-medium h-9 px-4"
       >
         <Palette className="w-4 h-4 text-muted-foreground" />
         {currentTheme ? (

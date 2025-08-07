@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 const styles = {
   title: `
-    text-3xl
+    text-4xl
     text-[var(--primary-color)]
     font-bold
     flex
@@ -33,7 +33,7 @@ const Logo = () => {
     <div className={styles.title} onClick={() => router.push('/')}>
       <SendIcon />
       SendLines
-      <span className="text-xs text-primary py-1 font-medium ml-[-2px] mb-[10px]">
+      <span className="text-sm text-primary py-1 font-medium ml-[-2px] mb-[10px]">
         Beta
       </span>
     </div>

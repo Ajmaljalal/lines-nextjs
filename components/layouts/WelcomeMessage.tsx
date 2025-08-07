@@ -25,14 +25,14 @@ const styles = {
   `,
 
   title: `
-    text-5xl
+    text-6xl
     font-bold
     text-foreground
     tracking-tight
   `,
 
   subtitle: `
-    text-lg
+    text-xl
     text-muted-foreground
     text-center
     max-w-2xl
@@ -49,7 +49,7 @@ const styles = {
     rounded-[12px]
     text-white
     font-medium
-    text-lg
+    text-xl
     flex
     items-center
     gap-2

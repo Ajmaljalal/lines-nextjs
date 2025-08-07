@@ -32,7 +32,17 @@
   --popover-foreground: var(--white);
 
   --muted: #1f2937;
-  --muted-foreground: #9CA3AF;
+  --muted-foreground: #D1D5DB;
+
+  --input-background: #1f2937;
+  --input-foreground: #F9FAFB;
+
+  --primary: 249 115 22;
+  /* Orange primary color with high contrast */
+  --primary-foreground: 255 255 255;
+  --secondary: 251 146 60;
+  /* Lighter orange for secondary */
+  --secondary-foreground: 255 255 255;
 
   /* --border: #4338ca;
   --border-color: #4338ca; */
@@ -52,7 +62,17 @@
   --popover-foreground: var(--text-color);
 
   --muted: #f3f4f6;
-  --muted-foreground: #4B5563;
+  --muted-foreground: #374151;
+
+  --input-background: #FFFFFF;
+  --input-foreground: #111827;
+
+  --primary: 249 115 22;
+  /* Orange primary color */
+  --primary-foreground: 255 255 255;
+  --secondary: 251 146 60;
+  /* Lighter orange for secondary */
+  --secondary-foreground: 255 255 255;
 
   /* --border: #e0e7ff;
   --border-color: #e0e7ff; */
@@ -61,6 +81,8 @@
 body {
   background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
   color: var(--foreground);
+  font-size: 1.125rem;
+  /* 18px - increased from default 16px */
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;

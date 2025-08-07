@@ -22,12 +22,12 @@ const styles = {
     h-full
   `,
   sectionLabel: `
-    text-xs
+    text-sm
     font-semibold
-    text-[var(--primary-color)]
+    text-white
     uppercase
     tracking-wider
-    bg-gray-300
+    bg-[var(--primary-color)]
     p-2
     rounded-md
 
@@ -39,12 +39,12 @@ const styles = {
     rounded-[12px]
   `,
   sectionTitle: `
-    text-xl
+    text-2xl
     font-semibold
     text-foreground
   `,
   subtitle: `
-    text-sm
+    text-base
     text-muted-foreground
   `,
   content: `
