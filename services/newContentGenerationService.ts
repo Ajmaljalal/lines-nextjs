@@ -10,7 +10,7 @@ export const newContentGenerationService = {
       });
 
       return {
-        content: response.content,
+        content: response.content, // response.content is already an array from the API
         error: response.error
       };
     } catch (error) {

@@ -9,10 +9,10 @@ import FourthStep_SendEmail from './Step_4_SendEmail';
 import StepNavigation from './StepNavigation';
 import { useContent } from '@/context/ContentContext';
 import { Loader2 } from 'lucide-react';
-import { contentGenerationService } from '@/services/contentGenerationService';
-import { htmlGenerationService } from '@/services/htmlGenerationService';
+import { newContentGenerationService } from '@/services/newContentGenerationService';
+import { newHtmlGenerationService } from '@/services/newHtmlGenerationService';
 import { useBrandTheme } from '@/context/BrandThemeContext';
-import { TavilyService } from '@/services/tavilyService';
+import { NewTavilyService } from '@/services/newTavilyService';
 
 interface MainContentProps {
   onStepComplete: () => void;
@@ -59,7 +59,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     if (shouldSearch) {
       updateData({ loadingState: 'webSearch' });
       try {
-        const response = await TavilyService.searchWeb(localData.topic);
+        const response = await NewTavilyService.searchWeb(localData.topic);
         localData.webSearchContent = response.results.map(result => ({
           title: result.title,
           content: result.content,
@@ -76,7 +76,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     if (localData.urls?.length > 0) {
       updateData({ loadingState: 'urlExtraction' });
       try {
-        const extractionResult = await TavilyService.extractContent(localData.urls);
+        const extractionResult = await NewTavilyService.extractContent(localData.urls);
         localData.urlsExtractedContent = extractionResult.results.map(item => item.raw_content);
         updateData({ urlsExtractedContent: localData.urlsExtractedContent });
       } catch (error) {
@@ -88,7 +88,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     // Generate the final content
     updateData({ loadingState: 'contentGeneration' });
     try {
-      const result = await contentGenerationService.generateContent(localData);
+      const result = await newContentGenerationService.generateContent(localData);
       if (result.error) {
         throw new Error(result.error);
       }
@@ -106,7 +106,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
       setIsGenerating(true);
       setError(null);
 
-      const result = await htmlGenerationService.generateHtml(data, currentTheme);
+      const result = await newHtmlGenerationService.generateHtml(data, currentTheme);
       if (result.error) {
         throw new Error(result.error);
       }

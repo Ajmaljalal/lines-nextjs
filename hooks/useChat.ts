@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useContent } from '@/context/ContentContext';
 import { useBrandTheme } from '@/context/BrandThemeContext';
-import { ChatService } from '@/services/chatService';
+import { NewChatService } from '@/services/newChatService';
 import { useChatContext } from '@/context/ChatContext';
 
 export const useChat = () => {
@@ -12,7 +12,7 @@ export const useChat = () => {
 
   // Initialize chat service with brand theme
   const chatService = useMemo(() =>
-    new ChatService(data, currentStep, currentTheme),
+    new NewChatService(data, currentStep, currentTheme),
     [data, currentStep, currentTheme]
   );
 
