@@ -1,41 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { UrlExtractionRequestSchema } from '@/lib/schemas';
+import { TavilyServerService } from '@/server/services/tavily-service';
+import { serverErrorHandler } from '@/server/utils/error-handler';
+import { logger } from '@/server/utils/logger';
+import { withAuth } from '@/lib/auth-middleware';
 
-// Request schema for URL extraction service
-const requestSchema = z.object({
-  urls: z.array(z.string().url('Invalid URL format')).min(1, 'At least one URL is required')
-});
+async function urlExtractionHandler(req: NextRequest) {
+  const requestLogger = logger.withRequest(req);
 
-export async function POST(req: NextRequest) {
   try {
     // Validate request body
     const body = await req.json();
-    const validatedData = requestSchema.parse(body);
+    const validatedData = UrlExtractionRequestSchema.parse(body);
 
-    // TODO: Implement server-side URL content extraction using Tavily
-    // For now, return a placeholder response
+    requestLogger.info('URL extraction request received', {
+      urlCount: validatedData.urls.length,
+      urls: validatedData.urls
+    });
+
+    // Execute URL content extraction using Tavily
+    const extractionResults = await TavilyServerService.extractContent(validatedData.urls);
+
+    // Transform results to match our schema
+    const results = extractionResults.results.map(result => ({
+      url: result.url,
+      title: undefined, // Tavily extract doesn't return titles
+      raw_content: result.raw_content,
+      status_code: 200
+    }));
+
+    // Log any failed extractions
+    if (extractionResults.failed_results.length > 0) {
+      requestLogger.warn('Some URL extractions failed', {
+        failedUrls: extractionResults.failed_results.map(f => ({ url: f.url, error: f.error }))
+      });
+    }
+
+    requestLogger.info('URL extraction completed successfully', {
+      successCount: results.length,
+      failedCount: extractionResults.failed_results.length,
+      responseTime: extractionResults.response_time
+    });
+
     return NextResponse.json({
-      results: validatedData.urls.map(url => ({
-        url,
-        title: "Placeholder title",
-        raw_content: "URL content extraction implementation will be moved here from TavilyService",
-        status_code: 200
-      })),
+      results,
       error: null
     });
   } catch (error) {
-    console.error('URL extraction service error:', error);
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return serverErrorHandler(error, { endpoint: 'POST /api/services/url-extraction' });
   }
 }
+
+export const POST = withAuth(urlExtractionHandler);

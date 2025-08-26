@@ -1,72 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { ChatAgentRequestSchema } from '@/lib/schemas';
+import { AgentFactory } from '@/server/agents/base/agent-factory';
+import { serverErrorHandler } from '@/server/utils/error-handler';
+import { logger } from '@/server/utils/logger';
+import { withAuth } from '@/lib/auth-middleware';
 
-// Request schema for design agent
-const requestSchema = z.object({
-  message: z.string(),
-  context: z.object({
-    messages: z.array(z.object({
-      role: z.enum(['user', 'assistant']),
-      content: z.string()
-    })),
-    data: z.object({
-      id: z.string().optional(),
-      userId: z.string().optional(),
-      topic: z.string().optional(),
-      userProvidedContent: z.string().optional(),
-      generatedContent: z.string().optional(),
-      htmlContent: z.string().optional(),
-      urls: z.array(z.string()).optional(),
-      style: z.string().optional(),
-      webSearch: z.boolean().optional(),
-      webSearchContent: z.array(z.object({
-        title: z.string(),
-        content: z.string(),
-        url: z.string()
-      })).optional(),
-      urlsExtractedContent: z.array(z.string()).optional(),
-      contentType: z.string().optional()
-    })
-  }),
-  brandTheme: z.object({
-    primaryColor: z.string(),
-    secondaryColor: z.string(),
-    accentColor: z.string(),
-    textColor: z.string(),
-    backgroundColor: z.string(),
-    logoUrl: z.string().optional(),
-    websiteUrl: z.string().optional(),
-    unsubscribeUrl: z.string().optional(),
-    socialMediaUrls: z.record(z.string()).optional()
-  }).optional()
-});
+async function designHandler(req: NextRequest) {
+  const requestLogger = logger.withRequest(req);
 
-export async function POST(req: NextRequest) {
   try {
     // Validate request body
     const body = await req.json();
-    const validatedData = requestSchema.parse(body);
+    const validatedData = ChatAgentRequestSchema.parse(body);
 
-    // TODO: Create and execute design agent on server side
-    // For now, return a placeholder response
+    requestLogger.info('Design agent request received', {
+      hasMessage: !!validatedData.message,
+      dataKeys: Object.keys(validatedData.context.data)
+    });
+
+    // Create and execute design agent
+    const agent = AgentFactory.createAgent('design', validatedData.context);
+
+    const result = await agent.execute({
+      data: validatedData.context.data,
+      messages: [{ role: 'user', content: validatedData.message }],
+      brandTheme: validatedData.brandTheme,
+      userInput: validatedData.message
+    });
+
+    requestLogger.info('Design agent completed successfully');
+
     return NextResponse.json({
-      content: "Design agent response will be implemented here",
-      metadata: {},
-      error: null
+      content: result.content,
+      metadata: result.metadata,
+      error: result.error
     });
   } catch (error) {
-    console.error('Design agent error:', error);
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return serverErrorHandler(error, { endpoint: 'POST /api/agents/design' });
   }
 }
+
+export const POST = withAuth(designHandler);
