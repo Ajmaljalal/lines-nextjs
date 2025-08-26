@@ -1,12 +1,7 @@
 import { BaseAgent } from '../base_agent';
 import { AgentContext, AgentResponse } from '../types';
 import { ChatAnthropic } from '@langchain/anthropic';
-import { z } from "zod";
 import { BrandTheme } from '@/types/BrandTheme';
-import { ChatOpenAI } from '@langchain/openai';
-const marketingHtmlSchema = z.object({
-  html: z.string()
-});
 
 export class MarketingHtmlGeneratorAgent extends BaseAgent {
   private model: ChatAnthropic;
@@ -72,7 +67,7 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     return `
     <prompt>
       <role>
-        You are an expert marketing email designer known for creating high-converting, visually striking designs that drive action. You will be given text content and your job is to put them into a html email. Produce a professional HTML marketing email that follows the core requirements, brand guidelines, and content instructions below. Focus on creating a design that guides readers towards the main call-to-action.
+        You are an expert marketing email designer known for creating high-converting, visually striking designs that drive action. You will be given content of an email and your job is to put them into an html email. Produce a professional HTML marketing email that follows the core requirements, brand guidelines, and content instructions below. Focus on creating a design that guides readers towards the main call-to-action.
       </role>
 
       <main_goal>
@@ -131,7 +126,8 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
       </marketing_content>
 
       <output_instructions>
-        Return only the complete HTML code without any explanations or comments.
+        Return only the complete HTML code without any explanations, comments, or markdown formatting. 
+        Do not wrap the HTML in code blocks or JSON. Return the raw HTML directly.
       </output_instructions>
     </prompt>
   `;
@@ -150,12 +146,29 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     try {
       const prompt = this.generatePrompt();
 
-      const structuredModel = this.model.withStructuredOutput(marketingHtmlSchema);
-      const response = await structuredModel.invoke([
+      // Use direct model invocation instead of structured output
+      const response = await this.model.invoke([
         { role: 'user', content: prompt }
       ]);
 
-      return this.processResponse(response);
+      // Extract HTML content from the response
+      // TODO: make sure it is a structured response or pass to another llm for validation
+      const content = response.content as string;
+
+      // Try to parse as JSON first (in case it's wrapped)
+      let htmlContent = content;
+      try {
+        const parsed = JSON.parse(content);
+        if (parsed.html) {
+          htmlContent = parsed.html;
+        }
+      } catch {
+        // If it's not JSON, use the content directly
+        // Remove any markdown code blocks if present
+        htmlContent = content.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+      }
+
+      return this.processResponse({ html: htmlContent });
     } catch (error) {
       console.error('Marketing HTML generator agent execution error:', error);
       return {
