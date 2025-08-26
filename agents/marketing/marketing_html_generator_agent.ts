@@ -10,9 +10,13 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
     this.brandTheme = brandTheme;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('Anthropic API key not found');
+    }
     this.model = new ChatAnthropic({
       model: "claude-sonnet-4-20250514",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      apiKey: apiKey,
       maxRetries: 3,
       topP: 1
     });

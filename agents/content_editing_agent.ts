@@ -18,7 +18,7 @@ export class ContentEditingAgent extends BaseAgent {
 
   constructor(context: AgentContext) {
     super(context);
-    const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       throw new Error('Anthropic API key not found');
     }
@@ -26,7 +26,7 @@ export class ContentEditingAgent extends BaseAgent {
     this.model = new ChatAnthropic({
       temperature: 0.7,
       model: "claude-sonnet-4-20250514",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      apiKey: apiKey,
       maxRetries: 3,
     });
   }

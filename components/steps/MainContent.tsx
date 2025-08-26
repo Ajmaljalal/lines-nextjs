@@ -88,6 +88,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     // Generate the final content
     updateData({ loadingState: 'contentGeneration' });
     try {
+      // Don't pass brandTheme for content generation - it's not needed yet
       const result = await newContentGenerationService.generateContent(localData);
       if (result.error) {
         throw new Error(result.error);

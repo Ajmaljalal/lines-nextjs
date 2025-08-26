@@ -38,10 +38,15 @@ export class NewChatService {
     try {
       const endpoint = this.getAgentEndpoint();
 
+      // Only include brandTheme for design and HTML generation steps
+      const needsBrandTheme = this.currentStep === EmailCreationStep.DESIGN;
+
       const request = {
         message,
-        context: this.context,
-        brandTheme: this.brandTheme || undefined
+        context: {
+          ...this.context,
+          brandTheme: needsBrandTheme ? this.brandTheme : undefined
+        }
       };
 
       let response;

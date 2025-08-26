@@ -19,7 +19,7 @@ export class DesignAgent extends BaseAgent {
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
     this.brandTheme = brandTheme;
-    const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       throw new Error('Anthropic API key not found');
     }
@@ -27,7 +27,7 @@ export class DesignAgent extends BaseAgent {
     this.model = new ChatAnthropic({
       temperature: 0.5,
       model: "claude-3-5-sonnet-20241022",
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      apiKey: apiKey,
       maxRetries: 3,
       maxTokens: 8192,
       // reasoningEffort: "medium",

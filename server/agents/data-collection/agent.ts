@@ -26,6 +26,8 @@ export class DataCollectionServerAgent extends BaseServerAgent {
 
     // Use server-side environment variables (without NEXT_PUBLIC prefix)
     const apiKey = process.env.OPENAI_API_KEY;
+    console.log('Debug - OPENAI_API_KEY exists:', !!apiKey);
+    console.log('Debug - All env keys:', Object.keys(process.env).filter(key => key.includes('OPENAI')));
     if (!apiKey) {
       throw new Error('OpenAI API key not found. Please set OPENAI_API_KEY in your environment variables.');
     }

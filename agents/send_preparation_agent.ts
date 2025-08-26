@@ -19,7 +19,7 @@ export class SendPreparationAgent extends BaseAgent {
 
   constructor(context: AgentContext) {
     super(context);
-    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error('OpenAI API key not found');
     }

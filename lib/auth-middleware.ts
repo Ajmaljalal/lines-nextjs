@@ -19,18 +19,21 @@ export async function authenticateRequest(req: NextRequest): Promise<{
   error?: string
 }> {
   try {
-    // For now, we'll check for a simple API key or session
-    // In production, this should validate JWT tokens or Firebase Auth tokens
+    // For development, we'll be more permissive with authentication
     const authHeader = req.headers.get('authorization');
     const sessionCookie = req.cookies.get('session');
 
-    if (!authHeader && !sessionCookie) {
+    // TODO: Implement proper authentication logic
+    // For now, we'll allow all requests to pass through during development
+    // In production, you should validate JWT tokens or Firebase Auth tokens
+
+    // Check if we're in development mode or if proper auth is provided
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const hasAuth = authHeader || sessionCookie;
+
+    if (!isDevelopment && !hasAuth) {
       return { authenticated: false, error: 'No authentication provided' };
     }
-
-    // TODO: Implement proper authentication logic
-    // For now, we'll allow all requests to pass through
-    // This should be replaced with actual authentication validation
 
     return {
       authenticated: true,

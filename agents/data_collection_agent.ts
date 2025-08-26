@@ -22,7 +22,7 @@ export class DataCollectionAgent extends BaseAgent {
 
   constructor(context: AgentContext) {
     super(context);
-    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error('OpenAI API key not found. Please set NEXT_PUBLIC_OPENAI_API_KEY in your environment variables.');
     }

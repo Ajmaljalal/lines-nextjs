@@ -1,12 +1,13 @@
 import { ContentData } from '@/types/EmailContent';
+import { BrandTheme } from '@/types/BrandTheme';
 import { agentService } from './api/agent-service';
 
 export const newContentGenerationService = {
-  async generateContent(data: ContentData): Promise<{ content: string[]; error?: string }> {
+  async generateContent(data: ContentData, brandTheme?: BrandTheme | null): Promise<{ content: string[]; error?: string }> {
     try {
       const response = await agentService.contentGeneration({
         data,
-        brandTheme: undefined // Will be passed from context if available
+        brandTheme: brandTheme || undefined
       });
 
       return {

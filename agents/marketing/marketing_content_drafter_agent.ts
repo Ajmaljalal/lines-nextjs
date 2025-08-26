@@ -46,7 +46,7 @@ export class MarketingContentDrafterAgent extends BaseAgent {
     this.model = new ChatOpenAI({
       // temperature: 0.3,
       model: "o3-mini",
-      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY,
       reasoningEffort: "medium",
       // maxRetries: 3,
       // maxTokens: 8192,
