@@ -45,12 +45,6 @@ export class DataCollectionServerAgent extends BaseServerAgent {
   }
 
   protected generatePrompt(userInput: string): string {
-    // if (!userInput) {
-    //   throw new Error('User input is required');
-    // }
-
-    console.log("context", this.context);
-
     const { topic, userProvidedContent, urls, style, webSearch } = this.context.data;
 
     return `
@@ -84,11 +78,15 @@ export class DataCollectionServerAgent extends BaseServerAgent {
     4. Extract company names as topics (e.g., "apex academy" → topic: "Apex Academy")
     5. Extract all URLs, even partial ones
 
-    Conversation with the user so far: ${this.context.messages.map(message => message.content).join('\n')}
+         CONVERSATION HISTORY:
+     ${this.context.messages.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+     
 
-    Current form: Topic: ${topic || 'Not filled'}, URLs: ${(urls?.length ?? 0) > 0 ? urls!.join(', ') : 'None'}
-    
-    Now based on the above context and the conversation with the user, act as on the user request: ${userInput}
+     Current state of the data so far collected: Topic: ${topic || 'Not filled'}, URLs: ${(urls?.length ?? 0) > 0 ? urls!.join(', ') : 'None'}
+     
+     Understand the user's request and extract information or engage in conversation with the user to gather more information.
+
+     CURRENT USER MESSAGE: "${userInput}"
 
     `
   }
@@ -96,10 +94,6 @@ export class DataCollectionServerAgent extends BaseServerAgent {
   protected async callLLM(prompt: string): Promise<string> {
     // Use structured output to ensure proper JSON formatting
     const structuredModel = this.model.withStructuredOutput(DataCollectionActionSchema);
-
-    console.log('🔍 DEBUG - Full prompt being sent to LLM:');
-    console.log(prompt);
-    console.log('🔍 END DEBUG');
 
     const result = await structuredModel.invoke([
       new SystemMessage('You are a helpful AI assistant that extracts information from user messages.'),

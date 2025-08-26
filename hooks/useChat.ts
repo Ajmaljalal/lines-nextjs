@@ -10,18 +10,30 @@ export const useChat = () => {
   const { messages, addMessage, clearMessages } = useChatContext();
   const [isSending, setIsSending] = useState(false);
 
-  // Initialize chat service with brand theme
-  const chatService = useMemo(() =>
-    new NewChatService(data, currentStep, currentTheme),
-    [data, currentStep, currentTheme]
-  );
+  // Initialize chat service and preserve it across renders
+  const chatService = useMemo(() => {
+    const service = new NewChatService(data, currentStep, currentTheme);
+    return service;
+  }, [currentStep]); // Only recreate when step changes, not when data changes
+
+  // Update the chat service's data when content data changes
+  useMemo(() => {
+    if (chatService) {
+      chatService.updateData(data);
+      chatService.updateBrandTheme(currentTheme);
+    }
+  }, [data, currentTheme, chatService]);
 
   const sendMessage = useCallback(async (content: string) => {
     try {
       setIsSending(true);
+
+      // Add user message to UI
       addMessage({ role: 'user', content, type: 'user' });
 
       const response = await chatService.processMessage(content);
+
+      // Add assistant response to UI
       addMessage({ role: 'assistant', content: response.message, type: 'assistant' });
 
       if (response.metadata?.updates) {

@@ -38,6 +38,9 @@ export class NewChatService {
     try {
       const endpoint = this.getAgentEndpoint();
 
+      // Add the user message to context BEFORE sending to API
+      this.context.messages.push({ role: 'user', content: message });
+
       // Only include brandTheme for design and HTML generation steps
       const needsBrandTheme = this.currentStep === EmailCreationStep.DESIGN;
 
@@ -71,11 +74,8 @@ export class NewChatService {
         throw new Error(response.error);
       }
 
-      // Update local context with the response
-      this.context.messages.push(
-        { role: 'user', content: message },
-        { role: 'assistant', content: response.content }
-      );
+      // Add assistant response to context
+      this.context.messages.push({ role: 'assistant', content: response.content });
 
       return {
         message: response.content,
@@ -93,5 +93,14 @@ export class NewChatService {
 
   public clearConversation() {
     this.context.messages = [];
+  }
+
+  public updateData(newData: ContentData) {
+    this.context.data = newData;
+  }
+
+  public updateBrandTheme(newBrandTheme: BrandTheme | null) {
+    this.brandTheme = newBrandTheme;
+    this.context.brandTheme = newBrandTheme || undefined;
   }
 }

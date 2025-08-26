@@ -46,13 +46,8 @@ export abstract class BaseServerAgent implements IAgent {
         this.context.messages = [...this.context.messages, ...input.messages];
       }
 
-      const prompt = this.generatePrompt();
+      const prompt = this.generatePrompt(input.userInput);
       const response = await this.callLLM(prompt);
-
-      this.context.messages.push({
-        role: 'assistant',
-        content: response
-      });
 
       const processedResponse = this.processResponse(response);
 

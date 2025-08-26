@@ -21,10 +21,17 @@ async function dataCollectionHandler(req: NextRequest) {
     // Create and execute data collection agent
     const agent = AgentFactory.createAgent('data-collection', validatedData.context);
 
+    // Combine existing messages with the new message
+    const allMessages = [
+      ...validatedData.context.messages,
+      { role: 'user' as const, content: validatedData.message }
+    ];
+
     const result = await agent.execute({
       data: validatedData.context.data,
-      messages: [{ role: 'user', content: validatedData.message }],
-      brandTheme: validatedData.brandTheme
+      messages: allMessages,
+      brandTheme: validatedData.brandTheme,
+      userInput: validatedData.message
     });
 
     requestLogger.info('Data collection agent completed successfully');
