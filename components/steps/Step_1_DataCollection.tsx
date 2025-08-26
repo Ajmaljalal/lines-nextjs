@@ -140,7 +140,7 @@ const FirstStep_DataCollection: React.FC = () => {
     updateData({ style: newStyle });
   };
 
-  const topicLabel = data.contentType === 'newsletter' ? 'Newsletter Topic' : 'Email Topic';
+  const topicLabel = 'Email Topic';
 
   return (
     <form className={styles.container}>

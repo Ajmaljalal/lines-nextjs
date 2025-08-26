@@ -64,7 +64,7 @@ const ContentEditor = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const contentId = searchParams.get('id');
-  const contentType = searchParams.get('type') as 'newsletter' | 'marketing' || 'newsletter';
+  const contentType = searchParams.get('type') as 'marketing' || 'marketing';
   const { currentStep, setCurrentStep, updateData, data } = useContent();
   const { messages, isSending, sendMessage } = useChat();
 

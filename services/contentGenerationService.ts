@@ -1,4 +1,3 @@
-import { ContentDrafterAgent } from '@/agents/newsletter/content_drafter_agent';
 import { MarketingContentDrafterAgent } from '@/agents/marketing/marketing_content_drafter_agent';
 import { TavilyService } from '@/services/tavilyService';
 import { ContentData } from '@/types/EmailContent';
@@ -9,48 +8,29 @@ export const contentGenerationService = {
       // 1. If there are URLs, extract content from them
       if (data.urls && data.urls.length > 0) {
         const extractionResult = await TavilyService.extractContent(data.urls);
-        // Store the raw_content in the newsletter object
+        // Store the raw_content in the email object
         data.urlsExtractedContent = extractionResult.results.map(item => item.raw_content);
       }
 
-      // 2. Create the appropriate agent based on content type
-      const agent = data.contentType === 'marketing'
-        ? new MarketingContentDrafterAgent({
-          messages: [],
-          data: {
-            id: data.id,
-            userId: data.userId,
-            status: data.status,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            topic: data.topic,
-            userProvidedContent: data.userProvidedContent,
-            urls: data.urls,
-            style: data.style,
-            webSearch: data.webSearch,
-            webSearchContent: data.webSearchContent,
-            urlsExtractedContent: data.urlsExtractedContent,
-            contentType: data.contentType
-          }
-        })
-        : new ContentDrafterAgent({
-          messages: [],
-          data: {
-            id: data.id,
-            userId: data.userId,
-            status: data.status,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            topic: data.topic,
-            userProvidedContent: data.userProvidedContent,
-            urls: data.urls,
-            style: data.style,
-            webSearch: data.webSearch,
-            webSearchContent: data.webSearchContent,
-            urlsExtractedContent: data.urlsExtractedContent,
-            contentType: data.contentType
-          }
-        });
+      // 2. Create the marketing content drafter agent
+      const agent = new MarketingContentDrafterAgent({
+        messages: [],
+        data: {
+          id: data.id,
+          userId: data.userId,
+          status: data.status,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          topic: data.topic,
+          userProvidedContent: data.userProvidedContent,
+          urls: data.urls,
+          style: data.style,
+          webSearch: data.webSearch,
+          webSearchContent: data.webSearchContent,
+          urlsExtractedContent: data.urlsExtractedContent,
+          contentType: data.contentType
+        }
+      });
 
       // 3. Execute the agent, which will handle the content drafting
       const response = await agent.execute();

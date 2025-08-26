@@ -39,7 +39,7 @@ export class ContentEditingAgent extends BaseAgent {
     return `
     <prompt>
       <role>
-        You are an AI assistant helping to edit newsletter content. You will receive the current content and a request for changes.
+        You are an AI assistant helping to edit email content. You will receive the current content and a request for changes.
       </role>
 
       <current_content>
@@ -51,7 +51,7 @@ export class ContentEditingAgent extends BaseAgent {
       </user_request>
 
       <task>
-        Update the newsletter content based on the user's request. Return the COMPLETE updated content structure.
+        Update the email content based on the user's request. Return the COMPLETE updated content structure.
         Maintain the same JSON structure but with the requested changes applied.
       </task>
 
@@ -59,7 +59,7 @@ export class ContentEditingAgent extends BaseAgent {
         Return a JSON object with:
         {
           "updatedContent": {
-            // The complete newsletter content structure with changes
+            // The complete email content structure with changes
           },
           "message": "Explanation of changes made"
         }

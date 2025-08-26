@@ -15,21 +15,11 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
   constructor(context: AgentContext, brandTheme: BrandTheme | null) {
     super(context);
     this.brandTheme = brandTheme;
-    //   this.model = new ChatAnthropic({
-    //     temperature: 0.5,
-    //     model: "claude-3-5-sonnet-20241022",
-    //     apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
-    //     maxRetries: 3,
-    //     maxTokens: 8192,
-    //   });
     this.model = new ChatAnthropic({
-      temperature: 1,
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
       maxRetries: 3,
-      // reasoningEffort: "medium",
-
-      // maxCompletionTokens: 8192,
+      topP: 1
     });
   }
 

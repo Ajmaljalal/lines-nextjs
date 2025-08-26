@@ -368,14 +368,14 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.error || responseData.details || 'Failed to send newsletter');
+        throw new Error(responseData.error || responseData.details || 'Failed to send email');
       }
 
       await saveEmail('sent');
       router.push('/'); // Redirect to home after successful send
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to send newsletter');
-      console.error('Send newsletter error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to send email');
+      console.error('Send email error:', error);
     } finally {
       setIsSending(false);
     }

@@ -4,9 +4,9 @@ import { EmailCreationStep } from '@/components/steps/StepsIndicator';
 
 export async function POST(request: Request) {
   try {
-    const { user_input, step, newsletter_data } = await request.json();
+    const { user_input, step, email_data } = await request.json();
 
-    if (!user_input || !step || !newsletter_data) {
+    if (!user_input || !step || !email_data) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     const chatService = new ChatService(
-      newsletter_data,
+      email_data,
       step as EmailCreationStep
     );
 

@@ -45,7 +45,7 @@ export class DesignAgent extends BaseAgent {
     return `
     <prompt>
       <role>
-        You are an expert HTML email designer. Help update the newsletter design based on the user requests.
+        You are an expert HTML email designer. Help update the email design based on the user requests.
       </role>
 
       <current_html>
@@ -63,7 +63,7 @@ export class DesignAgent extends BaseAgent {
       ` : ''}
 
       <task>
-        Update the newsletter HTML based on the user's request.
+        Update the email HTML based on the user's request.
         Return the complete updated HTML while maintaining email compatibility.
         Only modify the specific elements mentioned in the user request.
       </task>

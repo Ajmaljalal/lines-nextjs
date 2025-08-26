@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "SendLines",
-  description: "Your assistant in generating beautifully designed emails & newsletters.",
+  description: "Your assistant in generating beautifully designed email campaigns.",
 };
 
 export default function RootLayout({

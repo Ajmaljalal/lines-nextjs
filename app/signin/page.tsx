@@ -111,7 +111,7 @@ const SignIn: React.FC = () => {
       </div>
       <h1 className={styles.title}>Welcome to SendLines</h1>
       <h3 className={styles.subtitle}>
-        Your intelligent assistant in crafting beautifully designed emails & newsletters.
+        Your intelligent assistant in crafting beautifully designed email campaigns.
       </h3>
 
       <Button

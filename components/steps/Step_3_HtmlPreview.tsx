@@ -52,7 +52,7 @@ const ThirdStep_HtmlPreview: React.FC = () => {
         srcDoc={data.htmlContent}
         className={styles.iframe}
         sandbox="allow-same-origin"
-        title="Newsletter Preview"
+        title="Email Preview"
         style={{
           scrollbarWidth: 'thin'
         }}

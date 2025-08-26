@@ -23,7 +23,7 @@ export interface AgentContext {
   brandTheme?: BrandTheme | null;
 }
 
-export interface NewsletterPlan {
+export interface EmailPlan {
   title: string;
   sections: {
     title: string;

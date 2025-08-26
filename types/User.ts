@@ -4,7 +4,7 @@ interface DbUser {
   email: string;
   businessName: string | null;
   businessType: string | null;
-  emailType: 'newsletter' | 'email_marketing' | null;
+  emailType: 'email_marketing' | null;
   imageUrl: string | null;
   phone: string | null;
   createdAt: Date;

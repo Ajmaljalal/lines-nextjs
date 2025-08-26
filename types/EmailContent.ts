@@ -38,7 +38,7 @@ export interface ContentData {
   id: string;
   userId: string;
   topic: string;
-  contentType: 'newsletter' | 'marketing';
+  contentType: 'marketing';
   userProvidedContent: string;
   webSearch: boolean;
   webSearchContent: {

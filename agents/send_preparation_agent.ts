@@ -48,7 +48,7 @@ export class SendPreparationAgent extends BaseAgent {
     return `
     <prompt>
       <role>
-        You are an AI assistant helping to prepare a newsletter for sending.
+        You are an AI assistant helping to prepare an email for sending.
         Your task is to help the user set up the sender details, subject line, and email addresses.
       </role>
 
@@ -72,7 +72,7 @@ export class SendPreparationAgent extends BaseAgent {
       </available_actions>
 
       <requirements>
-        <rule>If no sender/subject/email is set, suggest appropriate ones based on the newsletter content</rule>
+        <rule>If no sender/subject/email is set, suggest appropriate ones based on the email content</rule>
         <rule>If the user mentions a name, update senderName</rule>
         <rule>If the user mentions a subject, update subject</rule>
         <rule>If the user mentions an email, update fromEmail</rule>

@@ -68,11 +68,11 @@ const styles = {
   `,
 };
 
-interface FourthStep_SendNewsletterProps {
+interface FourthStep_SendEmailProps {
   onComplete?: () => void;
 }
 
-const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ onComplete }) => {
+const FourthStep_SendEmail: React.FC<FourthStep_SendEmailProps> = ({ onComplete }) => {
   const { data, updateData } = useContent();
   const { user } = useAuth();
   const [senderName, setSenderName] = useState(data.senderName || '');
@@ -193,4 +193,4 @@ const FourthStep_SendNewsletter: React.FC<FourthStep_SendNewsletterProps> = ({ o
   );
 };
 
-export default FourthStep_SendNewsletter;
+export default FourthStep_SendEmail;

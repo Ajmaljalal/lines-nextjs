@@ -3,12 +3,12 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { Button } from './button';
-import { Mail, Newspaper } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 interface EmailTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (type: 'newsletter' | 'marketing') => void;
+  onSelect: (type: 'marketing') => void;
 }
 
 const styles = {
@@ -63,27 +63,19 @@ export const EmailTypeModal: React.FC<EmailTypeModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] p-0 rounded-[12px] overflow-hidden">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-xl font-bold">Choose Email Type</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Create New Email</DialogTitle>
         </DialogHeader>
         <div className={styles.optionsContainer}>
           <button className={styles.option} onClick={() => onSelect('marketing')}>
             <div className={styles.iconContainer}>
               <Mail className="w-6 h-6" />
             </div>
-            <span className={styles.title}>Marketing Email</span>
+            <span className={styles.title}>Email Campaign</span>
             <p className={styles.description}>
-              Create a targeted marketing email to promote your products or services
+              Create a targeted email to promote your products, services, or share content with your subscribers
             </p>
           </button>
-          <button className={styles.option} onClick={() => onSelect('newsletter')}>
-            <div className={styles.iconContainer}>
-              <Newspaper className="w-6 h-6" />
-            </div>
-            <span className={styles.title}>Newsletter</span>
-            <p className={styles.description}>
-              Create a newsletter with curated content and updates for your subscribers
-            </p>
-          </button>
+
 
         </div>
       </DialogContent>

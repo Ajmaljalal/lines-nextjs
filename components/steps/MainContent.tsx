@@ -5,7 +5,7 @@ import { EmailCreationStep } from './StepsIndicator';
 import FirstStep_DataCollection from './Step_1_DataCollection';
 import SecondStep_ContentDrafting from './Step_2_ContentDrafting';
 import ThirdStep_HtmlPreview from './Step_3_HtmlPreview';
-import FourthStep_SendNewsletter from './Step_4_SendNewsletter';
+import FourthStep_SendEmail from './Step_4_SendEmail';
 import StepNavigation from './StepNavigation';
 import { useContent } from '@/context/ContentContext';
 import { Loader2 } from 'lucide-react';
@@ -160,7 +160,7 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
       case EmailCreationStep.DESIGN:
         return <ThirdStep_HtmlPreview />;
       case EmailCreationStep.SEND:
-        return <FourthStep_SendNewsletter onComplete={onStepComplete} />;
+        return <FourthStep_SendEmail onComplete={onStepComplete} />;
       default:
         return null;
     }

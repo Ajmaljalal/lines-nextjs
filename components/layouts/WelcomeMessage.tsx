@@ -64,10 +64,10 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
-  const handleContentTypeSelect = async (type: 'newsletter' | 'marketing') => {
-    const newsletterId = uuidv4();
+  const handleContentTypeSelect = async (type: 'marketing') => {
+    const emailId = uuidv4();
     await onStartNew();
-    router.push(`/editor?id=${newsletterId}&type=${type}`);
+    router.push(`/editor?id=${emailId}&type=${type}`);
     setShowModal(false);
   };
 
@@ -84,7 +84,7 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onStartNew }) => {
       </div>
       <h1 className={styles.title}>Welcome to SendLines</h1>
       <h3 className={styles.subtitle}>
-        Your intelligent assistant in crafting beautifully designed emails & newsletters.
+        Your intelligent assistant in crafting beautifully designed email campaigns.
       </h3>
       <Button
         onClick={() => setShowModal(true)}

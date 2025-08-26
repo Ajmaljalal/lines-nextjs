@@ -41,7 +41,7 @@ export class DataCollectionAgent extends BaseAgent {
     return `
     <prompt>
       <role>
-        You are an AI assistant helping to gather information for a newsletter.
+        You are an AI assistant helping to gather information for an email campaign.
       </role>
 
       <current_state>
@@ -57,7 +57,7 @@ export class DataCollectionAgent extends BaseAgent {
       </user_input>
 
       <available_actions>
-        <action>Update the newsletter topic</action>
+        <action>Update the email topic</action>
         <action>Update the user-provided content</action>
         <action>Add a reference URL</action>
         <action>Update the style preferences</action>
@@ -109,7 +109,7 @@ export class DataCollectionAgent extends BaseAgent {
       const parsedResponse = JSON.parse(response);
       const validatedResponse = DataCollectionActionSchema.parse(parsedResponse);
 
-      // Update the newsletter data based on the action
+      // Update the email data based on the action
       const updates: Record<string, any> = {};
       switch (validatedResponse.action) {
         case 'UPDATE_TOPIC':
