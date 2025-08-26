@@ -12,6 +12,7 @@ async function contentGenerationHandler(req: NextRequest) {
     // Validate request body
     const body = await req.json();
     const validatedData = ContentGenerationRequestSchema.parse(body);
+    console.log('🔍 VALIDATED DATA', validatedData);
 
     requestLogger.info('Content generation agent request received', {
       topic: validatedData.data.topic,

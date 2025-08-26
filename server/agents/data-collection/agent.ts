@@ -38,100 +38,81 @@ export class DataCollectionServerAgent extends BaseServerAgent {
 
     this.model = new ChatOpenAI({
       temperature: config.temperature || 0.7,
-      model: config.model || "gpt-4o-mini",
+      model: config.model || "gpt-4o",
       apiKey: apiKey,
       maxRetries: config.maxRetries || 3,
     });
   }
 
-  protected generatePrompt(userInput?: string): string {
+  protected generatePrompt(userInput: string): string {
+    // if (!userInput) {
+    //   throw new Error('User input is required');
+    // }
+
+    console.log("context", this.context);
+
     const { topic, userProvidedContent, urls, style, webSearch } = this.context.data;
 
     return `
-    <prompt>
-      <role>
-        You are an intelligent data extraction assistant for email marketing campaigns. Your job is to analyze user messages and extract ALL relevant information to fill out an email campaign form. You should extract multiple pieces of information from a single message when possible.
-      </role>
+    You are a data collection agent. Your job is to extract the information from your conversation with the user.
+    You will need to extract the topic, urls, content, style, and webSearch from your conversation with the user.
 
-      <current_form_state>
-        <topic>${topic || 'Not filled'}</topic>
-        <content>${userProvidedContent || 'Not filled'}</content>
-        <urls>${(urls?.length ?? 0) > 0 ? urls!.join(', ') : 'None'}</urls>
-        <style>${style || 'Not specified'}</style>
-        <web_search>${webSearch ? 'Enabled' : 'Not set'}</web_search>
-      </current_form_state>
+    EXTRACT THESE DETAILS:
+    - Topic: What is the email about? extract the email topic from the message, if you don't find the topic, ask the user for the topic
+    - URLs: ANY web addresses mentioned (https://, http://, www., .com, .org, etc.) extract the urls from the message, if you don't find the urls, ask the user if they want to add any urls
+    - Content: Specific details they want included, extract the content from the message, if you don't find the content, ask the user if they want to add any content
+    - Style: Writing preferences mentioned, extract the writing style from the message, if you don't find the style, ask the user for the style
+    - WebSearch: Do they want additional information? extract the web search true or false from the message, if you don't find the web search, ask the user if they want to add any web search
 
-      <user_message>
-        ${userInput || ''}
-      </user_message>
+    EXAMPLES OF EXTRACTION:
+    "write an email about apex academy https://apexacademy.tech/" 
+    → Topic: "Apex Academy", URLs: ["https://apexacademy.tech/"], WebSearch: true
 
-      <extraction_instructions>
-        Analyze the user's message and extract:
-        1. **Topic**: What is the email about? Extract the main subject/theme
-        2. **Content**: Any specific content, descriptions, or details they want included
-        3. **URLs**: Any websites, links, or domains mentioned (including https://, http://, www., or just domain names)
-        4. **Style**: Any style preferences (formal, casual, professional, friendly, persuasive, etc.)
-        5. **Web Search**: Do they want you to search for additional information?
+    "it is about apex academy"
+    → Topic: "Apex Academy"
 
-        Examples of extraction:
-        - "Write about https://apexacademy.tech/" → topic: "Apex Academy", urls: ["https://apexacademy.tech/"]
-        - "Create a casual email about our new product launch" → topic: "product launch", style: "casual"
-        - "Write a professional email about cybersecurity, include stats from recent breaches" → topic: "cybersecurity", style: "professional", webSearch: true
-      </extraction_instructions>
+    "casual email about our new product"
+    → Topic: "new product", Style: "casual"
 
-      <response_format>
-        <description>Always respond in this JSON format:</description>
-        <schema>
-        {
-          "action": "UPDATE_DATA" | "CONFIRM" | "ASK_FOR_MORE",
-          "data": {
-            "topic": "extracted or updated topic string",
-            "content": "extracted content details", 
-            "urls": ["array", "of", "extracted", "urls"],
-            "style": "extracted style preference",
-            "webSearch": true/false
-          },
-          "extractedInfo": {
-            "topic": "what topic you found",
-            "content": "what content details you found",
-            "urls": ["what", "urls", "you", "found"],
-            "style": "what style you detected"
-          },
-          "message": "Natural response to the user explaining what you extracted and what might still be needed"
-        }
-        </schema>
-      </response_format>
+    "write about cybersecurity trends"
+    → Topic: "cybersecurity trends", WebSearch: true
 
-      <action_guidelines>
-        - Use "UPDATE_DATA" when you extract any information from the user's message
-        - Use "ASK_FOR_MORE" when you need clarification or more details for empty fields
-        - Use "CONFIRM" only when all required fields (topic at minimum) are filled and user seems ready to proceed
-        - Always try to extract as much as possible from each message
-        - Include existing data in your response if not updating it
-      </action_guidelines>
-    </prompt>`;
+    CRITICAL RULES:
+    1. ALWAYS extract something if the user mentions ANY topic, company, or subject
+    2. If you find ANY information, use action "UPDATE_DATA" 
+    3. Only use "ASK_FOR_MORE" if the message is truly empty or unclear
+    4. Extract company names as topics (e.g., "apex academy" → topic: "Apex Academy")
+    5. Extract all URLs, even partial ones
+
+    Conversation with the user so far: ${this.context.messages.map(message => message.content).join('\n')}
+
+    Current form: Topic: ${topic || 'Not filled'}, URLs: ${(urls?.length ?? 0) > 0 ? urls!.join(', ') : 'None'}
+    
+    Now based on the above context and the conversation with the user, act as on the user request: ${userInput}
+
+    `
   }
 
   protected async callLLM(prompt: string): Promise<string> {
-    const response = await this.model.invoke([
-      new SystemMessage('You are a helpful AI assistant that responds in JSON format.'),
+    // Use structured output to ensure proper JSON formatting
+    const structuredModel = this.model.withStructuredOutput(DataCollectionActionSchema);
+
+    console.log('🔍 DEBUG - Full prompt being sent to LLM:');
+    console.log(prompt);
+    console.log('🔍 END DEBUG');
+
+    const result = await structuredModel.invoke([
+      new SystemMessage('You are a helpful AI assistant that extracts information from user messages.'),
       new HumanMessage(prompt)
     ]);
 
-    // Handle different types of message content
-    if (typeof response.content === 'string') {
-      return response.content;
-    } else if (Array.isArray(response.content)) {
-      return response.content.map(part =>
-        typeof part === 'string' ? part : ('text' in part ? part.text : '')
-      ).join('');
-    } else {
-      return 'text' in response.content ? (response.content as { text: string }).text : '';
-    }
+    // Return the structured result as JSON string
+    return JSON.stringify(result);
   }
 
   protected processResponse(response: string): AgentResponse {
     try {
+      // Since we're using structured output, the response should already be valid JSON
       const parsedResponse = JSON.parse(response);
       const validatedResponse = DataCollectionActionSchema.parse(parsedResponse);
 
