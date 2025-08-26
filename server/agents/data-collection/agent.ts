@@ -5,15 +5,21 @@ import { BaseServerAgent } from '../base/base-agent';
 import { AgentContext, AgentResponse, AgentConfig, AgentCapability } from '../base/types';
 
 const DataCollectionActionSchema = z.object({
-  action: z.enum(['UPDATE_TOPIC', 'UPDATE_CONTENT', 'ADD_URL', 'UPDATE_STYLE', 'UPDATE_WEB_SEARCH', 'CONFIRM']),
+  action: z.enum(['UPDATE_DATA', 'CONFIRM', 'ASK_FOR_MORE']),
   data: z.object({
     topic: z.string().optional(),
     content: z.string().optional(),
-    url: z.string().optional(),
+    urls: z.array(z.string()).optional(),
     style: z.string().optional(),
     webSearch: z.boolean().optional(),
   }),
   message: z.string(),
+  extractedInfo: z.object({
+    topic: z.string().optional(),
+    content: z.string().optional(),
+    urls: z.array(z.string()).optional(),
+    style: z.string().optional(),
+  }).optional(),
 });
 
 export class DataCollectionServerAgent extends BaseServerAgent {
@@ -26,8 +32,6 @@ export class DataCollectionServerAgent extends BaseServerAgent {
 
     // Use server-side environment variables (without NEXT_PUBLIC prefix)
     const apiKey = process.env.OPENAI_API_KEY;
-    console.log('Debug - OPENAI_API_KEY exists:', !!apiKey);
-    console.log('Debug - All env keys:', Object.keys(process.env).filter(key => key.includes('OPENAI')));
     if (!apiKey) {
       throw new Error('OpenAI API key not found. Please set OPENAI_API_KEY in your environment variables.');
     }
@@ -46,46 +50,65 @@ export class DataCollectionServerAgent extends BaseServerAgent {
     return `
     <prompt>
       <role>
-        You are an AI assistant helping to gather information for an email campaign.
+        You are an intelligent data extraction assistant for email marketing campaigns. Your job is to analyze user messages and extract ALL relevant information to fill out an email campaign form. You should extract multiple pieces of information from a single message when possible.
       </role>
 
-      <current_state>
-        <topic>${topic || 'Not set'}</topic>
-        <content>${userProvidedContent || 'Not provided'}</content>
-        <urls>${urls?.length ? urls.join(', ') : 'None'}</urls>
+      <current_form_state>
+        <topic>${topic || 'Not filled'}</topic>
+        <content>${userProvidedContent || 'Not filled'}</content>
+        <urls>${(urls?.length ?? 0) > 0 ? urls!.join(', ') : 'None'}</urls>
         <style>${style || 'Not specified'}</style>
-        <web_search>${webSearch ? 'Enabled' : 'Disabled'}</web_search>
-      </current_state>
+        <web_search>${webSearch ? 'Enabled' : 'Not set'}</web_search>
+      </current_form_state>
 
-      <user_input>
+      <user_message>
         ${userInput || ''}
-      </user_input>
+      </user_message>
 
-      <available_actions>
-        <action>Update the email topic</action>
-        <action>Update the user-provided content</action>
-        <action>Add a reference URL</action>
-        <action>Update the style preferences</action>
-        <action>Toggle web search</action>
-        <action>Confirm the current information is complete</action>
-      </available_actions>
+      <extraction_instructions>
+        Analyze the user's message and extract:
+        1. **Topic**: What is the email about? Extract the main subject/theme
+        2. **Content**: Any specific content, descriptions, or details they want included
+        3. **URLs**: Any websites, links, or domains mentioned (including https://, http://, www., or just domain names)
+        4. **Style**: Any style preferences (formal, casual, professional, friendly, persuasive, etc.)
+        5. **Web Search**: Do they want you to search for additional information?
+
+        Examples of extraction:
+        - "Write about https://apexacademy.tech/" → topic: "Apex Academy", urls: ["https://apexacademy.tech/"]
+        - "Create a casual email about our new product launch" → topic: "product launch", style: "casual"
+        - "Write a professional email about cybersecurity, include stats from recent breaches" → topic: "cybersecurity", style: "professional", webSearch: true
+      </extraction_instructions>
 
       <response_format>
-        <description>Respond in JSON format with:</description>
+        <description>Always respond in this JSON format:</description>
         <schema>
         {
-          "action": "UPDATE_TOPIC" | "UPDATE_CONTENT" | "ADD_URL" | "UPDATE_STYLE" | "UPDATE_WEB_SEARCH" | "CONFIRM",
+          "action": "UPDATE_DATA" | "CONFIRM" | "ASK_FOR_MORE",
           "data": {
-            "topic": "string?",
-            "content": "string?",
-            "url": "string?",
-            "style": "string?",
-            "webSearch": "boolean?"
+            "topic": "extracted or updated topic string",
+            "content": "extracted content details", 
+            "urls": ["array", "of", "extracted", "urls"],
+            "style": "extracted style preference",
+            "webSearch": true/false
           },
-          "message": "Your response message to the user"
+          "extractedInfo": {
+            "topic": "what topic you found",
+            "content": "what content details you found",
+            "urls": ["what", "urls", "you", "found"],
+            "style": "what style you detected"
+          },
+          "message": "Natural response to the user explaining what you extracted and what might still be needed"
         }
         </schema>
       </response_format>
+
+      <action_guidelines>
+        - Use "UPDATE_DATA" when you extract any information from the user's message
+        - Use "ASK_FOR_MORE" when you need clarification or more details for empty fields
+        - Use "CONFIRM" only when all required fields (topic at minimum) are filled and user seems ready to proceed
+        - Always try to extract as much as possible from each message
+        - Include existing data in your response if not updating it
+      </action_guidelines>
     </prompt>`;
   }
 
@@ -112,43 +135,39 @@ export class DataCollectionServerAgent extends BaseServerAgent {
       const parsedResponse = JSON.parse(response);
       const validatedResponse = DataCollectionActionSchema.parse(parsedResponse);
 
-      // Update the email data based on the action
+      // Extract and merge updates from the data object
       const updates: Record<string, any> = {};
-      switch (validatedResponse.action) {
-        case 'UPDATE_TOPIC':
-          if (validatedResponse.data.topic) {
-            updates.topic = validatedResponse.data.topic;
-          }
-          break;
-        case 'UPDATE_CONTENT':
-          if (validatedResponse.data.content) {
-            updates.userProvidedContent = validatedResponse.data.content;
-          }
-          break;
-        case 'ADD_URL':
-          if (validatedResponse.data.url) {
-            const currentUrls = new Set(this.context.data.urls || []);
-            currentUrls.add(validatedResponse.data.url);
-            updates.urls = Array.from(currentUrls);
-          }
-          break;
-        case 'UPDATE_STYLE':
-          if (validatedResponse.data.style) {
-            updates.style = validatedResponse.data.style;
-          }
-          break;
-        case 'UPDATE_WEB_SEARCH':
-          if (typeof validatedResponse.data.webSearch === 'boolean') {
-            updates.webSearch = validatedResponse.data.webSearch;
-          }
-          break;
+
+      // Update all provided fields
+      if (validatedResponse.data.topic) {
+        updates.topic = validatedResponse.data.topic;
+      }
+
+      if (validatedResponse.data.content) {
+        updates.userProvidedContent = validatedResponse.data.content;
+      }
+
+      if (validatedResponse.data.urls && validatedResponse.data.urls.length > 0) {
+        // Merge with existing URLs
+        const currentUrls = new Set(this.context.data.urls || []);
+        validatedResponse.data.urls.forEach(url => currentUrls.add(url));
+        updates.urls = Array.from(currentUrls);
+      }
+
+      if (validatedResponse.data.style) {
+        updates.style = validatedResponse.data.style;
+      }
+
+      if (typeof validatedResponse.data.webSearch === 'boolean') {
+        updates.webSearch = validatedResponse.data.webSearch;
       }
 
       return {
         content: validatedResponse.message,
         metadata: {
           action: validatedResponse.action,
-          updates
+          updates,
+          extractedInfo: validatedResponse.extractedInfo
         }
       };
     } catch (error) {
