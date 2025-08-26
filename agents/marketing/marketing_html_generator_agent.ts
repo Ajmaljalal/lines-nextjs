@@ -142,39 +142,179 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
     };
   }
 
-  public async execute(): Promise<AgentResponse> {
+  private isValidHTML(html: string): boolean {
+    // Basic HTML validation checks
+    if (!html || html.trim().length === 0) return false;
+
+    // Check for basic HTML structure
+    const hasHtmlTag = /<html[^>]*>/i.test(html);
+    const hasBodyTag = /<body[^>]*>/i.test(html);
+    const hasHeadTag = /<head[^>]*>/i.test(html);
+
+    // At minimum should have some HTML tags
+    const hasAnyHtmlTags = /<[^>]+>/g.test(html);
+
+    // Check for email-specific elements (tables, inline styles)
+    const hasEmailStructure = /<table[^>]*>/i.test(html) || /<div[^>]*style/i.test(html);
+
+    return hasAnyHtmlTags && (hasEmailStructure || (hasHtmlTag && hasBodyTag && hasHeadTag));
+  }
+
+  private sanitizeAndValidateHTML(rawContent: string): string {
+    // Extract HTML content from various wrapper formats
+    let htmlContent = rawContent.trim();
+
+    // Remove markdown code blocks
+    htmlContent = htmlContent.replace(/```(?:html)?\n?/gi, '').trim();
+
+    // Try to extract from JSON wrapper
     try {
-      const prompt = this.generatePrompt();
-
-      // Use direct model invocation instead of structured output
-      const response = await this.model.invoke([
-        { role: 'user', content: prompt }
-      ]);
-
-      // Extract HTML content from the response
-      // TODO: make sure it is a structured response or pass to another llm for validation
-      const content = response.content as string;
-
-      // Try to parse as JSON first (in case it's wrapped)
-      let htmlContent = content;
-      try {
-        const parsed = JSON.parse(content);
-        if (parsed.html) {
-          htmlContent = parsed.html;
-        }
-      } catch {
-        // If it's not JSON, use the content directly
-        // Remove any markdown code blocks if present
-        htmlContent = content.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+      const parsed = JSON.parse(htmlContent);
+      if (parsed.html && typeof parsed.html === 'string') {
+        htmlContent = parsed.html;
       }
-
-      return this.processResponse({ html: htmlContent });
-    } catch (error) {
-      console.error('Marketing HTML generator agent execution error:', error);
-      return {
-        content: '',
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
+    } catch {
+      // Not JSON, continue with current content
     }
+
+    // Remove any explanatory text before/after HTML
+    const htmlMatch = htmlContent.match(/<!DOCTYPE[\s\S]*?<\/html>/i) ||
+      htmlContent.match(/<html[\s\S]*?<\/html>/i);
+
+    if (htmlMatch) {
+      htmlContent = htmlMatch[0];
+    }
+
+    return htmlContent.trim();
+  }
+
+  private generateSimpleFallbackHTML(): string {
+    const { generatedContent } = this.context.data;
+
+    if (!generatedContent) {
+      return '<p>No content available</p>';
+    }
+
+    const content = Array.isArray(generatedContent) ? generatedContent.join('\n') : String(generatedContent);
+    const primaryColor = this.brandTheme?.primaryColor || '#007bff';
+    const backgroundColor = this.brandTheme?.backgroundColor || '#ffffff';
+    const textColor = this.brandTheme?.textColor || '#333333';
+
+    return `
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: ${backgroundColor};">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td style="padding: 20px 0 30px 0;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border: 1px solid #cccccc; border-collapse: collapse;">
+          <tr>
+            <td align="center" bgcolor="${primaryColor}" style="padding: 40px 0 30px 0; color: #ffffff; font-size: 28px; font-weight: bold; font-family: Arial, sans-serif;">
+              ${this.brandTheme?.name || 'Newsletter'}
+            </td>
+          </tr>
+          <tr>
+            <td bgcolor="${backgroundColor}" style="padding: 40px 30px 40px 30px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="color: ${textColor}; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px; padding: 20px 0 30px 0;">
+                    ${content.replace(/\n/g, '<br>')}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td bgcolor="#ee4c50" style="padding: 30px 30px 30px 30px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="color: #ffffff; font-family: Arial, sans-serif; font-size: 14px;">
+                    &copy; ${new Date().getFullYear()} ${this.brandTheme?.name || 'Company'}<br/>
+                    ${this.brandTheme?.unsubscribeUrl ? `<a href="${this.brandTheme.unsubscribeUrl}" style="color: #ffffff;">Unsubscribe</a>` : ''}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim();
+  }
+
+  public async execute(): Promise<AgentResponse> {
+    const maxRetries = 2;
+    let lastError: string | null = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const prompt = this.generatePrompt();
+
+        // Use direct model invocation instead of structured output
+        const response = await this.model.invoke([
+          { role: 'user', content: prompt }
+        ]);
+
+        // Extract and validate HTML content from the response
+        const rawContent = response.content as string;
+        const htmlContent = this.sanitizeAndValidateHTML(rawContent);
+
+        // Validate the HTML quality
+        if (!this.isValidHTML(htmlContent)) {
+          const errorMsg = `Invalid HTML generated on attempt ${attempt + 1}. Content length: ${htmlContent.length}`;
+          console.warn(errorMsg);
+          lastError = errorMsg;
+
+          if (attempt < maxRetries) {
+            // Add more specific instructions for retry
+            continue;
+          }
+
+          // Return the content anyway if it's the last attempt
+          console.warn('Returning potentially invalid HTML after max retries');
+        }
+
+        // Additional validation: ensure minimum content requirements
+        if (htmlContent.length < 100) {
+          const errorMsg = `HTML content too short (${htmlContent.length} chars) on attempt ${attempt + 1}`;
+          console.warn(errorMsg);
+          lastError = errorMsg;
+
+          if (attempt < maxRetries) continue;
+        }
+
+        console.log(`Successfully generated HTML email on attempt ${attempt + 1}`);
+        return this.processResponse({ html: htmlContent });
+
+      } catch (error) {
+        const errorMsg = `Attempt ${attempt + 1} failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        console.error('Marketing HTML generator agent execution error:', errorMsg);
+        lastError = errorMsg;
+
+        if (attempt < maxRetries) {
+          continue;
+        }
+      }
+    }
+
+    // If we get here, all attempts failed - use fallback
+    console.warn('All AI generation attempts failed, using fallback HTML template');
+    const fallbackHTML = this.generateSimpleFallbackHTML();
+
+    return {
+      content: fallbackHTML,
+      metadata: {
+        type: 'html_content',
+        fallback_used: true,
+        last_error: lastError
+      }
+    };
   }
 } 
