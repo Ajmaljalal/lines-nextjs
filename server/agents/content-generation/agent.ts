@@ -53,11 +53,9 @@ export class ContentGenerationServerAgent extends BaseServerAgent {
     }
 
     this.model = new ChatOpenAI({
-      temperature: config.temperature || 0.3,
-      model: config.model || "o3-mini",
+      model: config.model || "gpt-4o",
       apiKey: apiKey,
       maxRetries: config.maxRetries || 3,
-      reasoningEffort: "medium"
     });
   }
 

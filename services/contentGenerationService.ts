@@ -1,6 +1,6 @@
-import { MarketingContentDrafterAgent } from '@/agents/marketing/marketing_content_drafter_agent';
 import { TavilyService } from '@/services/tavilyService';
 import { ContentData } from '@/types/EmailContent';
+import { ContentGenerationServerAgent } from '@/server/agents/content-generation/agent';
 
 export const contentGenerationService = {
   async generateContent(data: ContentData): Promise<{ content: string[]; error?: string }> {
@@ -13,14 +13,14 @@ export const contentGenerationService = {
       }
 
       // 2. Create the marketing content drafter agent
-      const agent = new MarketingContentDrafterAgent({
+      const agent = new ContentGenerationServerAgent({
         messages: [],
         data: {
           id: data.id,
           userId: data.userId,
           status: data.status,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
+          createdAt: data.createdAt.toISOString(),
+          updatedAt: data.updatedAt.toISOString(),
           topic: data.topic,
           userProvidedContent: data.userProvidedContent,
           urls: data.urls,
@@ -33,7 +33,11 @@ export const contentGenerationService = {
       });
 
       // 3. Execute the agent, which will handle the content drafting
-      const response = await agent.execute();
+      const response = await agent.execute({
+        data: data,
+        messages: [],
+        brandTheme: null
+      });
       if (response.error) {
         throw new Error(response.error);
       }
