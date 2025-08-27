@@ -21,9 +21,17 @@ async function contentEditingHandler(req: NextRequest) {
     // Create and execute content editing agent
     const agent = AgentFactory.createAgent('content-editing', validatedData.context);
 
+    // Use full conversation history; avoid duplicating the latest user message if already present
+    const existingMessages = validatedData.context.messages || [];
+    const lastExisting = existingMessages[existingMessages.length - 1];
+    const includesLatest = !!lastExisting && lastExisting.role === 'user' && lastExisting.content === validatedData.message;
+    const allMessages = includesLatest
+      ? existingMessages
+      : [...existingMessages, { role: 'user' as const, content: validatedData.message }];
+
     const result = await agent.execute({
       data: validatedData.context.data,
-      messages: [{ role: 'user', content: validatedData.message }],
+      messages: allMessages,
       brandTheme: validatedData.brandTheme,
       userInput: validatedData.message
     });

@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useContent } from './ContentContext';
 import { EmailCreationStep } from '../components/steps/StepsIndicator';
-import { AgentMessage } from '@/agents/types';
 import { ContentData } from '@/types/EmailContent';
+import { AgentMessage } from '@/agents/types';
+
 interface ChatContextProps {
   messages: AgentMessage[];
   addMessage: (message: AgentMessage) => void;

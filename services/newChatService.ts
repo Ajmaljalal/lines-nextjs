@@ -1,8 +1,8 @@
-import { AgentRole, AgentContext } from '@/agents/types';
 import { ContentData } from '@/types/EmailContent';
 import { BrandTheme } from '@/types/BrandTheme';
 import { EmailCreationStep } from '@/components/steps/StepsIndicator';
 import { agentService } from './api/agent-service';
+import { AgentContext } from '@/agents/types';
 
 export class NewChatService {
   private context: AgentContext;

@@ -2,7 +2,6 @@
 
 import React, { useEffect } from 'react';
 import { Card } from '../core-ui-components/card';
-import { AgentMessage } from '@/agents/types';
 import InputContainer from './InputContainer';
 import { useChat } from '@/hooks/useChat';
 import { useContent } from '@/context/ContentContext';

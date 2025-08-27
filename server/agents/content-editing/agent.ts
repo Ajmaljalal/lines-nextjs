@@ -38,12 +38,19 @@ export class ContentEditingServerAgent extends BaseServerAgent {
   protected generatePrompt(userInput?: string): string {
     const { generatedContent } = this.context.data;
     const content = generatedContent ? JSON.parse(generatedContent) : null;
+    const conversationHistory = (this.context.messages && this.context.messages.length > 0)
+      ? this.context.messages.map(m => `- ${m.role}: ${m.content}`).join('\n')
+      : 'None';
 
     return `
     <prompt>
       <role>
         You are an AI assistant helping to edit email content. You will receive the current content and a request for changes.
       </role>
+
+      <conversation_history>
+        ${conversationHistory}
+      </conversation_history>
 
       <current_content>
         ${JSON.stringify(content, null, 2)}
