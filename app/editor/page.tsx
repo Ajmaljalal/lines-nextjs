@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -10,7 +9,6 @@ import MainContent from '../../components/steps/MainContent';
 import { ContentProvider, useContent } from '@/context/ContentContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import { useChat } from '@/hooks/useChat';
 import { ChatProvider } from '@/context/ChatContext';
 
 const styles = {
@@ -43,6 +41,7 @@ const styles = {
     border
     border-gray-300
     rounded-[12px]
+    bg-gray-100
     `,
 
   middleColumn: `
@@ -56,6 +55,7 @@ const styles = {
     border
     border-gray-300
     rounded-[12px]
+    bg-gray-100
     `
 };
 
@@ -65,8 +65,7 @@ const ContentEditor = () => {
   const searchParams = useSearchParams();
   const contentId = searchParams.get('id');
   const contentType = searchParams.get('type') as 'marketing' || 'marketing';
-  const { currentStep, setCurrentStep, updateData, data } = useContent();
-  const { messages, isSending, sendMessage } = useChat();
+  const { currentStep, setCurrentStep, updateData } = useContent();
 
   useEffect(() => {
     if (!user) {
@@ -170,19 +169,14 @@ const ContentEditor = () => {
           <MainContent onStepComplete={handleStepComplete} />
         </div>
         <div className={styles.rightColumn}>
-          <ChatContainer
-            messages={messages}
-            isSending={isSending}
-            onSendMessage={sendMessage}
-            isDisabled={data.status === 'sent'}
-          />
+          <ChatContainer />
         </div>
       </main>
     </div>
   );
 };
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <ContentProvider>
       <ChatProvider>

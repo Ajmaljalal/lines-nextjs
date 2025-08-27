@@ -4,13 +4,8 @@ import React, { useEffect } from 'react';
 import { Card } from '../core-ui-components/card';
 import { AgentMessage } from '@/agents/types';
 import InputContainer from './InputContainer';
-
-interface ChatContainerProps {
-  messages: AgentMessage[];
-  isSending: boolean;
-  onSendMessage: (message: string) => Promise<any>;
-  isDisabled?: boolean;
-}
+import { useChat } from '@/hooks/useChat';
+import { useContent } from '@/context/ContentContext';
 
 const styles = {
   wrapper: `
@@ -55,15 +50,13 @@ const styles = {
     p-4`
 };
 
-const ChatContainer: React.FC<ChatContainerProps> = ({
-  messages,
-  isSending,
-  onSendMessage,
-  isDisabled = false
-}) => {
+const ChatContainer = () => {
+
+  const { data } = useContent();
+  const { messages, isSending, sendMessage } = useChat();
   useEffect(() => {
     window.scrollTo({
-      top: document.body.scrollHeight + 10,
+      top: document.body.scrollHeight + 20,
       behavior: 'smooth'
     });
   }, [messages]);
@@ -79,7 +72,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                 px-4 
                 py-1
                 rounded-[12px]
-                ${msg.role === 'assistant' ? 'bg-transparent' : 'bg-muted text-foreground'}
+                ${msg.role === 'assistant' ? 'bg-transparent' : 'bg-gray-300 text-foreground'}
                 ${msg.role === 'assistant' ? 'self-start' : 'self-end'}
               `}
             >
@@ -104,8 +97,8 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       <div className={styles.inputArea}>
         <div className={styles.inputWrapper}>
           <InputContainer
-            onSendMessage={onSendMessage}
-            isDisabled={isDisabled}
+            onSendMessage={sendMessage}
+            isDisabled={data.status === 'sent'}
             isSending={isSending}
           />
         </div>
