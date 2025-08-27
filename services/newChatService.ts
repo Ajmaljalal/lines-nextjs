@@ -21,10 +21,8 @@ export class NewChatService {
 
   private getAgentEndpoint(): string {
     switch (this.currentStep) {
-      case EmailCreationStep.TOPIC:
-        return 'data-collection';
       case EmailCreationStep.CONTENT:
-        return 'content-editing';
+        return this.context.data?.dataCollectionCompleted ? 'content-editing' : 'data-collection';
       case EmailCreationStep.DESIGN:
         return 'design';
       case EmailCreationStep.SEND:

@@ -108,7 +108,7 @@ const InputContainer: React.FC<InputContainerProps> = ({
         <Textarea
           ref={textareaRef}
           id="userInput"
-          placeholder="What would you like to write about?"
+          placeholder="Share the topic, any URLs, and details you want included…"
           value={input}
           rows={1}
           onChange={handleTextareaChange}

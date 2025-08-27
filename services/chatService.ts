@@ -21,8 +21,6 @@ export class ChatService {
 
   private getAgentForStep(): AgentRole {
     switch (this.currentStep) {
-      case EmailCreationStep.TOPIC:
-        return AgentRole.DATA_COLLECTION;
       case EmailCreationStep.CONTENT:
         return AgentRole.CONTENT_EDITING;
       case EmailCreationStep.DESIGN:

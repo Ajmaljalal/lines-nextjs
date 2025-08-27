@@ -120,12 +120,16 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
   };
 
   useEffect(() => {
-    if (currentStep === EmailCreationStep.CONTENT && !data.generatedContent) {
+    if (
+      currentStep === EmailCreationStep.CONTENT &&
+      data.dataCollectionCompleted &&
+      !data.generatedContent
+    ) {
       generateContent();
     } else if (currentStep === EmailCreationStep.DESIGN && !data.htmlContent) {
       generateHtml();
     }
-  }, [currentStep]);
+  }, [currentStep, data.dataCollectionCompleted, data.generatedContent, data.htmlContent]);
 
   const renderContent = () => {
     if (isWebSearchInProgress) {

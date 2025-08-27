@@ -14,7 +14,9 @@ const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 const getInitialMessage = (step: EmailCreationStep, data: ContentData): string => {
   switch (step) {
     case EmailCreationStep.CONTENT:
-      return 'I am generating content now...'
+      return data.dataCollectionCompleted
+        ? 'I am generating content now...'
+        : 'Hi! Share the topic, any URLs, and any content you want to include.'
     case EmailCreationStep.DESIGN:
       return 'I am generating the design now...'
     case EmailCreationStep.SEND:

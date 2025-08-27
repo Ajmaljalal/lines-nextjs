@@ -39,8 +39,26 @@ export const useChat = () => {
       if (response.metadata?.updates) {
         updateData(response.metadata.updates);
 
-        // Re-check conditions with updated data
-        const updatedData = { ...data, ...response.metadata.updates };
+        // Compute data collection completion
+        const updatedData = { ...data, ...response.metadata.updates } as any;
+        const hasTopic = Boolean(updatedData.topic && String(updatedData.topic).trim());
+        const hasUserContent = Boolean(updatedData.userProvidedContent && String(updatedData.userProvidedContent).trim());
+        const hasUrls = Array.isArray(updatedData.urls) && updatedData.urls.length > 0;
+        const wantsWebSearch = Boolean(updatedData.webSearch === true);
+
+        const shouldMarkCompleted = hasTopic && (hasUserContent || hasUrls || wantsWebSearch);
+        const agentConfirmed = response.metadata.action === 'CONFIRM';
+
+        if ((shouldMarkCompleted || agentConfirmed) && !updatedData.dataCollectionCompleted) {
+          updateData({ dataCollectionCompleted: true });
+          addMessage({
+            role: 'assistant',
+            content: 'Thanks! I have enough details. Curating your content now…',
+            type: 'assistant'
+          });
+        }
+
+        // Re-check send step conditions with updated data
         if (updatedData.senderName && updatedData.subject && updatedData.fromEmail && updatedData.recipients?.length > 0) {
           addMessage({
             role: 'assistant',
