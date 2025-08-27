@@ -13,8 +13,6 @@ const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
 const getInitialMessage = (step: EmailCreationStep, data: ContentData): string => {
   switch (step) {
-    case EmailCreationStep.TOPIC:
-      return "Hi! What would you like to write about today?";
     case EmailCreationStep.CONTENT:
       return 'I am generating content now...'
     case EmailCreationStep.DESIGN:
@@ -29,7 +27,6 @@ const getInitialMessage = (step: EmailCreationStep, data: ContentData): string =
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentStep, data } = useContent();
   const [messagesByStep, setMessagesByStep] = useState<Record<EmailCreationStep, AgentMessage[]>>({
-    [EmailCreationStep.TOPIC]: [],
     [EmailCreationStep.CONTENT]: [],
     [EmailCreationStep.DESIGN]: [],
     [EmailCreationStep.SEND]: [],

@@ -5,7 +5,6 @@ import { Check, Lock, Hourglass } from 'lucide-react';
 import { useContent } from '@/context/ContentContext';
 
 export enum EmailCreationStep {
-  TOPIC = 'topic',
   CONTENT = 'content',
   DESIGN = 'design',
   SEND = 'send'
@@ -82,11 +81,6 @@ const styles = {
 const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
   const { currentStep, validateStep } = useContent();
   const steps = [
-    {
-      id: EmailCreationStep.TOPIC,
-      shortLabel: 'Topic',
-      longLabel: 'Topic'
-    },
     {
       id: EmailCreationStep.CONTENT,
       shortLabel: 'Content',

@@ -49,6 +49,7 @@ export interface ContentData {
   urlsExtractedContent: string[];
   urls: string[];
   style: string;
+  dataCollectionCompleted?: boolean;
   generatedContent?: string;
   htmlContent?: string;
   recipients?: string[];

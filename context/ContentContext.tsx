@@ -19,7 +19,7 @@ const ContentContext = createContext<ContentContextType | undefined>(undefined);
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const [data, setData] = useState<ContentData>({} as ContentData);
-  const [currentStep, setCurrentStep] = useState(EmailCreationStep.TOPIC);
+  const [currentStep, setCurrentStep] = useState(EmailCreationStep.CONTENT);
   const [isLoading, setIsLoading] = useState(false);
 
   const updateData = useCallback((newData: Partial<ContentData>) => {
@@ -28,8 +28,6 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const validateStep = useCallback((step: EmailCreationStep): boolean => {
     switch (step) {
-      case EmailCreationStep.TOPIC:
-        return Boolean(data.topic && data.topic.trim());
       case EmailCreationStep.CONTENT:
         return Boolean(data.generatedContent);
       case EmailCreationStep.DESIGN:

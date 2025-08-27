@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { EmailCreationStep } from './StepsIndicator';
-import FirstStep_DataCollection from './Step_1_DataCollection';
 import SecondStep_ContentDrafting from './Step_2_ContentDrafting';
 import ThirdStep_HtmlPreview from './Step_3_HtmlPreview';
 import FourthStep_SendEmail from './Step_4_SendEmail';
@@ -154,8 +153,6 @@ const MainContent: React.FC<MainContentProps> = ({ onStepComplete }) => {
     }
 
     switch (currentStep) {
-      case EmailCreationStep.TOPIC:
-        return <FirstStep_DataCollection />;
       case EmailCreationStep.CONTENT:
         return <SecondStep_ContentDrafting />;
       case EmailCreationStep.DESIGN:

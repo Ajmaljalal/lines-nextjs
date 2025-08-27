@@ -146,7 +146,6 @@ const ContentEditor = () => {
 
   const handleStepComplete = () => {
     const steps = [
-      EmailCreationStep.TOPIC,
       EmailCreationStep.CONTENT,
       EmailCreationStep.DESIGN,
       EmailCreationStep.SEND,
