@@ -294,7 +294,6 @@ export class MarketingHtmlGeneratorAgent extends BaseAgent {
           if (attempt < maxRetries) continue;
         }
 
-        console.log(`Successfully generated HTML email on attempt ${attempt + 1}`);
         return this.processResponse({ html: htmlContent });
 
       } catch (error) {
