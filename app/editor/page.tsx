@@ -40,6 +40,9 @@ const styles = {
     `,
 
   leftColumn: `
+    border
+    border-gray-300
+    rounded-[12px]
     `,
 
   middleColumn: `
@@ -50,6 +53,9 @@ const styles = {
   rightColumn: `
     w-[350px]
     min-w-[350px]
+    border
+    border-gray-300
+    rounded-[12px]
     `
 };
 

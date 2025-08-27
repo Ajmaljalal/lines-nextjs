@@ -16,34 +16,26 @@
   --text-color: #1F2937;
   --light-bg: #F3F4F6;
   --white: #FFFFFF;
-  --off-white: #FAFAFA;
-  --apex-navy: #1a2332;
-  --apex-dark-navy: #0f1419;
-  --apex-orange: #ff6b35;
-  --apex-amber: #ffad00;
-  --header-bg: rgba(26, 35, 50, 0.85);
-  --nav-bg: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
-  --chat-bg: linear-gradient(135deg, #1a2332 0%, #2d3748 100%);
   --dark-bg: #111827;
   --transition: all 0.001s ease;
 
-  /* Default theme with Apex Academy navy background */
-  --background: var(--apex-navy);
+  /* Dark theme (default) */
+  --background: var(--dark-bg);
   --foreground: var(--white);
   --gradient-start: rgba(99, 102, 241, 0.25);
   --gradient-end: rgba(79, 70, 229, 0.40);
 
-  --card: #374151;
+  --card: #1a202c;
   --card-foreground: var(--white);
 
-  --popover: #2d3748;
+  --popover: #1a202c;
   --popover-foreground: var(--white);
 
-  --muted: #4a5568;
-  --muted-foreground: #f7fafc;
+  --muted: #1f2937;
+  --muted-foreground: #D1D5DB;
 
-  --input-background: #374151;
-  --input-foreground: var(--white);
+  --input-background: #1f2937;
+  --input-foreground: #F9FAFB;
 
   --primary: 249 115 22;
   /* Orange primary color with high contrast */
@@ -58,22 +50,22 @@
 
 /* Light theme */
 @theme [data-theme="light"] {
-  --background: var(--apex-navy);
-  --foreground: var(--white);
+  --background: var(--light-bg);
+  --foreground: var(--text-color);
   --gradient-start: rgba(99, 102, 241, 0.10);
   --gradient-end: rgba(79, 70, 229, 0.15);
 
-  --card: #374151;
-  --card-foreground: var(--white);
+  --card: var(--white);
+  --card-foreground: var(--text-color);
 
-  --popover: #2d3748;
-  --popover-foreground: var(--white);
+  --popover: var(--white);
+  --popover-foreground: var(--text-color);
 
-  --muted: #4a5568;
-  --muted-foreground: #f7fafc;
+  --muted: #f3f4f6;
+  --muted-foreground: #374151;
 
-  --input-background: #374151;
-  --input-foreground: var(--white);
+  --input-background: #FFFFFF;
+  --input-foreground: #111827;
 
   --primary: 249 115 22;
   /* Orange primary color */
@@ -87,7 +79,7 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
   color: var(--foreground);
   font-size: 1.125rem;
   /* 18px - increased from default 16px */
@@ -118,35 +110,6 @@ body * {
   .border-color {
     border-color: #6B7280 !important;
     border-style: solid !important;
-  }
-
-  /* Dark theme text utilities */
-  .text-high-contrast {
-    color: #ffffff !important;
-  }
-
-  .text-medium-contrast {
-    color: #e2e8f0 !important;
-  }
-
-  .text-low-contrast {
-    color: #a0aec0 !important;
-  }
-
-  .bg-dark-card {
-    background-color: #374151 !important;
-  }
-
-  .bg-dark-muted {
-    background-color: #4a5568 !important;
-  }
-
-  .text-high-contrast-white {
-    color: #ffffff !important;
-  }
-
-  .border-subtle {
-    border-color: #4a5568 !important;
   }
 }
 
