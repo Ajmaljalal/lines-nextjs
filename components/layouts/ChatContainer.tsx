@@ -17,7 +17,9 @@ const styles = {
     h-full
     flex
     flex-col
-    relative`,
+    relative
+    rounded-[12px]
+    shadow-lg`,
 
   container: `
     w-full
@@ -45,7 +47,7 @@ const styles = {
     left-0
     right-0
     z-10
-    bg-foreground/10
+    bg-black/10
     backdrop-blur-sm
     rounded-[12px]
     `,
@@ -69,7 +71,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   }, [messages]);
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={{ background: 'var(--chat-bg)' }}
+    >
       <div className={styles.container}>
         <div className={styles.messageContainer}>
           {messages?.map((msg, index) => (
@@ -79,7 +84,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                 px-4 
                 py-1
                 rounded-[12px]
-                ${msg.role === 'assistant' ? 'bg-transparent' : 'bg-muted text-foreground'}
+                ${msg.role === 'assistant' ? 'bg-white/10 text-white' : 'bg-muted text-muted-foreground'}
                 ${msg.role === 'assistant' ? 'self-start' : 'self-end'}
               `}
             >
@@ -91,11 +96,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
             </Card>
           ))}
           {isSending && (
-            <Card className="self-start px-6 py-3 rounded-[30px] bg-transparent">
+            <Card className="self-start px-6 py-3 rounded-[30px] bg-white/10">
               <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
               </div>
             </Card>
           )}

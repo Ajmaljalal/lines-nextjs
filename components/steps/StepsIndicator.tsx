@@ -22,6 +22,9 @@ const styles = {
     gap-2
     p-3
     h-full
+    rounded-[12px]
+    text-white
+    shadow-lg
   `,
   step: `
     flex
@@ -32,21 +35,22 @@ const styles = {
     cursor-pointer
     transition-all
     duration-200
-    hover:bg-zinc-100/50
+    hover:bg-white/10
     border
     border-transparent
     w-[105px]
   `,
   stepActive: `
-    text-[var(--primary-color)]
-    bg-zinc-100
-    hover:bg-zinc-100
+    text-white
+    bg-white/15
+    hover:bg-white/25
+    border-white/20
   `,
   stepCompleted: `
-    text-green-500
+    text-white
   `,
   stepPending: `
-    text-zinc-400
+    text-white/70
   `,
   stepIcon: `
     w-4
@@ -121,7 +125,10 @@ const StepsIndicator: React.FC<StepIndicatorProps> = ({ onStepClick }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      style={{ background: 'var(--nav-bg)' }}
+    >
       {steps.map((step) => {
         const status = getStepStatus(step.id);
         const disabled = isStepDisabled(step.id);

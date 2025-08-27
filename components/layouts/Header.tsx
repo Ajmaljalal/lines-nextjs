@@ -14,12 +14,11 @@ const styles = {
     fixed
     top-0
     z-100
-    bg-transparent
     backdrop-blur
     px-8
     py-4
     border-b
-    border-gray-300
+    border-gray-300/20
   `,
 
   titleContainer: `
@@ -40,7 +39,10 @@ const Header: React.FC = () => {
   }, [user, router]);
 
   return (
-    <header className={styles.container}>
+    <header
+      className={styles.container}
+      style={{ background: 'var(--header-bg)' }}
+    >
       <div className={styles.titleContainer}>
         <Logo />
         <NavigationBar />
