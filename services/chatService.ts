@@ -38,7 +38,6 @@ export class ChatService {
       const agent = AgentFactory.createAgent(
         agentRole as any,
         this.context as any,
-        { brandTheme: this.brandTheme as any }
       );
 
       const response = await agent.execute({
