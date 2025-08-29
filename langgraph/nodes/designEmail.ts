@@ -71,7 +71,8 @@ Output ONLY the HTML string.`;
   return {
     ...state,
     finalHtml: cleaned,
-    stage: "design",
+    emailDesignComplete: true, // Mark design as complete
+    stage: "design", // Keep for backward compatibility
   };
 }
 

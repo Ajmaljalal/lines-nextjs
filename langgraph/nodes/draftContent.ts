@@ -36,15 +36,15 @@ seedDraft: ${state.contentDraft ?? ""}`;
     showDraft: true,
   });
 
-  const finalPlain = typeof approval === "string" && approval.trim().toLowerCase() === "approve"
-    ? plainTextDraft
-    : String(approval ?? plainTextDraft);
+  const isApproved = typeof approval === "string" && approval.trim().toLowerCase() === "approve";
+  const finalPlain = isApproved ? plainTextDraft : String(approval ?? plainTextDraft);
 
   return {
     ...state,
     plainTextDraft: finalPlain,
-    confirmedPlainText: typeof approval === "string" && approval.trim().toLowerCase() === "approve",
-    stage: "draft",
+    confirmedPlainText: isApproved,
+    contentDraftComplete: isApproved, // Only complete when user approves
+    stage: "draft", // Keep for backward compatibility
   };
 }
 
