@@ -1,23 +1,22 @@
-import { StateGraph, START, END } from "@langchain/langgraph";
-import { MarketingEmailState, MarketingEmailStateSchema } from "./types";
+import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
+import { MarketingEmailStateSchema } from "./types";
 import { collectInputs } from "./nodes/collectInputs";
 import { draftContent } from "./nodes/draftContent";
 import { designEmail } from "./nodes/designEmail";
 
 export function buildMarketingEmailGraph() {
-  const graph = new StateGraph<MarketingEmailState>({ channels: MarketingEmailStateSchema });
+  const checkpointer = new MemorySaver();
 
-  graph
+  const builder = new StateGraph(MarketingEmailStateSchema)
     .addNode("collectInputs", collectInputs)
     .addNode("draftContent", draftContent)
-    .addNode("designEmail", designEmail);
+    .addNode("designEmail", designEmail)
+    .addEdge(START, "collectInputs")
+    .addEdge("collectInputs", "draftContent")
+    .addEdge("draftContent", "designEmail")
+    .addEdge("designEmail", END);
 
-  graph.addEdge(START, "collectInputs");
-  graph.addEdge("collectInputs", "draftContent");
-  graph.addEdge("draftContent", "designEmail");
-  graph.addEdge("designEmail", END);
-
-  return graph.compile();
+  return builder.compile({ checkpointer });
 }
 
 
