@@ -36,34 +36,130 @@ Return ONLY a strict JSON object matching the provided JSON schema.`;
     return Boolean(s.topic && (s.contentDraft || (s.urls && s.urls.length > 0)));
   }
 
+  function normalizeUrlMaybe(value: string): string | undefined {
+    let v = (value || "").trim();
+    if (!v) return undefined;
+    if (!/^https?:\/\//i.test(v)) v = `https://${v}`;
+    try {
+      const u = new URL(v);
+      return u.toString();
+    } catch {
+      return undefined;
+    }
+  }
+
+  function normalizeUrls(values?: string[]): string[] | undefined {
+    if (!values) return undefined;
+    const out = values
+      .map((u) => normalizeUrlMaybe(u))
+      .filter((u): u is string => Boolean(u));
+    return out.length ? out : undefined;
+  }
+
+  function normalizeImages(values?: { url: string; alt?: string }[]): { url: string; alt?: string }[] | undefined {
+    if (!values) return undefined;
+    const out: { url: string; alt?: string }[] = [];
+    for (const img of values) {
+      const url = normalizeUrlMaybe(img.url);
+      if (!url) continue;
+      out.push({ url, alt: img.alt });
+    }
+    return out.length ? out : undefined;
+  }
+
   let working: MarketingEmailState = { ...state };
 
-  // Keep collecting until we have the minimum inputs to draft
-  while (!hasMinimumInputs(working)) {
-    const missing: string[] = [];
-    if (!working.topic) missing.push("topic");
-    if (!working.contentDraft && !(working.urls && working.urls.length > 0)) missing.push("content or urls");
-    if (!working.audience) missing.push("audience (optional)");
-    if (!working.images) missing.push("images (optional)");
-    if (!working.brandStyle) missing.push("brand style (optional)");
+  // Ordered, conversational collection flow
+  const steps: Array<"topic" | "contentDraft" | "urls" | "images" | "audience" | "brandStyle"> = [
+    "topic",
+    "contentDraft",
+    "urls",
+    "images",
+    "audience",
+    "brandStyle",
+  ];
 
-    const question = `Please share missing details (${missing.join(", ")}). You can answer in natural language.`;
-    const userReply = interrupt({ question, missing });
+  const stepPrompts: Record<typeof steps[number], string> = {
+    topic: "What is the topic of the email?",
+    contentDraft: "Do you have any content or notes to include? If not, say 'skip'.",
+    urls: "Share any URLs to include (we'll complete partial links), or say 'skip'.",
+    images: "Share any images (URLs and optional alt text), or say 'skip'.",
+    audience: "Who is the audience (e.g., parents, developers)? Or say 'skip'.",
+    brandStyle: "Any brand style preferences (tone, colors, fonts, logo URL)? Or say 'skip'.",
+  };
+
+  let stepIndex = 0;
+  while (stepIndex < steps.length) {
+    const field = steps[stepIndex];
+
+    // If current field already present, move to next
+    if (
+      (field === "topic" && working.topic) ||
+      (field === "contentDraft" && working.contentDraft) ||
+      (field === "urls" && working.urls && working.urls.length > 0) ||
+      (field === "images" && working.images && working.images.length > 0) ||
+      (field === "audience" && working.audience) ||
+      (field === "brandStyle" && working.brandStyle)
+    ) {
+      stepIndex += 1;
+      continue;
+    }
+
+    const userReply = interrupt({ question: stepPrompts[field], step: field });
+
+    // Allow skipping optional steps
+    if (typeof userReply === "string" && userReply.trim().toLowerCase() === "skip") {
+      stepIndex += 1;
+      continue;
+    }
 
     const response = await chat.withStructuredOutput(ExtractionSchema).invoke([
       { role: "system", content: system },
       { role: "user", content: String(userReply ?? "") },
     ]);
 
-    // Merge extracted fields
+    // Normalize and merge extracted fields
+    const normalizedUrls = normalizeUrls(response.urls);
+    const normalizedImages = normalizeImages(response.images);
+    const normalizedLogo = response.brandStyle?.logoUrl ? normalizeUrlMaybe(response.brandStyle.logoUrl) : undefined;
+    const mergedBrand = response.brandStyle
+      ? { ...response.brandStyle, logoUrl: normalizedLogo ?? undefined }
+      : undefined;
+
     working = {
       ...working,
       topic: response.topic ?? working.topic,
       audience: response.audience ?? working.audience,
       contentDraft: response.contentDraft ?? working.contentDraft,
-      urls: response.urls ?? working.urls,
-      images: response.images ?? working.images,
-      brandStyle: response.brandStyle ?? working.brandStyle,
+      urls: normalizedUrls ?? working.urls,
+      images: normalizedImages ?? working.images,
+      brandStyle: mergedBrand ?? working.brandStyle,
+    };
+
+    // Only proceed to next step if current field is now satisfied or optional
+    stepIndex += 1;
+  }
+
+  // Ensure minimum requirement met before proceeding
+  if (!hasMinimumInputs(working)) {
+    const userReply = interrupt({
+      question: "We still need a topic and either some content or at least one URL.",
+      missing: {
+        topic: !working.topic,
+        contentOrUrls: !(working.contentDraft || (working.urls && working.urls.length > 0)),
+      },
+    });
+
+    const response = await chat.withStructuredOutput(ExtractionSchema).invoke([
+      { role: "system", content: system },
+      { role: "user", content: String(userReply ?? "") },
+    ]);
+
+    working = {
+      ...working,
+      topic: response.topic ?? working.topic,
+      contentDraft: response.contentDraft ?? working.contentDraft,
+      urls: normalizeUrls(response.urls) ?? working.urls,
     };
   }
 

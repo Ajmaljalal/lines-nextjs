@@ -31,8 +31,9 @@ seedDraft: ${state.contentDraft ?? ""}`;
   const plainTextDraft = `Subject: ${draft.subject}\nPreheader: ${draft.preheader}\n\n${draft.body}`;
 
   const approval = interrupt({
-    question: "Review the draft. Reply 'approve' to proceed or provide edits.",
+    question: "Review the draft below. Reply 'approve' to proceed or provide edits.",
     draft: plainTextDraft,
+    showDraft: true,
   });
 
   const finalPlain = typeof approval === "string" && approval.trim().toLowerCase() === "approve"
