@@ -6,19 +6,15 @@ import { AgentContext, AgentResponse, AgentConfig, AgentCapability } from '../ba
 
 const DataCollectionActionSchema = z.object({
   action: z.enum(['UPDATE_DATA', 'CONFIRM', 'ASK_FOR_MORE']),
+  message: z.string(),
   data: z.object({
     topic: z.string().optional(),
     content: z.string().optional(),
     urls: z.array(z.string()).optional(),
+    imageUrls: z.array(z.string()).optional(),
     style: z.string().optional(),
+    audience: z.string().optional(),
     webSearch: z.boolean().optional(),
-  }),
-  message: z.string(),
-  extractedInfo: z.object({
-    topic: z.string().optional(),
-    content: z.string().optional(),
-    urls: z.array(z.string()).optional(),
-    style: z.string().optional(),
   }).optional(),
 });
 
@@ -45,49 +41,87 @@ export class DataCollectionServerAgent extends BaseServerAgent {
   }
 
   protected generatePrompt(userInput: string): string {
-    const { topic, userProvidedContent, urls, style, webSearch } = this.context.data;
+    const { topic, userProvidedContent, urls, style, webSearch, imageUrls, audience } = this.context.data;
 
     return `
-    You are a data collection agent. Your job is to extract the information from your conversation with the user.
-    You will need to extract the topic, urls, content, style, and webSearch from your conversation with the user.
+    You are part of a marketing email creation process. You are a data collection agent. You are smart, proactive and helpful. 
+    Your job is to extract, infer, and ask questions to get the topic, urls, content, image urls, style of the email, audience, and the need for a web search from your conversation with the user.
+    When collecting data, go step by step and do not skip any steps or do not combine steps together.
 
     EXTRACT THESE DETAILS:
-    - Topic: What is the email about? extract the email topic from the message, if you don't find the topic, ask the user for the topic
-    - URLs: ANY web addresses mentioned (https://, http://, www., .com, .org, etc.) extract the urls from the message, if you don't find the urls, ask the user if they want to add any urls
-    - Content: Specific details they want included, extract the content from the message, if you don't find the content, ask the user if they want to add any content
-    - Style: Writing preferences mentioned, extract the writing style from the message, if you don't find the style, ask the user for the style
-    - WebSearch: Do they want additional information? extract the web search true or false from the message, if you don't find the web search, ask the user if they want to add any web search
+    - Topic (required):
+       1. What is the email about? is it about a specific topic, product, service, event, etc.
+       2. If product, what is the product name, type and other relavent things.
+       3. If service, what is the service name, type and other relavent things.
+       4. If event, what is the event name, type, location, and other relavent things.
+       5. If topic is not clear, ask the user for the topic
+    - URLs to extract content from (if any):
+       1. ANY web addresses mentioned (https://, http://, www., .com, .org, etc.)
+       2. Complete the urls if it is missing parts.
+       3. Extract the urls from the message, if you don't find the urls, ask the user if they want to add any urls
+    - Content that will be used to generate the email (if any):
+       1. Specific details they want included,
+       2. Extract the content from the message, if you don't find the content, ask the user if they want to add any content
+    - Image URLs that will be used in the email (if any):
+      1. Any image urls mentioned regarding the topic,
+      2. Extract the image urls from the message, if you don't find the image urls, ask the user if they want to add any image urls
+    - Style:
+      1. The look and feel, tone, and other writing style mentioned,
+      2.Extract the writing style from the message, if you don't find the style, ask the user for the style
+    - Audience (required):
+      1. Who is the email for?
+      2. Extract the audience from the message, if you don't find the audience, ask the user for the audience
+    - WebSearch (required):
+      1. Should be true or false, Do they want additional information?
+      2. Extract the web search true or false from the message, if you don't find the web search, ask the user if they want to add any web search
 
-    EXAMPLES OF EXTRACTION:
-    "write an email about apex academy https://apexacademy.tech/" 
-    → Topic: "Apex Academy", URLs: ["https://apexacademy.tech/"], WebSearch: true
-
-    "it is about apex academy"
-    → Topic: "Apex Academy"
-
-    "casual email about our new product"
-    → Topic: "new product", Style: "casual"
-
-    "write about cybersecurity trends"
-    → Topic: "cybersecurity trends", WebSearch: true
 
     CRITICAL RULES:
-    1. ALWAYS extract something if the user mentions ANY topic, company, or subject
-    2. If you find ANY information, use action "UPDATE_DATA" 
+    1. ALWAYS extract something if the user mentions ANY topic, company, or subject, if not, ask the user for the topic
+    2. If you find ANY information, use action "UPDATE_DATA"
     3. Only use "ASK_FOR_MORE" if the message is truly empty or unclear
-    4. Extract company names as topics (e.g., "apex academy" → topic: "Apex Academy")
-    5. Extract all URLs, even partial ones
+    4. Extract all URLs, even partial ones, and then complete the urls with the full url like the https or wwww or .com sections if missing.
+    5. Extract all image urls, even partial ones and then complete the image urls with the full url like the https or wwww or .com sections if missing.
+    6. If you are not sure about the image or other urls, ask the user for the image urls or other urls.
+    7. If you are not sure about the style, ask the user for the style.
+    8. If you are not sure about the audience, ask the user for the audience.
+    9. If you are not sure about the web search, ask the user if they want to add any web search.
 
-         CONVERSATION HISTORY:
-     ${this.context.messages.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+    CONVERSATION HISTORY:
+    ${this.context.messages.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
      
 
-     Current state of the data so far collected: Topic: ${topic || 'Not filled'}, URLs: ${(urls?.length ?? 0) > 0 ? urls!.join(', ') : 'None'}
+    CURRENT STATE OF THE DATA SO FAR COLLECTED:
+    - Topic: ${topic}
+    - URLs: ${(urls?.length ?? 0) > 0 ? urls!.join(', ') : 'None'}
+    - Image URLs: ${(imageUrls?.length ?? 0) > 0 ? imageUrls!.join(', ') : 'None'}
+    - Audience: ${audience}
+    - Style: ${style}
+    - WebSearch: ${webSearch}
+    - User Provided Content: ${userProvidedContent}
+
+    FOR ACTIONS:
+    - UPDATE_DATA: return this action if you have extracted information from the user's message
+    - ASK_FOR_MORE: return this action if the user's message is empty or unclear
+    - CONFIRM: return this action after you have extracted all the information from the user's message and the user has confirmed the data
+    
+
      
-     Understand the user's request and extract information or engage in conversation with the user to gather more information.
-
-     CURRENT USER MESSAGE: "${userInput}"
-
+    Look at the current state of the data so far collected and the conversation history and understand the user's request and extract information or engage in conversation with the user to gather more information, and then update and return the data in the following format: 
+    {
+      "action": "UPDATE_DATA || ASK_FOR_MORE || CONFIRM",
+      "message": "string",
+      "data": {
+        "topic": "string",
+        "content": "string",
+        "urls": ["string"],
+        "imageUrls": ["string"],
+        "audience": "string",
+        "style": "string",
+        "webSearch": "boolean"
+      }
+    }
+    User's last message: "${userInput}"
     `
   }
 
@@ -96,7 +130,7 @@ export class DataCollectionServerAgent extends BaseServerAgent {
     const structuredModel = this.model.withStructuredOutput(DataCollectionActionSchema);
 
     const result = await structuredModel.invoke([
-      new SystemMessage('You are a helpful AI assistant that extracts information from user messages.'),
+      new SystemMessage('Now introduce yourself as a data collection agent and ask the user for the topic, urls, content, image urls, style, audience, and web search'),
       new HumanMessage(prompt)
     ]);
 
@@ -114,26 +148,36 @@ export class DataCollectionServerAgent extends BaseServerAgent {
       const updates: Record<string, any> = {};
 
       // Update all provided fields
-      if (validatedResponse.data.topic) {
+      if (validatedResponse.data?.topic) {
         updates.topic = validatedResponse.data.topic;
       }
 
-      if (validatedResponse.data.content) {
+      if (validatedResponse.data?.content) {
         updates.userProvidedContent = validatedResponse.data.content;
       }
 
-      if (validatedResponse.data.urls && validatedResponse.data.urls.length > 0) {
+      if (validatedResponse.data?.urls && validatedResponse.data.urls.length > 0) {
         // Merge with existing URLs
         const currentUrls = new Set(this.context.data.urls || []);
         validatedResponse.data.urls.forEach(url => currentUrls.add(url));
         updates.urls = Array.from(currentUrls);
       }
 
-      if (validatedResponse.data.style) {
+      if (validatedResponse.data?.imageUrls && validatedResponse.data.imageUrls.length > 0) {
+        const currentImageUrls = new Set(this.context.data.imageUrls || []);
+        validatedResponse.data.imageUrls.forEach(url => currentImageUrls.add(url));
+        updates.imageUrls = Array.from(currentImageUrls);
+      }
+
+      if (validatedResponse.data?.style) {
         updates.style = validatedResponse.data.style;
       }
 
-      if (typeof validatedResponse.data.webSearch === 'boolean') {
+      if (validatedResponse.data?.audience) {
+        updates.audience = validatedResponse.data.audience;
+      }
+
+      if (typeof validatedResponse.data?.webSearch === 'boolean') {
         updates.webSearch = validatedResponse.data.webSearch;
       }
 
@@ -142,7 +186,7 @@ export class DataCollectionServerAgent extends BaseServerAgent {
         metadata: {
           action: validatedResponse.action,
           updates,
-          extractedInfo: validatedResponse.extractedInfo
+          data: validatedResponse.data
         }
       };
     } catch (error) {

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { BaseServerAgent } from '../base/base-agent';
 import { AgentContext, AgentResponse, AgentConfig, AgentCapability, BrandTheme } from '../base/types';
+import { ChatOpenAI } from '@langchain/openai';
 
 const designResponseSchema = z.object({
   action: z.enum(['update_layout', 'update_colors', 'update_typography', 'update_spacing', 'validate_design']),
@@ -13,7 +14,7 @@ const designResponseSchema = z.object({
 });
 
 export class DesignServerAgent extends BaseServerAgent {
-  private model: ChatAnthropic;
+  private model: ChatOpenAI;
   private config: AgentConfig;
   protected brandTheme: BrandTheme | null;
 
@@ -23,19 +24,18 @@ export class DesignServerAgent extends BaseServerAgent {
     this.brandTheme = context.brandTheme || null;
 
     // Use server-side environment variables
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error('Anthropic API key not found. Please set ANTHROPIC_API_KEY in your environment variables.');
+      throw new Error('OpenAI API key not found. Please set OPENAI_API_KEY in your environment variables.');
     }
 
-    this.model = new ChatAnthropic({
-      temperature: config.temperature || 0.5,
-      model: config.model || "claude-3-5-sonnet-20241022",
+    this.model = new ChatOpenAI({
+      model: config.model || "gpt-5-2025-08-07",
       apiKey: apiKey,
       maxRetries: config.maxRetries || 3,
-      maxTokens: 8192,
     });
   }
+
 
   protected generatePrompt(userInput?: string): string {
     const { htmlContent } = this.context.data;
