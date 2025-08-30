@@ -24,7 +24,7 @@ async function designHandler(req: NextRequest) {
     const result = await agent.execute({
       data: validatedData.context.data,
       messages: [{ role: 'user', content: validatedData.message }],
-      brandTheme: validatedData.brandTheme,
+      brandTheme: validatedData.brandTheme || undefined,
       userInput: validatedData.message
     });
 
