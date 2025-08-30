@@ -53,17 +53,17 @@ export const AgentContextSchema = z.object({
 export const ChatAgentRequestSchema = z.object({
   message: z.string(),
   context: AgentContextSchema,
-  brandTheme: BrandThemeSchema.optional()
+  brandTheme: BrandThemeSchema.optional().nullable()
 });
 
 export const ContentGenerationRequestSchema = z.object({
   data: ContentDataSchema,
-  brandTheme: BrandThemeSchema.optional()
+  brandTheme: BrandThemeSchema.optional().nullable()
 });
 
 export const HtmlGenerationRequestSchema = z.object({
   data: ContentDataSchema,
-  brandTheme: BrandThemeSchema.optional()
+  brandTheme: BrandThemeSchema.optional().nullable()
 });
 
 // Service request schemas
@@ -82,18 +82,18 @@ export const UrlExtractionRequestSchema = z.object({
 // Response schemas
 export const AgentResponseSchema = z.object({
   content: z.string(),
-  metadata: z.record(z.any()).optional(),
-  error: z.string().optional()
+  metadata: z.record(z.any()).optional().nullable(),
+  error: z.string().optional().nullable()
 });
 
 export const ContentGenerationResponseSchema = z.object({
   content: z.array(z.string()),
-  error: z.string().optional()
+  error: z.string().optional().nullable()
 });
 
 export const HtmlGenerationResponseSchema = z.object({
   content: z.string(),
-  error: z.string().optional()
+  error: z.string().optional().nullable()
 });
 
 export const WebSearchResponseSchema = z.object({
@@ -101,20 +101,20 @@ export const WebSearchResponseSchema = z.object({
     title: z.string(),
     content: z.string(),
     url: z.string(),
-    score: z.number().optional()
+    score: z.number().optional().nullable()
   })),
-  answer: z.string().optional(),
-  error: z.string().optional()
+  answer: z.string().optional().nullable(),
+  error: z.string().optional().nullable()
 });
 
 export const UrlExtractionResponseSchema = z.object({
   results: z.array(z.object({
     url: z.string(),
-    title: z.string().optional(),
+    title: z.string().optional().nullable(),
     raw_content: z.string(),
-    status_code: z.number().optional()
+    status_code: z.number().optional().nullable()
   })),
-  error: z.string().optional()
+  error: z.string().optional().nullable()
 });
 
 // Type exports

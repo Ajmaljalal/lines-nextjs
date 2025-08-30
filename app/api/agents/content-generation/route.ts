@@ -31,7 +31,7 @@ async function contentGenerationHandler(req: NextRequest) {
 
     const result = await agent.execute({
       data: validatedData.data,
-      brandTheme: validatedData.brandTheme
+      brandTheme: validatedData.brandTheme || undefined
     });
 
     requestLogger.info('Content generation completed successfully');

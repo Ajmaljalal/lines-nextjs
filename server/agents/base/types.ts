@@ -33,6 +33,8 @@ export interface ContentData {
   generatedContent?: string;
   htmlContent?: string;
   urls?: string[];
+  imageUrls?: string[];
+  audience?: string;
   style?: string;
   webSearch?: boolean;
   webSearchContent?: Array<{
